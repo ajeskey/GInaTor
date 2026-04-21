@@ -12,7 +12,8 @@
     "test:unit": "jest --runInBand source/__tests__/unit",
     "test:property": "jest --runInBand source/__tests__/property",
     "test:integration": "jest --runInBand source/__tests__/integration",
-    "test:coverage": "jest --runInBand --coverage"
+    "test:coverage": "jest --runInBand --coverage",
+    "prepare": "husky"
   },
   "keywords": [
     "git",
@@ -44,11 +45,23 @@
     "pug": "^3.0.3",
     "three": "^0.170.0"
   },
+  "lint-staged": {
+    "source/**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,mjs,yml}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
     "fast-check": "^3.23.2",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "knip": "^6.6.0",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
     "supertest": "^7.0.0"
   }
