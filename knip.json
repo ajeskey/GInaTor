@@ -1,0 +1,6 @@
+{
+  "project": ["source/**/*.js"],
+  "ignore": ["source/public/**"],
+  "ignoreDependencies": ["d3", "three", "html2canvas", "jspdf", "pug", "prettier"],
+  "ignoreExportsUsedInFile": true
+}
