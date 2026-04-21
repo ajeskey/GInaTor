@@ -46,7 +46,9 @@
     this._unsubs.push(offScrub);
 
     // Handle window resize
-    this._resizeHandler = function () { self.resize(); };
+    this._resizeHandler = function () {
+      self.resize();
+    };
     window.addEventListener('resize', this._resizeHandler);
   };
 
@@ -116,7 +118,9 @@
     var d3 = window.d3;
     var tip = d3.select(this.container).select('.viz-tooltip');
     if (tip.empty()) {
-      tip = d3.select(this.container).append('div')
+      tip = d3
+        .select(this.container)
+        .append('div')
         .attr('class', 'viz-tooltip')
         .style('position', 'absolute')
         .style('pointer-events', 'none')
@@ -133,10 +137,11 @@
 
   /** Show tooltip at mouse position */
   VisualizationBase.prototype._showTooltip = function (tip, html, event) {
-    tip.html(html)
+    tip
+      .html(html)
       .style('display', 'block')
-      .style('left', (event.offsetX + 12) + 'px')
-      .style('top', (event.offsetY - 10) + 'px');
+      .style('left', event.offsetX + 12 + 'px')
+      .style('top', event.offsetY - 10 + 'px');
   };
 
   /** Hide tooltip */
@@ -199,7 +204,9 @@
    * Cleanup: remove listeners, DOM elements, etc.
    */
   VisualizationBase.prototype.destroy = function () {
-    this._unsubs.forEach(function (fn) { if (fn) fn(); });
+    this._unsubs.forEach(function (fn) {
+      if (fn) fn();
+    });
     this._unsubs = [];
     if (this._resizeHandler) {
       window.removeEventListener('resize', this._resizeHandler);

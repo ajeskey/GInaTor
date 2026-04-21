@@ -24,42 +24,71 @@ describe('Property 8: Git Log Parsing Completeness', () => {
   const commitHashArb = fc.hexaString({ minLength: 40, maxLength: 40 });
 
   // Generator for non-empty author names (no delimiters or newlines)
-  const authorNameArb = fc.stringOf(
-    fc.char().filter(c => c !== '\n' && c !== '\r' && !FIELD_DELIMITER.includes(c) && !RECORD_DELIMITER.includes(c)),
-    { minLength: 1, maxLength: 50 }
-  ).filter(s => s.trim().length > 0);
+  const authorNameArb = fc
+    .stringOf(
+      fc
+        .char()
+        .filter(
+          (c) =>
+            c !== '\n' &&
+            c !== '\r' &&
+            !FIELD_DELIMITER.includes(c) &&
+            !RECORD_DELIMITER.includes(c)
+        ),
+      { minLength: 1, maxLength: 50 }
+    )
+    .filter((s) => s.trim().length > 0);
 
   // Generator for email addresses
-  const authorEmailArb = fc.tuple(
-    fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 15 }),
-    fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 10 }),
-    fc.constantFrom('com', 'org', 'net', 'io')
-  ).map(([local, domain, tld]) => `${local}@${domain}.${tld}`);
+  const authorEmailArb = fc
+    .tuple(
+      fc.stringOf(
+        fc.char().filter((c) => /[a-z0-9]/.test(c)),
+        { minLength: 1, maxLength: 15 }
+      ),
+      fc.stringOf(
+        fc.char().filter((c) => /[a-z0-9]/.test(c)),
+        { minLength: 1, maxLength: 10 }
+      ),
+      fc.constantFrom('com', 'org', 'net', 'io')
+    )
+    .map(([local, domain, tld]) => `${local}@${domain}.${tld}`);
 
   // Generator for ISO 8601 dates
-  const isoDateArb = fc.date({
-    min: new Date('2000-01-01T00:00:00Z'),
-    max: new Date('2030-12-31T23:59:59Z')
-  }).map(d => d.toISOString());
+  const isoDateArb = fc
+    .date({
+      min: new Date('2000-01-01T00:00:00Z'),
+      max: new Date('2030-12-31T23:59:59Z')
+    })
+    .map((d) => d.toISOString());
 
   // Generator for commit messages (no delimiters)
-  const messageArb = fc.stringOf(
-    fc.char().filter(c => !FIELD_DELIMITER.includes(c) && !RECORD_DELIMITER.includes(c)),
-    { minLength: 1, maxLength: 100 }
-  ).filter(s => s.trim().length > 0);
+  const messageArb = fc
+    .stringOf(
+      fc.char().filter((c) => !FIELD_DELIMITER.includes(c) && !RECORD_DELIMITER.includes(c)),
+      { minLength: 1, maxLength: 100 }
+    )
+    .filter((s) => s.trim().length > 0);
 
   // Generator for repository IDs
-  const repoIdArb = fc.stringOf(
-    fc.char().filter(c => /[a-z0-9-]/.test(c)),
-    { minLength: 1, maxLength: 20 }
-  ).filter(s => s.trim().length > 0);
+  const repoIdArb = fc
+    .stringOf(
+      fc.char().filter((c) => /[a-z0-9-]/.test(c)),
+      { minLength: 1, maxLength: 20 }
+    )
+    .filter((s) => s.trim().length > 0);
 
   // Generator for file paths
-  const filePathArb = fc.tuple(
-    fc.constantFrom('src', 'lib', 'test', 'docs', 'config'),
-    fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 15 }),
-    fc.constantFrom('.js', '.ts', '.py', '.md', '.json')
-  ).map(([dir, name, ext]) => `${dir}/${name}${ext}`);
+  const filePathArb = fc
+    .tuple(
+      fc.constantFrom('src', 'lib', 'test', 'docs', 'config'),
+      fc.stringOf(
+        fc.char().filter((c) => /[a-z0-9]/.test(c)),
+        { minLength: 1, maxLength: 15 }
+      ),
+      fc.constantFrom('.js', '.ts', '.py', '.md', '.json')
+    )
+    .map(([dir, name, ext]) => `${dir}/${name}${ext}`);
 
   // Generator for git status letters
   const gitStatusArb = fc.constantFrom('A', 'M', 'D', 'R100', 'C');
@@ -158,22 +187,19 @@ describe('Property 8: Git Log Parsing Completeness', () => {
         (hash, name, email, date, message, repoId, fileChanges) => {
           // Build numstat and status outputs from generated file changes
           const numstatLines = fileChanges.map(
-            fc => `${fc.additions}\t${fc.deletions}\t${fc.path}`
+            (fc) => `${fc.additions}\t${fc.deletions}\t${fc.path}`
           );
-          const statusLines = fileChanges.map(
-            fc => `${fc.status}\t${fc.path}`
-          );
+          const statusLines = fileChanges.map((fc) => `${fc.status}\t${fc.path}`);
 
-          const parsedFiles = parseNumstat(
-            numstatLines.join('\n'),
-            statusLines.join('\n')
-          );
+          const parsedFiles = parseNumstat(numstatLines.join('\n'), statusLines.join('\n'));
 
           // Build the file changes structure expected by parseGitLog
-          const fileChangesParam = [{
-            hash,
-            files: parsedFiles
-          }];
+          const fileChangesParam = [
+            {
+              hash,
+              files: parsedFiles
+            }
+          ];
 
           const rawLog = buildRawLog(hash, name, email, date, message);
           const result = parseGitLog(rawLog, repoId, fileChangesParam);
@@ -196,13 +222,10 @@ describe('Property 8: Git Log Parsing Completeness', () => {
 
   it('normalizeChangeType always returns a valid change type', () => {
     fc.assert(
-      fc.property(
-        fc.string({ minLength: 1, maxLength: 5 }),
-        (status) => {
-          const result = normalizeChangeType(status);
-          expect(['added', 'modified', 'deleted']).toContain(result);
-        }
-      ),
+      fc.property(fc.string({ minLength: 1, maxLength: 5 }), (status) => {
+        const result = normalizeChangeType(status);
+        expect(['added', 'modified', 'deleted']).toContain(result);
+      }),
       { numRuns: 200 }
     );
   });
@@ -222,9 +245,7 @@ describe('Property 8: Git Log Parsing Completeness', () => {
         repoIdArb,
         (commits, repoId) => {
           const rawLog = commits
-            .map(([hash, name, email, date, msg]) =>
-              buildRawLog(hash, name, email, date, msg)
-            )
+            .map(([hash, name, email, date, msg]) => buildRawLog(hash, name, email, date, msg))
             .join('');
 
           const result = parseGitLog(rawLog, repoId);

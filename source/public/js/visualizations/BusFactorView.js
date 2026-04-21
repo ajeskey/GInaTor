@@ -26,7 +26,9 @@
     this._render();
   };
 
-  BusFactorView.prototype.resize = function () { this._render(); };
+  BusFactorView.prototype.resize = function () {
+    this._render();
+  };
 
   BusFactorView.prototype.setOverlayMode = function (on) {
     this.overlayMode = !!on;
@@ -37,18 +39,22 @@
     var self = this;
     if (!this.repoId) return;
 
-    this._fetch(this._apiUrl('/api/v1/bus-factor')).then(function (data) {
-      self.data = data;
-      self._draw(data);
-    }).catch(function (err) {
-      console.error('BusFactorView fetch error:', err);
-    });
+    this._fetch(this._apiUrl('/api/v1/bus-factor'))
+      .then(function (data) {
+        self.data = data;
+        self._draw(data);
+      })
+      .catch(function (err) {
+        console.error('BusFactorView fetch error:', err);
+      });
   };
 
   BusFactorView.prototype._draw = function (data) {
     var dims = this._dims();
     var _self = this;
-    var files = (data.files || []).slice().sort(function (a, b) { return a.busFactor - b.busFactor; });
+    var files = (data.files || []).slice().sort(function (a, b) {
+      return a.busFactor - b.busFactor;
+    });
 
     // Clear container and build table
     this.container.innerHTML = '';
@@ -69,7 +75,8 @@
     ['File', 'Bus Factor', 'Contributors'].forEach(function (col) {
       var th = document.createElement('th');
       th.textContent = col;
-      th.style.cssText = 'text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;';
+      th.style.cssText =
+        'text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;';
       headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);

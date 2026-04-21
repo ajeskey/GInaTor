@@ -10,12 +10,16 @@ jest.mock('@aws-sdk/lib-dynamodb', () => {
   const actual = {
     DynamoDBDocumentClient: {
       from: jest.fn().mockImplementation(() => ({
-        get send() { return mockSend; }
+        get send() {
+          return mockSend;
+        }
       }))
     },
     PutCommand: jest.fn().mockImplementation((params) => ({ ...params, _type: 'Put' })),
     QueryCommand: jest.fn().mockImplementation((params) => ({ ...params, _type: 'Query' })),
-    BatchWriteCommand: jest.fn().mockImplementation((params) => ({ ...params, _type: 'BatchWrite' }))
+    BatchWriteCommand: jest
+      .fn()
+      .mockImplementation((params) => ({ ...params, _type: 'BatchWrite' }))
   };
   return actual;
 });
@@ -103,7 +107,9 @@ describe('CommitStore', () => {
     it('should store multiple commits and count created/skipped', async () => {
       mockSend
         .mockResolvedValueOnce({}) // first commit created
-        .mockRejectedValueOnce(Object.assign(new Error(), { name: 'ConditionalCheckFailedException' })); // second is dup
+        .mockRejectedValueOnce(
+          Object.assign(new Error(), { name: 'ConditionalCheckFailedException' })
+        ); // second is dup
 
       const result = await store.putCommits([sampleCommit, sampleCommit]);
 
@@ -174,11 +180,7 @@ describe('CommitStore', () => {
     });
 
     it('should support limit and offset pagination', async () => {
-      const items = [
-        { commitHash: 'c' },
-        { commitHash: 'b' },
-        { commitHash: 'a' }
-      ];
+      const items = [{ commitHash: 'c' }, { commitHash: 'b' }, { commitHash: 'a' }];
       mockSend.mockResolvedValueOnce({ Items: items });
 
       const result = await store.getCommitsByRepo('repo-1', 1, 1);
@@ -188,11 +190,7 @@ describe('CommitStore', () => {
     });
 
     it('should handle offset without limit', async () => {
-      const items = [
-        { commitHash: 'c' },
-        { commitHash: 'b' },
-        { commitHash: 'a' }
-      ];
+      const items = [{ commitHash: 'c' }, { commitHash: 'b' }, { commitHash: 'a' }];
       mockSend.mockResolvedValueOnce({ Items: items });
 
       const result = await store.getCommitsByRepo('repo-1', undefined, 1);

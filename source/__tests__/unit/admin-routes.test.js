@@ -82,7 +82,11 @@ describe('Admin Routes', () => {
 
   describe('POST /admin/repos', () => {
     test('creates repo config', async () => {
-      mockService.saveRepoConfig.mockResolvedValue({ repoId: 'r1', name: 'Repo', providerType: 'github' });
+      mockService.saveRepoConfig.mockResolvedValue({
+        repoId: 'r1',
+        name: 'Repo',
+        providerType: 'github'
+      });
       const res = await request(app)
         .post('/admin/repos')
         .send({ name: 'Repo', providerType: 'github', providerConfig: {} });
@@ -102,9 +106,7 @@ describe('Admin Routes', () => {
   describe('POST /admin/ai-config', () => {
     test('saves AI config', async () => {
       mockService.saveAiConfig.mockResolvedValue({ provider: 'openai' });
-      const res = await request(app)
-        .post('/admin/ai-config')
-        .send({ provider: 'openai' });
+      const res = await request(app).post('/admin/ai-config').send({ provider: 'openai' });
       expect(res.status).toBe(200);
       expect(res.body.provider).toBe('openai');
     });
@@ -113,9 +115,7 @@ describe('Admin Routes', () => {
   describe('POST /admin/prompt', () => {
     test('saves prompt template', async () => {
       mockService.savePromptTemplate.mockResolvedValue({ promptTemplate: 'test' });
-      const res = await request(app)
-        .post('/admin/prompt')
-        .send({ promptTemplate: 'test' });
+      const res = await request(app).post('/admin/prompt').send({ promptTemplate: 'test' });
       expect(res.status).toBe(200);
     });
   });

@@ -54,7 +54,9 @@
     window.VisualizationBase.prototype.destroy.call(this);
   };
 
-  CityBlock.prototype.exportSVG = function () { return null; }; // WebGL
+  CityBlock.prototype.exportSVG = function () {
+    return null;
+  }; // WebGL
 
   CityBlock.prototype.setColorBy = function (c) {
     this.colorBy = c;
@@ -65,15 +67,17 @@
     var self = this;
     if (!this.repoId) return;
 
-    this._fetch(this._apiUrl('/api/v1/city-block', { colorBy: this.colorBy })).then(function (data) {
-      self.data = data;
-      self._initScene();
-      self._buildCity(data);
-      self._buildLegend(data);
-      self._animate();
-    }).catch(function (err) {
-      console.error('CityBlock fetch error:', err);
-    });
+    this._fetch(this._apiUrl('/api/v1/city-block', { colorBy: this.colorBy }))
+      .then(function (data) {
+        self.data = data;
+        self._initScene();
+        self._buildCity(data);
+        self._buildLegend(data);
+        self._animate();
+      })
+      .catch(function (err) {
+        console.error('CityBlock fetch error:', err);
+      });
   };
 
   CityBlock.prototype._initScene = function () {
@@ -131,8 +135,10 @@
   CityBlock.prototype._setupMouseControls = function () {
     var self = this;
     var isDragging = false;
-    var prevX = 0, prevY = 0;
-    var rotY = 0, rotX = 0.5;
+    var prevX = 0,
+      prevY = 0;
+    var rotY = 0,
+      rotX = 0.5;
     var dist = 250;
     var canvas = this._renderer.domElement;
 
@@ -144,16 +150,21 @@
     }
 
     canvas.addEventListener('mousedown', function (e) {
-      isDragging = true; prevX = e.clientX; prevY = e.clientY;
+      isDragging = true;
+      prevX = e.clientX;
+      prevY = e.clientY;
     });
     canvas.addEventListener('mousemove', function (e) {
       if (!isDragging) return;
       rotY += (e.clientX - prevX) * 0.005;
       rotX = Math.max(0.1, Math.min(1.4, rotX + (e.clientY - prevY) * 0.005));
-      prevX = e.clientX; prevY = e.clientY;
+      prevX = e.clientX;
+      prevY = e.clientY;
       updateCamera();
     });
-    canvas.addEventListener('mouseup', function () { isDragging = false; });
+    canvas.addEventListener('mouseup', function () {
+      isDragging = false;
+    });
     canvas.addEventListener('wheel', function (e) {
       dist = Math.max(50, Math.min(600, dist + e.deltaY * 0.3));
       updateCamera();
@@ -161,7 +172,8 @@
 
     // Tooltip on hover
     var tipEl = document.createElement('div');
-    tipEl.style.cssText = 'position:absolute;pointer-events:none;background:rgba(0,0,0,0.85);color:#fff;' +
+    tipEl.style.cssText =
+      'position:absolute;pointer-events:none;background:rgba(0,0,0,0.85);color:#fff;' +
       'padding:6px 10px;border-radius:4px;font-size:12px;display:none;z-index:1000;';
     self.container.style.position = 'relative';
     self.container.appendChild(tipEl);
@@ -171,14 +183,17 @@
       self._mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       self._mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       self._raycaster.setFromCamera(self._mouse, self._camera);
-      var meshes = self._buildings.map(function (b) { return b.mesh; });
+      var meshes = self._buildings.map(function (b) {
+        return b.mesh;
+      });
       var intersects = self._raycaster.intersectObjects(meshes);
       if (intersects.length > 0) {
         var d = intersects[0].object.userData;
-        tipEl.innerHTML = '<b>' + d.path + '</b><br>Lines: ' + d.lines + '<br>Changes: ' + d.frequency;
+        tipEl.innerHTML =
+          '<b>' + d.path + '</b><br>Lines: ' + d.lines + '<br>Changes: ' + d.frequency;
         tipEl.style.display = 'block';
-        tipEl.style.left = (e.clientX - rect.left + 12) + 'px';
-        tipEl.style.top = (e.clientY - rect.top - 10) + 'px';
+        tipEl.style.left = e.clientX - rect.left + 12 + 'px';
+        tipEl.style.top = e.clientY - rect.top - 10 + 'px';
       } else {
         tipEl.style.display = 'none';
       }
@@ -189,7 +204,9 @@
       self._mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       self._mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       self._raycaster.setFromCamera(self._mouse, self._camera);
-      var meshes = self._buildings.map(function (b) { return b.mesh; });
+      var meshes = self._buildings.map(function (b) {
+        return b.mesh;
+      });
       var intersects = self._raycaster.intersectObjects(meshes);
       if (intersects.length > 0) {
         var d = intersects[0].object.userData;
@@ -217,7 +234,9 @@
     var gridSize = Math.ceil(Math.sqrt(dirNames.length));
     var blockSpacing = 60;
 
-    var colorPalette = [0x3b82f6, 0x22c55e, 0xf59e0b, 0xef4444, 0x8b5cf6, 0x06b6d4, 0xec4899, 0x84cc16];
+    var colorPalette = [
+      0x3b82f6, 0x22c55e, 0xf59e0b, 0xef4444, 0x8b5cf6, 0x06b6d4, 0xec4899, 0x84cc16
+    ];
     var extColors = {};
     var extIdx = 0;
 
@@ -273,9 +292,11 @@
 
     var legend = document.createElement('div');
     legend.className = 'cb-legend';
-    legend.style.cssText = 'position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.7);' +
+    legend.style.cssText =
+      'position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.7);' +
       'padding:8px 12px;border-radius:6px;color:#fff;font-size:11px;z-index:10;';
-    legend.innerHTML = '<b>City Block</b><br>' +
+    legend.innerHTML =
+      '<b>City Block</b><br>' +
       '🏢 Height = Line count<br>' +
       '📐 Footprint = Change frequency<br>' +
       '🎨 Color = File type';

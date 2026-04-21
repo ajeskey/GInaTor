@@ -132,7 +132,11 @@ describe('API routes', () => {
       const app = buildTestApp(mockStore);
       const res = await request(app).get('/api/v1/commits?repoId=r1&from=2024-06-01');
       expect(res.status).toBe(200);
-      expect(mockStore.getCommitsByDateRange).toHaveBeenCalledWith('r1', '2024-06-01', '9999-12-31T23:59:59.999Z');
+      expect(mockStore.getCommitsByDateRange).toHaveBeenCalledWith(
+        'r1',
+        '2024-06-01',
+        '9999-12-31T23:59:59.999Z'
+      );
     });
 
     test('handles to-only date filter', async () => {
@@ -142,7 +146,11 @@ describe('API routes', () => {
       const app = buildTestApp(mockStore);
       const res = await request(app).get('/api/v1/commits?repoId=r1&to=2024-06-30');
       expect(res.status).toBe(200);
-      expect(mockStore.getCommitsByDateRange).toHaveBeenCalledWith('r1', '0000-01-01T00:00:00.000Z', '2024-06-30');
+      expect(mockStore.getCommitsByDateRange).toHaveBeenCalledWith(
+        'r1',
+        '0000-01-01T00:00:00.000Z',
+        '2024-06-30'
+      );
     });
   });
 });

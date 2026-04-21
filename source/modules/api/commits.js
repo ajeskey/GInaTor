@@ -39,7 +39,11 @@ function createCommitsRouter(commitStore) {
         allItems = await commitStore.getCommitsByDateRange(repoId, from, to);
       } else if (from) {
         // from only — query from that date to far future
-        allItems = await commitStore.getCommitsByDateRange(repoId, from, '9999-12-31T23:59:59.999Z');
+        allItems = await commitStore.getCommitsByDateRange(
+          repoId,
+          from,
+          '9999-12-31T23:59:59.999Z'
+        );
       } else if (to) {
         // to only — query from epoch to that date
         allItems = await commitStore.getCommitsByDateRange(repoId, '0000-01-01T00:00:00.000Z', to);

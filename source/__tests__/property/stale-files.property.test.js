@@ -11,12 +11,16 @@ const commitRecordArb = fc.record({
   commitHash: fc.hexaString({ minLength: 40, maxLength: 40 }),
   authorName: fc.string({ minLength: 1, maxLength: 50 }),
   authorEmail: fc.emailAddress(),
-  commitDate: fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') })
-    .map(d => d.toISOString()),
+  commitDate: fc
+    .date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') })
+    .map((d) => d.toISOString()),
   message: fc.string({ minLength: 1, maxLength: 200 }),
   changedFiles: fc.array(
     fc.record({
-      path: fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz/._-'.split('')), { minLength: 3, maxLength: 50 }),
+      path: fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz/._-'.split('')), {
+        minLength: 3,
+        maxLength: 50
+      }),
       changeType: fc.constantFrom('added', 'modified', 'deleted'),
       additions: fc.nat({ max: 500 }),
       deletions: fc.nat({ max: 500 })
@@ -51,13 +55,14 @@ describe('Property 24: Stale File Detection', () => {
         const expectedStale = new Set();
         for (const [path, lastDate] of Object.entries(fileLatest)) {
           const d = new Date(lastDate);
-          const monthsSince = (ref.getFullYear() - d.getFullYear()) * 12 + (ref.getMonth() - d.getMonth());
+          const monthsSince =
+            (ref.getFullYear() - d.getFullYear()) * 12 + (ref.getMonth() - d.getMonth());
           if (monthsSince > threshold) {
             expectedStale.add(path);
           }
         }
 
-        const actualStale = new Set(result.files.map(f => f.path));
+        const actualStale = new Set(result.files.map((f) => f.path));
         expect(actualStale).toEqual(expectedStale);
       }),
       { numRuns: 200 }
@@ -83,7 +88,8 @@ describe('Property 24: Stale File Detection', () => {
 
         for (const staleFile of result.files) {
           const d = new Date(fileLatest[staleFile.path]);
-          const monthsSince = (ref.getFullYear() - d.getFullYear()) * 12 + (ref.getMonth() - d.getMonth());
+          const monthsSince =
+            (ref.getFullYear() - d.getFullYear()) * 12 + (ref.getMonth() - d.getMonth());
           expect(monthsSince).toBeGreaterThan(threshold);
         }
       }),

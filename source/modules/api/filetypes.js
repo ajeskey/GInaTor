@@ -1,7 +1,12 @@
 'use strict';
 
 const express = require('express');
-const { parseCommonParams, validateRepoId, validateDateRange, errorResponse } = require('./helpers');
+const {
+  parseCommonParams,
+  validateRepoId,
+  validateDateRange,
+  errorResponse
+} = require('./helpers');
 const { computeFileTypeDistribution } = require('./computations');
 
 function createFiletypesRouter(commitStore) {

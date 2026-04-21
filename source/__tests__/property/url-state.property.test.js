@@ -12,10 +12,23 @@ const fc = require('fast-check');
 
 // Pure encode/decode functions extracted from UrlState for Node.js testing
 const VALID_VIZ_TYPES = [
-  'timebloom', 'heatmap', 'treemap', 'sunburst', 'branches',
-  'pulse', 'impact', 'collaboration', 'filetypes', 'activity-matrix',
-  'bubblemap', 'complexity', 'pr-flow', 'bus-factor', 'stale-files',
-  'city-block', 'genome'
+  'timebloom',
+  'heatmap',
+  'treemap',
+  'sunburst',
+  'branches',
+  'pulse',
+  'impact',
+  'collaboration',
+  'filetypes',
+  'activity-matrix',
+  'bubblemap',
+  'complexity',
+  'pr-flow',
+  'bus-factor',
+  'stale-files',
+  'city-block',
+  'genome'
 ];
 
 /**
@@ -102,15 +115,17 @@ const repoIdArb = fc.stringOf(
 const vizTypeArb = fc.constantFrom(...VALID_VIZ_TYPES);
 
 // Arbitrary: generate a full valid view state
-const viewStateArb = fc.record({
-  visualization: vizTypeArb,
-  from: dateRangeArb.map(dr => dr.from),
-  to: dateRangeArb.map(dr => dr.to),
-  repoId: repoIdArb
-}).filter(vs => {
-  // Ensure from <= to
-  return new Date(vs.from) <= new Date(vs.to);
-});
+const viewStateArb = fc
+  .record({
+    visualization: vizTypeArb,
+    from: dateRangeArb.map((dr) => dr.from),
+    to: dateRangeArb.map((dr) => dr.to),
+    repoId: repoIdArb
+  })
+  .filter((vs) => {
+    // Ensure from <= to
+    return new Date(vs.from) <= new Date(vs.to);
+  });
 
 // Feature: ginator, Property 25: View State URL Round-Trip
 describe('Property 25: View State URL Round-Trip', () => {

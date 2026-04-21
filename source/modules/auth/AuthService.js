@@ -197,7 +197,7 @@ class AuthService {
         Limit: 1
       })
     );
-    return (result.Items && result.Items.length > 0) ? result.Items[0] : null;
+    return result.Items && result.Items.length > 0 ? result.Items[0] : null;
   }
 
   /**

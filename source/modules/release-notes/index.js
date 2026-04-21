@@ -13,12 +13,12 @@ function formatCommits(commits) {
     return 'No commits in the selected range.';
   }
 
-  return commits.map(c => {
-    const files = (c.changedFiles || [])
-      .map(f => `  - ${f.changeType}: ${f.path}`)
-      .join('\n');
-    return `Commit: ${c.commitHash}\nAuthor: ${c.authorName} <${c.authorEmail}>\nDate: ${c.commitDate}\nMessage: ${c.message}\nFiles:\n${files}`;
-  }).join('\n\n');
+  return commits
+    .map((c) => {
+      const files = (c.changedFiles || []).map((f) => `  - ${f.changeType}: ${f.path}`).join('\n');
+      return `Commit: ${c.commitHash}\nAuthor: ${c.authorName} <${c.authorEmail}>\nDate: ${c.commitDate}\nMessage: ${c.message}\nFiles:\n${files}`;
+    })
+    .join('\n\n');
 }
 
 /**
@@ -29,7 +29,8 @@ function formatCommits(commits) {
  */
 function buildPrompt(commits, promptTemplate) {
   const commitSummary = formatCommits(commits);
-  const template = promptTemplate ||
+  const template =
+    promptTemplate ||
     'Generate concise, well-organized release notes from the following commits. Group related changes and highlight breaking changes.';
 
   return `${template}\n\n--- Commits ---\n${commitSummary}`;
@@ -47,12 +48,16 @@ function buildPrompt(commits, promptTemplate) {
  */
 async function generate(commits, provider, apiKey, promptTemplate) {
   if (!provider) {
-    throw new Error('No AI provider selected. The admin must select an AI provider (OpenAI or Anthropic) before release notes can be generated.');
+    throw new Error(
+      'No AI provider selected. The admin must select an AI provider (OpenAI or Anthropic) before release notes can be generated.'
+    );
   }
 
   if (!apiKey) {
     const providerName = provider === 'openai' ? 'OpenAI' : 'Anthropic';
-    throw new Error(`The ${providerName} API key is not configured. The admin must configure the ${providerName} API key.`);
+    throw new Error(
+      `The ${providerName} API key is not configured. The admin must configure the ${providerName} API key.`
+    );
   }
 
   const prompt = buildPrompt(commits, promptTemplate);
@@ -63,7 +68,9 @@ async function generate(commits, provider, apiKey, promptTemplate) {
   } else if (provider === 'anthropic') {
     adapter = new AnthropicAdapter(apiKey);
   } else {
-    throw new Error(`Unsupported AI provider: "${provider}". Supported providers are "openai" and "anthropic".`);
+    throw new Error(
+      `Unsupported AI provider: "${provider}". Supported providers are "openai" and "anthropic".`
+    );
   }
 
   return adapter.generate(prompt);

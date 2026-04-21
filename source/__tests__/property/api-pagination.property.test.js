@@ -14,15 +14,18 @@ const { paginatedResponse } = require('../../modules/api/helpers');
  */
 describe('Property 26: API Pagination Correctness', () => {
   // Generator: non-empty array of unique items (simulating a sorted result set)
-  const datasetArb = fc.array(fc.string({ minLength: 1, maxLength: 30 }), { minLength: 1, maxLength: 200 });
+  const datasetArb = fc.array(fc.string({ minLength: 1, maxLength: 30 }), {
+    minLength: 1,
+    maxLength: 200
+  });
 
   // Generator: a dataset paired with valid limit and offset
   const paginationArb = datasetArb.chain((items) => {
     const N = items.length;
     return fc.tuple(
       fc.constant(items),
-      fc.integer({ min: 1, max: N }),       // limit: 1 ≤ limit ≤ N
-      fc.integer({ min: 0, max: N - 1 })    // offset: 0 ≤ offset < N
+      fc.integer({ min: 1, max: N }), // limit: 1 ≤ limit ≤ N
+      fc.integer({ min: 0, max: N - 1 }) // offset: 0 ≤ offset < N
     );
   });
 

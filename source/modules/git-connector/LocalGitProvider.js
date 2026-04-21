@@ -3,12 +3,7 @@
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const GitConnector = require('./GitConnector');
-const {
-  parseGitLog,
-  parseNumstat,
-  GIT_LOG_FORMAT,
-  RECORD_DELIMITER
-} = require('./parseGitLog');
+const { parseGitLog, parseNumstat, GIT_LOG_FORMAT, RECORD_DELIMITER } = require('./parseGitLog');
 
 /**
  * Git provider that executes `git log` via child_process on a local repository.

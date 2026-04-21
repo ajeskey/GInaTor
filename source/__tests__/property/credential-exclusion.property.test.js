@@ -33,25 +33,35 @@ describe('Property 7: Credential Exclusion from Unauthenticated Responses', () =
   // --- Generators ---
 
   // Generator for API key-like strings (e.g., OpenAI sk-... or Anthropic sk-ant-...)
-  const apiKeyArb = fc.tuple(
-    fc.constantFrom('sk-', 'sk-ant-', 'key-', 'api-'),
-    fc.hexaString({ minLength: 16, maxLength: 48 })
-  ).map(([prefix, hex]) => prefix + hex);
+  const apiKeyArb = fc
+    .tuple(
+      fc.constantFrom('sk-', 'sk-ant-', 'key-', 'api-'),
+      fc.hexaString({ minLength: 16, maxLength: 48 })
+    )
+    .map(([prefix, hex]) => prefix + hex);
 
   // Generator for PAT-like strings (GitHub ghp_..., GitLab glpat-...)
-  const patArb = fc.tuple(
-    fc.constantFrom('ghp_', 'glpat-', 'pat-'),
-    fc.base64String({ minLength: 16, maxLength: 40 })
-  ).map(([prefix, b64]) => prefix + b64.replace(/[=+/]/g, 'x'));
+  const patArb = fc
+    .tuple(
+      fc.constantFrom('ghp_', 'glpat-', 'pat-'),
+      fc.base64String({ minLength: 16, maxLength: 40 })
+    )
+    .map(([prefix, b64]) => prefix + b64.replace(/[=+/]/g, 'x'));
 
   // Generator for ARN-like strings
-  const arnArb = fc.tuple(
-    fc.constantFrom('us-east-1', 'us-west-2', 'eu-west-1'),
-    fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 4, maxLength: 12 }),
-    fc.stringOf(fc.char().filter(c => /[a-zA-Z0-9-]/.test(c)), { minLength: 4, maxLength: 20 })
-  ).map(([region, account, resource]) =>
-    `arn:aws:codecommit:${region}:${account}:${resource}`
-  );
+  const arnArb = fc
+    .tuple(
+      fc.constantFrom('us-east-1', 'us-west-2', 'eu-west-1'),
+      fc.stringOf(
+        fc.char().filter((c) => /[a-z0-9]/.test(c)),
+        { minLength: 4, maxLength: 12 }
+      ),
+      fc.stringOf(
+        fc.char().filter((c) => /[a-zA-Z0-9-]/.test(c)),
+        { minLength: 4, maxLength: 20 }
+      )
+    )
+    .map(([region, account, resource]) => `arn:aws:codecommit:${region}:${account}:${resource}`);
 
   // Combined credential generator
   const credentialArb = fc.oneof(apiKeyArb, patArb, arnArb);

@@ -25,7 +25,9 @@
     this._render();
   };
 
-  StaleFileView.prototype.resize = function () { this._render(); };
+  StaleFileView.prototype.resize = function () {
+    this._render();
+  };
 
   StaleFileView.prototype.setThreshold = function (months) {
     this.thresholdMonths = months;
@@ -42,12 +44,14 @@
     if (!this.repoId) return;
     var url = this._apiUrl('/api/v1/stale-files', { threshold: this.thresholdMonths });
 
-    this._fetch(url).then(function (data) {
-      self.data = data;
-      self._draw(data);
-    }).catch(function (err) {
-      console.error('StaleFileView fetch error:', err);
-    });
+    this._fetch(url)
+      .then(function (data) {
+        self.data = data;
+        self._draw(data);
+      })
+      .catch(function (err) {
+        console.error('StaleFileView fetch error:', err);
+      });
   };
 
   StaleFileView.prototype._draw = function (data) {
@@ -73,13 +77,17 @@
     label.textContent = 'Threshold: ';
     label.style.fontSize = '13px';
     var select = document.createElement('select');
-    select.style.cssText = 'padding:2px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:13px;';
-    [3, 6, 9, 12, 18, 24].forEach(function (m) {
-      var opt = document.createElement('option');
-      opt.value = m; opt.textContent = m + ' months';
-      if (m === this.thresholdMonths) opt.selected = true;
-      select.appendChild(opt);
-    }.bind(this));
+    select.style.cssText =
+      'padding:2px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:13px;';
+    [3, 6, 9, 12, 18, 24].forEach(
+      function (m) {
+        var opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m + ' months';
+        if (m === this.thresholdMonths) opt.selected = true;
+        select.appendChild(opt);
+      }.bind(this)
+    );
     var self = this;
     select.addEventListener('change', function () {
       self.setThreshold(parseInt(this.value, 10));
@@ -97,7 +105,8 @@
     ['File', 'Last Modified', 'Last Author', 'Months Stale'].forEach(function (col) {
       var th = document.createElement('th');
       th.textContent = col;
-      th.style.cssText = 'text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;';
+      th.style.cssText =
+        'text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;';
       headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
@@ -148,7 +157,9 @@
     this.container.appendChild(wrapper);
   };
 
-  StaleFileView.prototype.exportSVG = function () { return null; };
+  StaleFileView.prototype.exportSVG = function () {
+    return null;
+  };
 
   window.StaleFileView = StaleFileView;
 })();

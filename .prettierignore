@@ -1,0 +1,5 @@
+node_modules/
+web-template-tailadmin/
+terraform/.terraform/
+coverage/
+package-lock.json

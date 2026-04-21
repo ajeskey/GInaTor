@@ -23,9 +23,7 @@ describe('release-notes module', () => {
       authorEmail: 'bob@test.com',
       commitDate: '2024-01-16T14:00:00Z',
       message: 'Fix auth bug',
-      changedFiles: [
-        { path: 'src/auth.js', changeType: 'modified', additions: 5, deletions: 3 }
-      ]
+      changedFiles: [{ path: 'src/auth.js', changeType: 'modified', additions: 5, deletions: 3 }]
     }
   ];
 
@@ -62,23 +60,27 @@ describe('release-notes module', () => {
 
   describe('generate', () => {
     it('throws when no provider is specified', async () => {
-      await expect(generate(sampleCommits, null, 'key123'))
-        .rejects.toThrow('No AI provider selected');
+      await expect(generate(sampleCommits, null, 'key123')).rejects.toThrow(
+        'No AI provider selected'
+      );
     });
 
     it('throws when no API key is provided for openai', async () => {
-      await expect(generate(sampleCommits, 'openai', null))
-        .rejects.toThrow('OpenAI API key is not configured');
+      await expect(generate(sampleCommits, 'openai', null)).rejects.toThrow(
+        'OpenAI API key is not configured'
+      );
     });
 
     it('throws when no API key is provided for anthropic', async () => {
-      await expect(generate(sampleCommits, 'anthropic', null))
-        .rejects.toThrow('Anthropic API key is not configured');
+      await expect(generate(sampleCommits, 'anthropic', null)).rejects.toThrow(
+        'Anthropic API key is not configured'
+      );
     });
 
     it('throws for unsupported provider', async () => {
-      await expect(generate(sampleCommits, 'gemini', 'key123'))
-        .rejects.toThrow('Unsupported AI provider: "gemini"');
+      await expect(generate(sampleCommits, 'gemini', 'key123')).rejects.toThrow(
+        'Unsupported AI provider: "gemini"'
+      );
     });
   });
 

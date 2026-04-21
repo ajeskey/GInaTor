@@ -58,9 +58,7 @@ class GitHubProvider extends GitConnector {
     const commits = await this._fetchAllCommits(owner, repo, headers, sinceDate);
 
     // Filter out the sinceCommitHash itself if present
-    const filtered = sinceCommitHash
-      ? commits.filter(c => c.sha !== sinceCommitHash)
-      : commits;
+    const filtered = sinceCommitHash ? commits.filter((c) => c.sha !== sinceCommitHash) : commits;
 
     const records = [];
     for (const commit of filtered) {
@@ -82,7 +80,7 @@ class GitHubProvider extends GitConnector {
     }
 
     return {
-      commits: payload.commits.map(c => ({
+      commits: payload.commits.map((c) => ({
         commitHash: c.id,
         message: c.message || '',
         authorName: c.author?.name || '',
@@ -94,10 +92,9 @@ class GitHubProvider extends GitConnector {
 
   /** @private */
   async _getCommitDate(owner, repo, sha, headers) {
-    const response = await fetch(
-      `${GITHUB_API_BASE}/repos/${owner}/${repo}/commits/${sha}`,
-      { headers }
-    );
+    const response = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/commits/${sha}`, {
+      headers
+    });
     if (!response.ok) return undefined;
     const data = await response.json();
     return data.commit?.author?.date;
@@ -136,10 +133,9 @@ class GitHubProvider extends GitConnector {
 
   /** @private */
   async _fetchCommitDetail(owner, repo, sha, headers) {
-    const response = await fetch(
-      `${GITHUB_API_BASE}/repos/${owner}/${repo}/commits/${sha}`,
-      { headers }
-    );
+    const response = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/commits/${sha}`, {
+      headers
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch commit detail for ${sha}`);
     }
@@ -170,8 +166,8 @@ function parseGitHubUrl(url) {
  */
 function buildHeaders(pat) {
   return {
-    'Authorization': `Bearer ${pat}`,
-    'Accept': 'application/vnd.github+json',
+    Authorization: `Bearer ${pat}`,
+    Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28'
   };
 }
@@ -183,7 +179,7 @@ function buildHeaders(pat) {
  * @returns {import('./index').CommitRecord}
  */
 function toCommitRecord(detail, repositoryId) {
-  const changedFiles = (detail.files || []).map(f => ({
+  const changedFiles = (detail.files || []).map((f) => ({
     path: f.filename,
     changeType: normalizeGitHubStatus(f.status),
     additions: f.additions || 0,
@@ -208,12 +204,18 @@ function toCommitRecord(detail, repositoryId) {
  */
 function normalizeGitHubStatus(status) {
   switch (status) {
-    case 'added': return 'added';
-    case 'removed': return 'deleted';
-    case 'modified': return 'modified';
-    case 'renamed': return 'modified';
-    case 'copied': return 'added';
-    default: return 'modified';
+    case 'added':
+      return 'added';
+    case 'removed':
+      return 'deleted';
+    case 'modified':
+      return 'modified';
+    case 'renamed':
+      return 'modified';
+    case 'copied':
+      return 'added';
+    default:
+      return 'modified';
   }
 }
 

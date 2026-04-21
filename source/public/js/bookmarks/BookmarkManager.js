@@ -40,15 +40,15 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     })
-    .then(function (r) {
-      if (!r.ok) throw new Error('Failed to save bookmark');
-      return r.json();
-    })
-    .then(function (bookmark) {
-      _bookmarks.push(bookmark);
-      _renderPanel();
-      return bookmark;
-    });
+      .then(function (r) {
+        if (!r.ok) throw new Error('Failed to save bookmark');
+        return r.json();
+      })
+      .then(function (bookmark) {
+        _bookmarks.push(bookmark);
+        _renderPanel();
+        return bookmark;
+      });
   }
 
   /**
@@ -83,10 +83,11 @@
     return fetch('/api/v1/bookmarks/' + encodeURIComponent(bookmarkId), {
       method: 'DELETE',
       credentials: 'same-origin'
-    })
-    .then(function (r) {
+    }).then(function (r) {
       if (!r.ok) throw new Error('Failed to delete bookmark');
-      _bookmarks = _bookmarks.filter(function (b) { return b.bookmarkId !== bookmarkId; });
+      _bookmarks = _bookmarks.filter(function (b) {
+        return b.bookmarkId !== bookmarkId;
+      });
       _renderPanel();
     });
   }
@@ -97,11 +98,14 @@
   function copyLink() {
     var url = window.location.href;
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () {
-        _showToast('Link copied to clipboard');
-      }).catch(function () {
-        _fallbackCopy(url);
-      });
+      navigator.clipboard
+        .writeText(url)
+        .then(function () {
+          _showToast('Link copied to clipboard');
+        })
+        .catch(function () {
+          _fallbackCopy(url);
+        });
     } else {
       _fallbackCopy(url);
     }
@@ -155,11 +159,12 @@
     // Create the bookmarks panel (hidden by default)
     var panel = document.createElement('div');
     panel.id = 'bookmarks-panel';
-    panel.className = 'hidden absolute right-4 top-16 z-50 bg-base-100 shadow-lg rounded-lg border border-base-300 w-80 max-h-96 overflow-y-auto';
+    panel.className =
+      'hidden absolute right-4 top-16 z-50 bg-base-100 shadow-lg rounded-lg border border-base-300 w-80 max-h-96 overflow-y-auto';
     panel.innerHTML =
       '<div class="p-3 border-b border-base-300 flex items-center justify-between">' +
-        '<span class="font-semibold text-sm">My Bookmarks</span>' +
-        '<button id="bookmarks-panel-close" class="btn btn-ghost btn-xs btn-circle">✕</button>' +
+      '<span class="font-semibold text-sm">My Bookmarks</span>' +
+      '<button id="bookmarks-panel-close" class="btn btn-ghost btn-xs btn-circle">✕</button>' +
       '</div>' +
       '<div id="bookmarks-list" class="p-2"></div>';
     document.body.appendChild(panel);
@@ -202,7 +207,9 @@
    */
   function _loadBookmarks() {
     fetch('/api/v1/bookmarks', { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : { bookmarks: [] }; })
+      .then(function (r) {
+        return r.ok ? r.json() : { bookmarks: [] };
+      })
       .then(function (data) {
         _bookmarks = data.bookmarks || [];
         _renderPanel();
@@ -222,24 +229,32 @@
     if (!list) return;
 
     if (_bookmarks.length === 0) {
-      list.innerHTML = '<div class="text-center text-sm text-base-content opacity-50 py-4">No bookmarks saved.</div>';
+      list.innerHTML =
+        '<div class="text-center text-sm text-base-content opacity-50 py-4">No bookmarks saved.</div>';
       return;
     }
 
     var html = '';
     for (var i = 0; i < _bookmarks.length; i++) {
       var bm = _bookmarks[i];
-      html += '<div class="flex items-center justify-between p-2 hover:bg-base-200 rounded cursor-pointer" data-bookmark-idx="' + i + '">' +
+      html +=
+        '<div class="flex items-center justify-between p-2 hover:bg-base-200 rounded cursor-pointer" data-bookmark-idx="' +
+        i +
+        '">' +
         '<div class="flex-1 min-w-0">' +
-          '<div class="text-sm font-medium truncate">' + _escapeHtml(bm.name) + '</div>' +
-          '<div class="text-xs text-base-content opacity-50">' +
-            _escapeHtml(bm.visualizationType || '') +
-            (bm.dateFrom ? ' | ' + bm.dateFrom.substring(0, 10) : '') +
-            (bm.dateTo ? ' – ' + bm.dateTo.substring(0, 10) : '') +
-          '</div>' +
+        '<div class="text-sm font-medium truncate">' +
+        _escapeHtml(bm.name) +
         '</div>' +
-        '<button class="btn btn-ghost btn-xs bookmark-delete-btn" data-bookmark-id="' + _escapeHtml(bm.bookmarkId) + '" title="Delete">🗑️</button>' +
-      '</div>';
+        '<div class="text-xs text-base-content opacity-50">' +
+        _escapeHtml(bm.visualizationType || '') +
+        (bm.dateFrom ? ' | ' + bm.dateFrom.substring(0, 10) : '') +
+        (bm.dateTo ? ' – ' + bm.dateTo.substring(0, 10) : '') +
+        '</div>' +
+        '</div>' +
+        '<button class="btn btn-ghost btn-xs bookmark-delete-btn" data-bookmark-id="' +
+        _escapeHtml(bm.bookmarkId) +
+        '" title="Delete">🗑️</button>' +
+        '</div>';
     }
     list.innerHTML = html;
 
@@ -276,8 +291,12 @@
     ta.style.left = '-9999px';
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); _showToast('Link copied to clipboard'); }
-    catch { /* ignore */ }
+    try {
+      document.execCommand('copy');
+      _showToast('Link copied to clipboard');
+    } catch {
+      /* ignore */
+    }
     document.body.removeChild(ta);
   }
 
@@ -289,7 +308,8 @@
   function _showToast(message) {
     var toast = document.createElement('div');
     toast.className = 'toast toast-end z-50';
-    toast.innerHTML = '<div class="alert alert-success"><span>' + _escapeHtml(message) + '</span></div>';
+    toast.innerHTML =
+      '<div class="alert alert-success"><span>' + _escapeHtml(message) + '</span></div>';
     document.body.appendChild(toast);
     setTimeout(function () {
       if (toast.parentNode) toast.parentNode.removeChild(toast);

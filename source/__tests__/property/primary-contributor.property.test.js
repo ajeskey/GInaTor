@@ -11,12 +11,16 @@ const commitRecordArb = fc.record({
   commitHash: fc.hexaString({ minLength: 40, maxLength: 40 }),
   authorName: fc.string({ minLength: 1, maxLength: 50 }),
   authorEmail: fc.emailAddress(),
-  commitDate: fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') })
-    .map(d => d.toISOString()),
+  commitDate: fc
+    .date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') })
+    .map((d) => d.toISOString()),
   message: fc.string({ minLength: 1, maxLength: 200 }),
   changedFiles: fc.array(
     fc.record({
-      path: fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz/._-'.split('')), { minLength: 3, maxLength: 50 }),
+      path: fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz/._-'.split('')), {
+        minLength: 3,
+        maxLength: 50
+      }),
       changeType: fc.constantFrom('added', 'modified', 'deleted'),
       additions: fc.nat({ max: 500 }),
       deletions: fc.nat({ max: 500 })
@@ -36,7 +40,7 @@ describe('Property 17: Primary Contributor Computation', () => {
           // Count commits per author for this file
           const authorCounts = {};
           for (const c of commits) {
-            if (c.changedFiles && c.changedFiles.some(f => f.path === file.path)) {
+            if (c.changedFiles && c.changedFiles.some((f) => f.path === file.path)) {
               authorCounts[c.authorEmail] = (authorCounts[c.authorEmail] || 0) + 1;
             }
           }

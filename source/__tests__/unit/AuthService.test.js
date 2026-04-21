@@ -81,21 +81,26 @@ describe('AuthService', () => {
 
   describe('register', () => {
     test('rejects invalid email', async () => {
-      await expect(authService.register('bad-email', 'password123'))
-        .rejects.toThrow('Invalid email format');
+      await expect(authService.register('bad-email', 'password123')).rejects.toThrow(
+        'Invalid email format'
+      );
     });
 
     test('rejects short password', async () => {
-      await expect(authService.register('user@example.com', 'short'))
-        .rejects.toThrow('Password must be at least 8 characters');
+      await expect(authService.register('user@example.com', 'short')).rejects.toThrow(
+        'Password must be at least 8 characters'
+      );
     });
 
     test('rejects duplicate email', async () => {
       // email lookup returns existing user
-      mockSend.mockResolvedValueOnce({ Items: [{ userId: 'existing', email: 'user@example.com' }] });
+      mockSend.mockResolvedValueOnce({
+        Items: [{ userId: 'existing', email: 'user@example.com' }]
+      });
 
-      await expect(authService.register('user@example.com', 'password123'))
-        .rejects.toThrow('Email already registered');
+      await expect(authService.register('user@example.com', 'password123')).rejects.toThrow(
+        'Email already registered'
+      );
     });
 
     test('first user gets admin role and approved status', async () => {
@@ -151,13 +156,15 @@ describe('AuthService', () => {
     test('returns user on valid credentials', async () => {
       const hash = await bcrypt.hash('password123', 10);
       mockSend.mockResolvedValueOnce({
-        Items: [{
-          userId: 'user-1',
-          email: 'user@example.com',
-          passwordHash: hash,
-          role: 'user',
-          status: 'approved'
-        }]
+        Items: [
+          {
+            userId: 'user-1',
+            email: 'user@example.com',
+            passwordHash: hash,
+            role: 'user',
+            status: 'approved'
+          }
+        ]
       });
 
       const user = await authService.login('user@example.com', 'password123');
@@ -170,8 +177,9 @@ describe('AuthService', () => {
     test('throws generic error on wrong email', async () => {
       mockSend.mockResolvedValueOnce({ Items: [] });
 
-      await expect(authService.login('wrong@example.com', 'password123'))
-        .rejects.toThrow('Invalid credentials');
+      await expect(authService.login('wrong@example.com', 'password123')).rejects.toThrow(
+        'Invalid credentials'
+      );
     });
 
     test('throws generic error on wrong password', async () => {
@@ -180,8 +188,9 @@ describe('AuthService', () => {
         Items: [{ userId: 'user-1', email: 'user@example.com', passwordHash: hash }]
       });
 
-      await expect(authService.login('user@example.com', 'wrongpassword'))
-        .rejects.toThrow('Invalid credentials');
+      await expect(authService.login('user@example.com', 'wrongpassword')).rejects.toThrow(
+        'Invalid credentials'
+      );
     });
   });
 

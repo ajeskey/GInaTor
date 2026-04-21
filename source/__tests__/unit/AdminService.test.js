@@ -145,13 +145,15 @@ describe('AdminService', () => {
     });
 
     test('throws 400 when name is missing', async () => {
-      await expect(adminService.saveRepoConfig({ providerType: 'local', providerConfig: {} }))
-        .rejects.toThrow('name and providerType are required');
+      await expect(
+        adminService.saveRepoConfig({ providerType: 'local', providerConfig: {} })
+      ).rejects.toThrow('name and providerType are required');
     });
 
     test('throws 400 when providerType is missing', async () => {
-      await expect(adminService.saveRepoConfig({ name: 'Repo', providerConfig: {} }))
-        .rejects.toThrow('name and providerType are required');
+      await expect(
+        adminService.saveRepoConfig({ name: 'Repo', providerConfig: {} })
+      ).rejects.toThrow('name and providerType are required');
     });
   });
 
@@ -166,7 +168,9 @@ describe('AdminService', () => {
 
     test('throws 404 for non-existent repo', async () => {
       mockSend.mockResolvedValueOnce({ Item: undefined });
-      await expect(adminService.deleteRepoConfig('nope')).rejects.toThrow('Repository config not found');
+      await expect(adminService.deleteRepoConfig('nope')).rejects.toThrow(
+        'Repository config not found'
+      );
     });
   });
 
@@ -195,8 +199,9 @@ describe('AdminService', () => {
     });
 
     test('throws 400 for invalid provider', async () => {
-      await expect(adminService.saveAiConfig({ provider: 'invalid' }))
-        .rejects.toThrow('provider must be "openai" or "anthropic"');
+      await expect(adminService.saveAiConfig({ provider: 'invalid' })).rejects.toThrow(
+        'provider must be "openai" or "anthropic"'
+      );
     });
   });
 
@@ -206,13 +211,16 @@ describe('AdminService', () => {
     test('saves a prompt template', async () => {
       mockSend.mockResolvedValueOnce({});
 
-      const result = await adminService.savePromptTemplate({ promptTemplate: 'Generate notes for: {{commits}}' });
+      const result = await adminService.savePromptTemplate({
+        promptTemplate: 'Generate notes for: {{commits}}'
+      });
       expect(result.promptTemplate).toBe('Generate notes for: {{commits}}');
     });
 
     test('throws 400 for missing template', async () => {
-      await expect(adminService.savePromptTemplate({}))
-        .rejects.toThrow('promptTemplate is required and must be a string');
+      await expect(adminService.savePromptTemplate({})).rejects.toThrow(
+        'promptTemplate is required and must be a string'
+      );
     });
   });
 
@@ -235,8 +243,9 @@ describe('AdminService', () => {
     });
 
     test('throws 400 when required fields missing', async () => {
-      await expect(adminService.saveSprintMarker({ repositoryId: 'r1' }))
-        .rejects.toThrow('repositoryId, label, and date are required');
+      await expect(adminService.saveSprintMarker({ repositoryId: 'r1' })).rejects.toThrow(
+        'repositoryId, label, and date are required'
+      );
     });
   });
 
@@ -259,8 +268,9 @@ describe('AdminService', () => {
     });
 
     test('throws 400 when enabled is not boolean', async () => {
-      await expect(adminService.saveDigestConfig({ enabled: 'yes' }))
-        .rejects.toThrow('enabled must be a boolean');
+      await expect(adminService.saveDigestConfig({ enabled: 'yes' })).rejects.toThrow(
+        'enabled must be a boolean'
+      );
     });
   });
 
@@ -287,8 +297,9 @@ describe('AdminService', () => {
 
     test('throws 404 for non-existent repo', async () => {
       mockSend.mockResolvedValueOnce({ Item: undefined });
-      await expect(adminService.saveWebhookConfig('nope', {}))
-        .rejects.toThrow('Repository config not found');
+      await expect(adminService.saveWebhookConfig('nope', {})).rejects.toThrow(
+        'Repository config not found'
+      );
     });
   });
 });

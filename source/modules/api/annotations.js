@@ -32,7 +32,8 @@ function createAnnotationsRouter() {
       const repoError = validateRepoId(repoId);
       if (repoError) return errorResponse(res, 400, repoError);
 
-      const { label, description, targetType, targetCommitHash, targetDateFrom, targetDateTo } = req.body;
+      const { label, description, targetType, targetCommitHash, targetDateFrom, targetDateTo } =
+        req.body;
       if (!label) return errorResponse(res, 400, 'Missing required field: label');
 
       const annotation = {
@@ -66,7 +67,7 @@ function createAnnotationsRouter() {
       const { annotationId } = req.params;
       if (!annotationsByRepo[repoId]) return errorResponse(res, 404, 'Annotation not found');
 
-      const idx = annotationsByRepo[repoId].findIndex(a => a.annotationId === annotationId);
+      const idx = annotationsByRepo[repoId].findIndex((a) => a.annotationId === annotationId);
       if (idx === -1) return errorResponse(res, 404, 'Annotation not found');
 
       annotationsByRepo[repoId].splice(idx, 1);

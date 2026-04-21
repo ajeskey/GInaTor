@@ -33,27 +33,30 @@ function generateDigestHtml(commits, repos, period, appUrl = '') {
     .map(([email, count]) => ({ email, count }));
 
   // Top 5 hottest files
-  const hottestFiles = fileFreq.files
-    .sort((a, b) => b.frequency - a.frequency)
-    .slice(0, 5);
+  const hottestFiles = fileFreq.files.sort((a, b) => b.frequency - a.frequency).slice(0, 5);
 
   const periodLabel = period === 'weekly' ? 'Weekly' : 'Monthly';
 
-  const repoLinks = repos.map(r =>
-    `<li><a href="${appUrl}/?repoId=${r.repoId}">${r.name}</a></li>`
-  ).join('\n');
+  const repoLinks = repos
+    .map((r) => `<li><a href="${appUrl}/?repoId=${r.repoId}">${r.name}</a></li>`)
+    .join('\n');
 
-  const contributorRows = topContributors.map(c =>
-    `<tr><td style="padding:4px 8px">${c.email}</td><td style="padding:4px 8px">${c.count}</td></tr>`
-  ).join('\n');
+  const contributorRows = topContributors
+    .map(
+      (c) =>
+        `<tr><td style="padding:4px 8px">${c.email}</td><td style="padding:4px 8px">${c.count}</td></tr>`
+    )
+    .join('\n');
 
-  const fileRows = hottestFiles.map(f =>
-    `<tr><td style="padding:4px 8px">${f.path}</td><td style="padding:4px 8px">${f.frequency}</td></tr>`
-  ).join('\n');
+  const fileRows = hottestFiles
+    .map(
+      (f) =>
+        `<tr><td style="padding:4px 8px">${f.path}</td><td style="padding:4px 8px">${f.frequency}</td></tr>`
+    )
+    .join('\n');
 
-  const velocitySummary = velocity.length > 0
-    ? velocity.map(v => `${v.period}: ${v.count}`).join(', ')
-    : 'No activity';
+  const velocitySummary =
+    velocity.length > 0 ? velocity.map((v) => `${v.period}: ${v.count}`).join(', ') : 'No activity';
 
   return `<!DOCTYPE html>
 <html>
@@ -152,9 +155,11 @@ async function sendDigest(userEmails, digestHtml, options = {}) {
     logger = console
   } = options;
 
-  const sesClient = options.sesClient || new SESClient({
-    region: process.env.AWS_REGION || 'us-east-1'
-  });
+  const sesClient =
+    options.sesClient ||
+    new SESClient({
+      region: process.env.AWS_REGION || 'us-east-1'
+    });
 
   let sent = 0;
   let failed = 0;
@@ -162,14 +167,16 @@ async function sendDigest(userEmails, digestHtml, options = {}) {
 
   for (const email of userEmails) {
     try {
-      await sesClient.send(new SendEmailCommand({
-        Source: fromEmail,
-        Destination: { ToAddresses: [email] },
-        Message: {
-          Subject: { Data: subject },
-          Body: { Html: { Data: digestHtml } }
-        }
-      }));
+      await sesClient.send(
+        new SendEmailCommand({
+          Source: fromEmail,
+          Destination: { ToAddresses: [email] },
+          Message: {
+            Subject: { Data: subject },
+            Body: { Html: { Data: digestHtml } }
+          }
+        })
+      );
       sent++;
     } catch (err) {
       failed++;
@@ -201,7 +208,7 @@ async function scheduleDigest(deps) {
     return null;
   }
 
-  const frequency = await adminService._getSetting('digestFrequency') || 'weekly';
+  const frequency = (await adminService._getSetting('digestFrequency')) || 'weekly';
   const repoIdsRaw = await adminService._getSetting('digestRepoIds');
   const repoIds = repoIdsRaw ? JSON.parse(repoIdsRaw) : [];
 
@@ -211,9 +218,7 @@ async function scheduleDigest(deps) {
   }
 
   // Weekly: Monday 9am UTC, Monthly: 1st of month 9am UTC
-  const cronExpr = frequency === 'monthly'
-    ? '0 9 1 * *'
-    : '0 9 * * 1';
+  const cronExpr = frequency === 'monthly' ? '0 9 1 * *' : '0 9 * * 1';
 
   const task = cron.schedule(cronExpr, async () => {
     try {
@@ -231,9 +236,7 @@ async function scheduleDigest(deps) {
         })
       );
 
-      const userEmails = (allUsers.Items || [])
-        .filter(u => !u.digestOptOut)
-        .map(u => u.email);
+      const userEmails = (allUsers.Items || []).filter((u) => !u.digestOptOut).map((u) => u.email);
 
       if (userEmails.length === 0) {
         logger.info('No eligible users for digest.');

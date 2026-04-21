@@ -1,7 +1,12 @@
 'use strict';
 
 const express = require('express');
-const { parseCommonParams, validateRepoId, validateDateRange, errorResponse } = require('./helpers');
+const {
+  parseCommonParams,
+  validateRepoId,
+  validateDateRange,
+  errorResponse
+} = require('./helpers');
 
 function createBranchesRouter(commitStore) {
   const router = express.Router();
@@ -26,10 +31,17 @@ function createBranchesRouter(commitStore) {
       for (const c of commits) {
         const branch = c.branch || 'main';
         if (!branches[branch]) branches[branch] = [];
-        branches[branch].push({ commitHash: c.commitHash, commitDate: c.commitDate, message: c.message, authorName: c.authorName });
+        branches[branch].push({
+          commitHash: c.commitHash,
+          commitDate: c.commitDate,
+          message: c.message,
+          authorName: c.authorName
+        });
       }
 
-      return res.json({ branches: Object.entries(branches).map(([name, commits]) => ({ name, commits })) });
+      return res.json({
+        branches: Object.entries(branches).map(([name, commits]) => ({ name, commits }))
+      });
     } catch (err) {
       console.error('Error computing branches:', err);
       return errorResponse(res, 500, 'Internal server error');

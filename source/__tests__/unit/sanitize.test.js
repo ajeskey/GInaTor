@@ -1,6 +1,10 @@
 'use strict';
 
-const { sanitizeString, sanitizeValue, sanitizeInput } = require('../../modules/middleware/sanitize');
+const {
+  sanitizeString,
+  sanitizeValue,
+  sanitizeInput
+} = require('../../modules/middleware/sanitize');
 
 describe('sanitizeString', () => {
   test('removes HTML tags', () => {

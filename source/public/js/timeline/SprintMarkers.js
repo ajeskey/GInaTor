@@ -23,7 +23,8 @@
   function ensureTooltip() {
     if (tooltip) return;
     tooltip = document.createElement('div');
-    tooltip.className = 'absolute hidden bg-base-200 border border-base-300 rounded shadow-lg p-2 text-xs z-50 pointer-events-none';
+    tooltip.className =
+      'absolute hidden bg-base-200 border border-base-300 rounded shadow-lg p-2 text-xs z-50 pointer-events-none';
     tooltip.style.maxWidth = '200px';
     document.body.appendChild(tooltip);
   }
@@ -37,7 +38,9 @@
     _currentRepoId = repoId;
 
     fetch('/api/v1/markers?repoId=' + encodeURIComponent(repoId), { credentials: 'same-origin' })
-      .then(function (res) { return res.ok ? res.json() : []; })
+      .then(function (res) {
+        return res.ok ? res.json() : [];
+      })
       .then(function (data) {
         markers = (Array.isArray(data) ? data : data.markers || []).map(function (m) {
           return {
@@ -100,7 +103,8 @@
       var x = xScale(marker.date);
       if (x < 0 || x > chartWidth) return;
 
-      var g = svgSel.append('g')
+      var g = svgSel
+        .append('g')
         .attr('class', 'sprint-marker')
         .attr('cursor', 'pointer')
         .on('click', function () {
@@ -122,7 +126,7 @@
         .attr('opacity', 0.8);
 
       g.append('polygon')
-        .attr('points', (x - 4) + ',0 ' + (x + 4) + ',0 ' + x + ',6')
+        .attr('points', x - 4 + ',0 ' + (x + 4) + ',0 ' + x + ',6')
         .attr('fill', '#a855f7');
     });
   }
@@ -139,7 +143,9 @@
       }
     }
     if (markers.length >= 2) {
-      var dates = markers.map(function (m) { return m.date; });
+      var dates = markers.map(function (m) {
+        return m.date;
+      });
       return [d3.min(dates), d3.max(dates)];
     }
     return null;
@@ -153,14 +159,20 @@
   function showTooltip(event, marker) {
     if (!tooltip) return;
     var dateStr = marker.date.toLocaleDateString(undefined, {
-      year: 'numeric', month: 'short', day: 'numeric'
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
     tooltip.innerHTML =
-      '<div class="font-semibold">' + escapeHtml(marker.label) + '</div>' +
-      '<div class="opacity-70">' + dateStr + '</div>' +
+      '<div class="font-semibold">' +
+      escapeHtml(marker.label) +
+      '</div>' +
+      '<div class="opacity-70">' +
+      dateStr +
+      '</div>' +
       (marker.description ? '<div class="mt-1">' + escapeHtml(marker.description) + '</div>' : '');
-    tooltip.style.left = (event.pageX + 10) + 'px';
-    tooltip.style.top = (event.pageY - 10) + 'px';
+    tooltip.style.left = event.pageX + 10 + 'px';
+    tooltip.style.top = event.pageY - 10 + 'px';
     tooltip.classList.remove('hidden');
   }
 
@@ -176,12 +188,14 @@
    * @param {object} marker
    */
   function onMarkerClick(marker) {
-    window.dispatchEvent(new CustomEvent('date-range-changed', {
-      detail: {
-        from: marker.date.toISOString(),
-        to: window.AppState ? window.AppState.getState().dateRange.to : null
-      }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('date-range-changed', {
+        detail: {
+          from: marker.date.toISOString(),
+          to: window.AppState ? window.AppState.getState().dateRange.to : null
+        }
+      })
+    );
   }
 
   /**

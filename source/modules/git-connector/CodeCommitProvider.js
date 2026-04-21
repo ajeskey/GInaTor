@@ -19,9 +19,11 @@ class CodeCommitProvider extends GitConnector {
     try {
       const client = await this._createClient(config);
       const { GetRepositoryCommand } = await import('@aws-sdk/client-codecommit');
-      await client.send(new GetRepositoryCommand({
-        repositoryName: config.repositoryName
-      }));
+      await client.send(
+        new GetRepositoryCommand({
+          repositoryName: config.repositoryName
+        })
+      );
       return { valid: true };
     } catch (err) {
       if (err.name === 'RepositoryDoesNotExistException') {
@@ -46,19 +48,18 @@ class CodeCommitProvider extends GitConnector {
   async fetchLog(config, sinceCommitHash) {
     const repositoryId = config.repoId;
     const client = await this._createClient(config);
-    const {
-      GetBranchCommand,
-      GetCommitCommand,
-      GetDifferencesCommand
-    } = await import('@aws-sdk/client-codecommit');
+    const { GetBranchCommand, GetCommitCommand, GetDifferencesCommand } =
+      await import('@aws-sdk/client-codecommit');
 
     const branchName = config.branchName || 'main';
 
     // Get the tip of the branch
-    const branchResult = await client.send(new GetBranchCommand({
-      repositoryName: config.repositoryName,
-      branchName
-    }));
+    const branchResult = await client.send(
+      new GetBranchCommand({
+        repositoryName: config.repositoryName,
+        branchName
+      })
+    );
 
     const tipCommitId = branchResult.branch?.commitId;
     if (!tipCommitId) {
@@ -75,17 +76,23 @@ class CodeCommitProvider extends GitConnector {
 
       visited.add(currentId);
 
-      const commitResult = await client.send(new GetCommitCommand({
-        repositoryName: config.repositoryName,
-        commitId: currentId
-      }));
+      const commitResult = await client.send(
+        new GetCommitCommand({
+          repositoryName: config.repositoryName,
+          commitId: currentId
+        })
+      );
 
       const commit = commitResult.commit;
       if (!commit) break;
 
       // Get file changes
       const changedFiles = await this._getChangedFiles(
-        client, config.repositoryName, currentId, commit.parents, GetDifferencesCommand
+        client,
+        config.repositoryName,
+        currentId,
+        commit.parents,
+        GetDifferencesCommand
       );
 
       commits.push({
@@ -122,9 +129,10 @@ class CodeCommitProvider extends GitConnector {
     const commits = [];
     for (const record of payload.Records) {
       try {
-        const message = typeof record.Sns?.Message === 'string'
-          ? JSON.parse(record.Sns.Message)
-          : record.Sns?.Message;
+        const message =
+          typeof record.Sns?.Message === 'string'
+            ? JSON.parse(record.Sns.Message)
+            : record.Sns?.Message;
 
         if (message?.detail?.commitId) {
           commits.push({
@@ -166,7 +174,7 @@ class CodeCommitProvider extends GitConnector {
       }
 
       const result = await client.send(new GetDifferencesCommand(params));
-      return (result.differences || []).map(d => ({
+      return (result.differences || []).map((d) => ({
         path: d.afterBlob?.path || d.beforeBlob?.path || '',
         changeType: normalizeCodeCommitChangeType(d.changeType),
         additions: 0, // CodeCommit API doesn't provide line counts in differences
@@ -185,10 +193,14 @@ class CodeCommitProvider extends GitConnector {
  */
 function normalizeCodeCommitChangeType(changeType) {
   switch (changeType) {
-    case 'A': return 'added';
-    case 'D': return 'deleted';
-    case 'M': return 'modified';
-    default: return 'modified';
+    case 'A':
+      return 'added';
+    case 'D':
+      return 'deleted';
+    case 'M':
+      return 'modified';
+    default:
+      return 'modified';
   }
 }
 

@@ -30,9 +30,18 @@ describe('Property 3: Protected Route Authentication Enforcement', () => {
       body: null,
       redirectUrl: null,
       nextCalled: false,
-      status(code) { res.statusCode = code; return res; },
-      json(data) { res.body = data; return res; },
-      redirect(url) { res.redirectUrl = url; return res; }
+      status(code) {
+        res.statusCode = code;
+        return res;
+      },
+      json(data) {
+        res.body = data;
+        return res;
+      },
+      redirect(url) {
+        res.redirectUrl = url;
+        return res;
+      }
     };
     return res;
   }
@@ -44,33 +53,49 @@ describe('Property 3: Protected Route Authentication Enforcement', () => {
 
   // Generator for path segments (alphanumeric + hyphens)
   const pathSegmentArb = fc.stringOf(
-    fc.char().filter(c => /[a-z0-9-]/.test(c)),
+    fc.char().filter((c) => /[a-z0-9-]/.test(c)),
     { minLength: 1, maxLength: 15 }
   );
 
   // Generator for protected page routes (non-API, non-public)
-  const protectedPageRouteArb = fc.tuple(
-    fc.constantFrom('/dashboard', '/admin', '/settings', '/profile', '/repos'),
-    fc.option(pathSegmentArb, { nil: undefined })
-  ).map(([base, suffix]) => suffix ? `${base}/${suffix}` : base)
-    .filter(path => !isPublicRoute(path));
+  const protectedPageRouteArb = fc
+    .tuple(
+      fc.constantFrom('/dashboard', '/admin', '/settings', '/profile', '/repos'),
+      fc.option(pathSegmentArb, { nil: undefined })
+    )
+    .map(([base, suffix]) => (suffix ? `${base}/${suffix}` : base))
+    .filter((path) => !isPublicRoute(path));
 
   // Generator for protected API routes
-  const protectedApiRouteArb = fc.tuple(
-    fc.constantFrom('/api/v1/commits', '/api/v1/stats', '/api/v1/heatmap',
-      '/api/v1/treemap', '/api/v1/sunburst', '/api/v1/branches',
-      '/api/v1/pulse', '/api/v1/impact', '/api/v1/collaboration',
-      '/api/v1/filetypes', '/api/v1/activity-matrix', '/api/v1/bookmarks',
-      '/api/v1/annotations', '/api/v1/docs'),
-    fc.option(pathSegmentArb, { nil: undefined })
-  ).map(([base, suffix]) => suffix ? `${base}/${suffix}` : base);
+  const protectedApiRouteArb = fc
+    .tuple(
+      fc.constantFrom(
+        '/api/v1/commits',
+        '/api/v1/stats',
+        '/api/v1/heatmap',
+        '/api/v1/treemap',
+        '/api/v1/sunburst',
+        '/api/v1/branches',
+        '/api/v1/pulse',
+        '/api/v1/impact',
+        '/api/v1/collaboration',
+        '/api/v1/filetypes',
+        '/api/v1/activity-matrix',
+        '/api/v1/bookmarks',
+        '/api/v1/annotations',
+        '/api/v1/docs'
+      ),
+      fc.option(pathSegmentArb, { nil: undefined })
+    )
+    .map(([base, suffix]) => (suffix ? `${base}/${suffix}` : base));
 
   // Generator for arbitrary non-public route paths
-  const arbitraryProtectedRouteArb = fc.tuple(
-    pathSegmentArb,
-    fc.array(pathSegmentArb, { minLength: 0, maxLength: 3 })
-  ).map(([first, rest]) => '/' + [first, ...rest].join('/'))
-    .filter(path => !isPublicRoute(path) && !path.startsWith('/public/') && !path.startsWith('/public'));
+  const arbitraryProtectedRouteArb = fc
+    .tuple(pathSegmentArb, fc.array(pathSegmentArb, { minLength: 0, maxLength: 3 }))
+    .map(([first, rest]) => '/' + [first, ...rest].join('/'))
+    .filter(
+      (path) => !isPublicRoute(path) && !path.startsWith('/public/') && !path.startsWith('/public')
+    );
 
   // --- Property Tests ---
 
@@ -144,10 +169,7 @@ describe('Property 3: Protected Route Authentication Enforcement', () => {
   });
 
   it('unauthenticated requests without isAuthenticated function are blocked', () => {
-    const anyProtectedRouteArb = fc.oneof(
-      protectedPageRouteArb,
-      protectedApiRouteArb
-    );
+    const anyProtectedRouteArb = fc.oneof(protectedPageRouteArb, protectedApiRouteArb);
 
     fc.assert(
       fc.property(anyProtectedRouteArb, (routePath) => {
@@ -189,7 +211,7 @@ describe('Property 3: Protected Route Authentication Enforcement', () => {
   });
 
   it('static asset routes allow unauthenticated access (control group)', () => {
-    const staticAssetArb = pathSegmentArb.map(seg => `/public/${seg}`);
+    const staticAssetArb = pathSegmentArb.map((seg) => `/public/${seg}`);
 
     fc.assert(
       fc.property(staticAssetArb, (routePath) => {

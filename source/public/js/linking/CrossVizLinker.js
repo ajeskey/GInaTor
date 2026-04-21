@@ -42,7 +42,9 @@
     activeFilters.file = null;
     _broadcast({ author: author }, sourceViz);
     _updateIndicator();
-    window.dispatchEvent(new CustomEvent('crossviz:author-selected', { detail: { author: author } }));
+    window.dispatchEvent(
+      new CustomEvent('crossviz:author-selected', { detail: { author: author } })
+    );
   }
 
   /**
@@ -118,12 +120,17 @@
       var label = activeFilters.author
         ? 'Author: ' + activeFilters.author
         : 'File: ' + activeFilters.file;
-      indicator.innerHTML = '<span class="badge badge-info badge-sm mr-2">' + _escapeHtml(label) + '</span>' +
+      indicator.innerHTML =
+        '<span class="badge badge-info badge-sm mr-2">' +
+        _escapeHtml(label) +
+        '</span>' +
         '<button id="crossviz-clear-btn" class="btn btn-ghost btn-xs">Clear All Filters</button>';
       indicator.classList.remove('hidden');
       var clearBtn = document.getElementById('crossviz-clear-btn');
       if (clearBtn) {
-        clearBtn.addEventListener('click', function () { clearAll(); });
+        clearBtn.addEventListener('click', function () {
+          clearAll();
+        });
       }
     } else {
       indicator.innerHTML = '';

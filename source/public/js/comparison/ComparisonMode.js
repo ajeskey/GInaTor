@@ -50,7 +50,9 @@
     var appState = window.AppState ? window.AppState.getState() : {};
     _savedState = {
       repoId: appState.repoId,
-      dateRange: appState.dateRange ? { from: appState.dateRange.from, to: appState.dateRange.to } : { from: null, to: null }
+      dateRange: appState.dateRange
+        ? { from: appState.dateRange.from, to: appState.dateRange.to }
+        : { from: null, to: null }
     };
 
     _leftConfig.repoId = _savedState.repoId;
@@ -110,8 +112,16 @@
    */
   function getConfigs() {
     return {
-      left: { repoId: _leftConfig.repoId, dateFrom: _leftConfig.dateFrom, dateTo: _leftConfig.dateTo },
-      right: { repoId: _rightConfig.repoId, dateFrom: _rightConfig.dateFrom, dateTo: _rightConfig.dateTo }
+      left: {
+        repoId: _leftConfig.repoId,
+        dateFrom: _leftConfig.dateFrom,
+        dateTo: _leftConfig.dateTo
+      },
+      right: {
+        repoId: _rightConfig.repoId,
+        dateFrom: _rightConfig.dateFrom,
+        dateTo: _rightConfig.dateTo
+      }
     };
   }
 
@@ -136,21 +146,29 @@
     configRow.className = 'flex gap-4 mb-4 p-2 bg-base-200 rounded-lg';
     configRow.innerHTML =
       '<div class="flex-1">' +
-        '<label class="label label-text font-semibold">Left Side</label>' +
-        '<div class="flex gap-2">' +
-          '<input type="date" id="compare-left-from" class="input input-bordered input-sm" placeholder="From" value="' + (_leftConfig.dateFrom || '') + '">' +
-          '<input type="date" id="compare-left-to" class="input input-bordered input-sm" placeholder="To" value="' + (_leftConfig.dateTo || '') + '">' +
-        '</div>' +
+      '<label class="label label-text font-semibold">Left Side</label>' +
+      '<div class="flex gap-2">' +
+      '<input type="date" id="compare-left-from" class="input input-bordered input-sm" placeholder="From" value="' +
+      (_leftConfig.dateFrom || '') +
+      '">' +
+      '<input type="date" id="compare-left-to" class="input input-bordered input-sm" placeholder="To" value="' +
+      (_leftConfig.dateTo || '') +
+      '">' +
+      '</div>' +
       '</div>' +
       '<div class="flex-1">' +
-        '<label class="label label-text font-semibold">Right Side</label>' +
-        '<div class="flex gap-2">' +
-          '<input type="date" id="compare-right-from" class="input input-bordered input-sm" placeholder="From" value="' + (_rightConfig.dateFrom || '') + '">' +
-          '<input type="date" id="compare-right-to" class="input input-bordered input-sm" placeholder="To" value="' + (_rightConfig.dateTo || '') + '">' +
-        '</div>' +
+      '<label class="label label-text font-semibold">Right Side</label>' +
+      '<div class="flex gap-2">' +
+      '<input type="date" id="compare-right-from" class="input input-bordered input-sm" placeholder="From" value="' +
+      (_rightConfig.dateFrom || '') +
+      '">' +
+      '<input type="date" id="compare-right-to" class="input input-bordered input-sm" placeholder="To" value="' +
+      (_rightConfig.dateTo || '') +
+      '">' +
+      '</div>' +
       '</div>' +
       '<div class="flex items-end">' +
-        '<button id="compare-apply-btn" class="btn btn-primary btn-sm">Apply</button>' +
+      '<button id="compare-apply-btn" class="btn btn-primary btn-sm">Apply</button>' +
       '</div>';
     panel.appendChild(configRow);
 
@@ -160,7 +178,8 @@
 
     var leftSide = document.createElement('div');
     leftSide.className = 'flex-1 flex flex-col';
-    leftSide.innerHTML = '<div id="compare-left-label" class="text-center font-semibold text-sm mb-1 text-base-content">Left</div>';
+    leftSide.innerHTML =
+      '<div id="compare-left-label" class="text-center font-semibold text-sm mb-1 text-base-content">Left</div>';
     var leftContainer = document.createElement('div');
     leftContainer.id = 'compare-left-viz';
     leftContainer.className = 'bg-base-100 rounded-lg shadow-sm p-4 min-h-96';
@@ -168,7 +187,8 @@
 
     var rightSide = document.createElement('div');
     rightSide.className = 'flex-1 flex flex-col';
-    rightSide.innerHTML = '<div id="compare-right-label" class="text-center font-semibold text-sm mb-1 text-base-content">Right</div>';
+    rightSide.innerHTML =
+      '<div id="compare-right-label" class="text-center font-semibold text-sm mb-1 text-base-content">Right</div>';
     var rightContainer = document.createElement('div');
     rightContainer.id = 'compare-right-viz';
     rightContainer.className = 'bg-base-100 rounded-lg shadow-sm p-4 min-h-96';

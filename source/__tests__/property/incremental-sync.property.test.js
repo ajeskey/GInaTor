@@ -23,7 +23,7 @@ const fc = require('fast-check');
  */
 function filterIncrementalCommits(allCommits, latestStoredDate) {
   const cutoff = new Date(latestStoredDate).getTime();
-  return allCommits.filter(commit => new Date(commit.commitDate).getTime() > cutoff);
+  return allCommits.filter((commit) => new Date(commit.commitDate).getTime() > cutoff);
 }
 
 describe('Property 9: Incremental Sync Correctness', () => {
@@ -39,21 +39,29 @@ describe('Property 9: Incremental Sync Correctness', () => {
   // Generator for a single commit record
   const commitArb = fc.record({
     commitHash: commitHashArb,
-    commitDate: dateArb.map(d => d.toISOString()),
-    authorName: fc.string({ minLength: 1, maxLength: 20 }).filter(s => s.trim().length > 0),
-    authorEmail: fc.tuple(
-      fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 10 }),
-      fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 8 }),
-      fc.constantFrom('com', 'org', 'net')
-    ).map(([local, domain, tld]) => `${local}@${domain}.${tld}`),
-    message: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0)
+    commitDate: dateArb.map((d) => d.toISOString()),
+    authorName: fc.string({ minLength: 1, maxLength: 20 }).filter((s) => s.trim().length > 0),
+    authorEmail: fc
+      .tuple(
+        fc.stringOf(
+          fc.char().filter((c) => /[a-z0-9]/.test(c)),
+          { minLength: 1, maxLength: 10 }
+        ),
+        fc.stringOf(
+          fc.char().filter((c) => /[a-z0-9]/.test(c)),
+          { minLength: 1, maxLength: 8 }
+        ),
+        fc.constantFrom('com', 'org', 'net')
+      )
+      .map(([local, domain, tld]) => `${local}@${domain}.${tld}`),
+    message: fc.string({ minLength: 1, maxLength: 50 }).filter((s) => s.trim().length > 0)
   });
 
   it('returns only commits strictly after the latest stored date', () => {
     fc.assert(
       fc.property(
         fc.array(commitArb, { minLength: 0, maxLength: 30 }),
-        dateArb.map(d => d.toISOString()),
+        dateArb.map((d) => d.toISOString()),
         (allCommits, latestStoredDate) => {
           const result = filterIncrementalCommits(allCommits, latestStoredDate);
           const cutoff = new Date(latestStoredDate).getTime();
@@ -72,16 +80,16 @@ describe('Property 9: Incremental Sync Correctness', () => {
     fc.assert(
       fc.property(
         fc.array(commitArb, { minLength: 0, maxLength: 30 }),
-        dateArb.map(d => d.toISOString()),
+        dateArb.map((d) => d.toISOString()),
         (allCommits, latestStoredDate) => {
           const result = filterIncrementalCommits(allCommits, latestStoredDate);
           const cutoff = new Date(latestStoredDate).getTime();
 
           // Commits at or before the cutoff must not appear in the result
           const excludedCommits = allCommits.filter(
-            c => new Date(c.commitDate).getTime() <= cutoff
+            (c) => new Date(c.commitDate).getTime() <= cutoff
           );
-          const resultHashes = new Set(result.map(c => c.commitHash));
+          const resultHashes = new Set(result.map((c) => c.commitHash));
 
           for (const excluded of excludedCommits) {
             expect(resultHashes.has(excluded.commitHash)).toBe(false);
@@ -96,21 +104,19 @@ describe('Property 9: Incremental Sync Correctness', () => {
     fc.assert(
       fc.property(
         fc.array(commitArb, { minLength: 0, maxLength: 30 }),
-        dateArb.map(d => d.toISOString()),
+        dateArb.map((d) => d.toISOString()),
         (allCommits, latestStoredDate) => {
           const result = filterIncrementalCommits(allCommits, latestStoredDate);
           const cutoff = new Date(latestStoredDate).getTime();
 
           // Manually compute expected set
-          const expected = allCommits.filter(
-            c => new Date(c.commitDate).getTime() > cutoff
-          );
+          const expected = allCommits.filter((c) => new Date(c.commitDate).getTime() > cutoff);
 
           expect(result).toHaveLength(expected.length);
 
           // Same commit hashes in same order
-          const resultHashes = result.map(c => c.commitHash);
-          const expectedHashes = expected.map(c => c.commitHash);
+          const resultHashes = result.map((c) => c.commitHash);
+          const expectedHashes = expected.map((c) => c.commitHash);
           expect(resultHashes).toEqual(expectedHashes);
         }
       ),
@@ -137,10 +143,12 @@ describe('Property 9: Incremental Sync Correctness', () => {
           const result = filterIncrementalCommits(allCommits, cutoffISO);
 
           // No stored commit should appear in the result (their dates are <= cutoff)
-          const storedHashes = new Set(storedCommits
-            .filter(c => new Date(c.commitDate).getTime() <= latestStoredDate)
-            .map(c => c.commitHash));
-          const resultHashes = new Set(result.map(c => c.commitHash));
+          const storedHashes = new Set(
+            storedCommits
+              .filter((c) => new Date(c.commitDate).getTime() <= latestStoredDate)
+              .map((c) => c.commitHash)
+          );
+          const resultHashes = new Set(result.map((c) => c.commitHash));
 
           for (const hash of storedHashes) {
             expect(resultHashes.has(hash)).toBe(false);
@@ -158,36 +166,30 @@ describe('Property 9: Incremental Sync Correctness', () => {
 
   it('returns empty array when all commits are at or before the cutoff', () => {
     fc.assert(
-      fc.property(
-        fc.array(commitArb, { minLength: 1, maxLength: 20 }),
-        (commits) => {
-          // Set cutoff to the max date among all commits — everything should be filtered out
-          const maxDate = commits.reduce((max, c) => {
-            const d = new Date(c.commitDate).getTime();
-            return d > max ? d : max;
-          }, 0);
-          const cutoffISO = new Date(maxDate).toISOString();
+      fc.property(fc.array(commitArb, { minLength: 1, maxLength: 20 }), (commits) => {
+        // Set cutoff to the max date among all commits — everything should be filtered out
+        const maxDate = commits.reduce((max, c) => {
+          const d = new Date(c.commitDate).getTime();
+          return d > max ? d : max;
+        }, 0);
+        const cutoffISO = new Date(maxDate).toISOString();
 
-          const result = filterIncrementalCommits(commits, cutoffISO);
-          expect(result).toHaveLength(0);
-        }
-      ),
+        const result = filterIncrementalCommits(commits, cutoffISO);
+        expect(result).toHaveLength(0);
+      }),
       { numRuns: 200 }
     );
   });
 
   it('returns all commits when cutoff is before all commit dates', () => {
     fc.assert(
-      fc.property(
-        fc.array(commitArb, { minLength: 1, maxLength: 20 }),
-        (commits) => {
-          // Set cutoff to well before all possible commit dates
-          const cutoffISO = new Date('2000-01-01T00:00:00Z').toISOString();
+      fc.property(fc.array(commitArb, { minLength: 1, maxLength: 20 }), (commits) => {
+        // Set cutoff to well before all possible commit dates
+        const cutoffISO = new Date('2000-01-01T00:00:00Z').toISOString();
 
-          const result = filterIncrementalCommits(commits, cutoffISO);
-          expect(result).toHaveLength(commits.length);
-        }
-      ),
+        const result = filterIncrementalCommits(commits, cutoffISO);
+        expect(result).toHaveLength(commits.length);
+      }),
       { numRuns: 200 }
     );
   });

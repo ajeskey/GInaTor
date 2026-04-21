@@ -1,7 +1,12 @@
 'use strict';
 
 const express = require('express');
-const { parseCommonParams, validateRepoId, validateDateRange, errorResponse } = require('./helpers');
+const {
+  parseCommonParams,
+  validateRepoId,
+  validateDateRange,
+  errorResponse
+} = require('./helpers');
 const { computeActivityMatrix } = require('./computations');
 
 function createActivityMatrixRouter(commitStore) {

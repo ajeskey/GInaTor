@@ -27,9 +27,18 @@ describe('Property 4: Pending User Access Denial', () => {
       statusCode: null,
       body: null,
       redirectUrl: null,
-      status(code) { res.statusCode = code; return res; },
-      json(data) { res.body = data; return res; },
-      redirect(url) { res.redirectUrl = url; return res; }
+      status(code) {
+        res.statusCode = code;
+        return res;
+      },
+      json(data) {
+        res.body = data;
+        return res;
+      },
+      redirect(url) {
+        res.redirectUrl = url;
+        return res;
+      }
     };
     return res;
   }
@@ -41,39 +50,52 @@ describe('Property 4: Pending User Access Denial', () => {
   // --- Generators ---
 
   const pathSegmentArb = fc.stringOf(
-    fc.char().filter(c => /[a-z0-9-]/.test(c)),
+    fc.char().filter((c) => /[a-z0-9-]/.test(c)),
     { minLength: 1, maxLength: 15 }
   );
 
   // Protected page routes (non-API, non-public, not /auth/pending)
-  const protectedPageRouteArb = fc.tuple(
-    fc.constantFrom('/dashboard', '/admin', '/settings', '/profile', '/repos'),
-    fc.option(pathSegmentArb, { nil: undefined })
-  ).map(([base, suffix]) => suffix ? `${base}/${suffix}` : base)
-    .filter(path => !isPublicRoute(path) && path !== '/auth/pending');
+  const protectedPageRouteArb = fc
+    .tuple(
+      fc.constantFrom('/dashboard', '/admin', '/settings', '/profile', '/repos'),
+      fc.option(pathSegmentArb, { nil: undefined })
+    )
+    .map(([base, suffix]) => (suffix ? `${base}/${suffix}` : base))
+    .filter((path) => !isPublicRoute(path) && path !== '/auth/pending');
 
   // Protected API routes
-  const protectedApiRouteArb = fc.tuple(
-    fc.constantFrom(
-      '/api/v1/commits', '/api/v1/stats', '/api/v1/heatmap',
-      '/api/v1/treemap', '/api/v1/sunburst', '/api/v1/branches',
-      '/api/v1/pulse', '/api/v1/impact', '/api/v1/collaboration',
-      '/api/v1/filetypes', '/api/v1/activity-matrix', '/api/v1/bookmarks',
-      '/api/v1/annotations', '/api/v1/docs'
-    ),
-    fc.option(pathSegmentArb, { nil: undefined })
-  ).map(([base, suffix]) => suffix ? `${base}/${suffix}` : base);
+  const protectedApiRouteArb = fc
+    .tuple(
+      fc.constantFrom(
+        '/api/v1/commits',
+        '/api/v1/stats',
+        '/api/v1/heatmap',
+        '/api/v1/treemap',
+        '/api/v1/sunburst',
+        '/api/v1/branches',
+        '/api/v1/pulse',
+        '/api/v1/impact',
+        '/api/v1/collaboration',
+        '/api/v1/filetypes',
+        '/api/v1/activity-matrix',
+        '/api/v1/bookmarks',
+        '/api/v1/annotations',
+        '/api/v1/docs'
+      ),
+      fc.option(pathSegmentArb, { nil: undefined })
+    )
+    .map(([base, suffix]) => (suffix ? `${base}/${suffix}` : base));
 
   // Arbitrary non-public, non-pending route paths
-  const arbitraryProtectedRouteArb = fc.tuple(
-    pathSegmentArb,
-    fc.array(pathSegmentArb, { minLength: 0, maxLength: 3 })
-  ).map(([first, rest]) => '/' + [first, ...rest].join('/'))
-    .filter(path =>
-      !isPublicRoute(path) &&
-      !path.startsWith('/public/') &&
-      !path.startsWith('/public') &&
-      path !== '/auth/pending'
+  const arbitraryProtectedRouteArb = fc
+    .tuple(pathSegmentArb, fc.array(pathSegmentArb, { minLength: 0, maxLength: 3 }))
+    .map(([first, rest]) => '/' + [first, ...rest].join('/'))
+    .filter(
+      (path) =>
+        !isPublicRoute(path) &&
+        !path.startsWith('/public/') &&
+        !path.startsWith('/public') &&
+        path !== '/auth/pending'
     );
 
   // --- Property Tests ---
@@ -141,10 +163,7 @@ describe('Property 4: Pending User Access Denial', () => {
   });
 
   it('pending user with no user object is also denied access', () => {
-    const anyProtectedRouteArb = fc.oneof(
-      protectedPageRouteArb,
-      protectedApiRouteArb
-    );
+    const anyProtectedRouteArb = fc.oneof(protectedPageRouteArb, protectedApiRouteArb);
 
     fc.assert(
       fc.property(anyProtectedRouteArb, (routePath) => {

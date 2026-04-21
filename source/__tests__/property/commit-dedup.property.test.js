@@ -21,7 +21,9 @@ jest.mock('@aws-sdk/client-dynamodb', () => ({
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
   DynamoDBDocumentClient: {
     from: jest.fn().mockImplementation(() => ({
-      get send() { return mockSend; }
+      get send() {
+        return mockSend;
+      }
     }))
   },
   PutCommand: jest.fn().mockImplementation((params) => ({ ...params, _type: 'Put' })),
@@ -35,37 +37,53 @@ const CommitStore = require('../../modules/commit-store');
 
 const commitHashArb = fc.hexaString({ minLength: 40, maxLength: 40 });
 
-const repoIdArb = fc.stringOf(
-  fc.char().filter(c => /[a-zA-Z0-9-]/.test(c)),
-  { minLength: 1, maxLength: 30 }
-).filter(s => s.trim().length > 0);
+const repoIdArb = fc
+  .stringOf(
+    fc.char().filter((c) => /[a-zA-Z0-9-]/.test(c)),
+    { minLength: 1, maxLength: 30 }
+  )
+  .filter((s) => s.trim().length > 0);
 
-const dateArb = fc.date({
-  min: new Date('2015-01-01T00:00:00Z'),
-  max: new Date('2030-12-31T23:59:59Z')
-}).map(d => d.toISOString());
+const dateArb = fc
+  .date({
+    min: new Date('2015-01-01T00:00:00Z'),
+    max: new Date('2030-12-31T23:59:59Z')
+  })
+  .map((d) => d.toISOString());
 
-const emailArb = fc.tuple(
-  fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 10 }),
-  fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 8 }),
-  fc.constantFrom('com', 'org', 'net')
-).map(([local, domain, tld]) => `${local}@${domain}.${tld}`);
+const emailArb = fc
+  .tuple(
+    fc.stringOf(
+      fc.char().filter((c) => /[a-z0-9]/.test(c)),
+      { minLength: 1, maxLength: 10 }
+    ),
+    fc.stringOf(
+      fc.char().filter((c) => /[a-z0-9]/.test(c)),
+      { minLength: 1, maxLength: 8 }
+    ),
+    fc.constantFrom('com', 'org', 'net')
+  )
+  .map(([local, domain, tld]) => `${local}@${domain}.${tld}`);
 
 const changeTypeArb = fc.constantFrom('added', 'modified', 'deleted');
 
 const changedFileArb = fc.record({
-  path: fc.stringOf(fc.char().filter(c => /[a-zA-Z0-9/._-]/.test(c)), { minLength: 1, maxLength: 30 })
-    .filter(s => s.trim().length > 0),
+  path: fc
+    .stringOf(
+      fc.char().filter((c) => /[a-zA-Z0-9/._-]/.test(c)),
+      { minLength: 1, maxLength: 30 }
+    )
+    .filter((s) => s.trim().length > 0),
   changeType: changeTypeArb
 });
 
 const commitRecordArb = fc.record({
   repositoryId: repoIdArb,
   commitHash: commitHashArb,
-  authorName: fc.string({ minLength: 1, maxLength: 20 }).filter(s => s.trim().length > 0),
+  authorName: fc.string({ minLength: 1, maxLength: 20 }).filter((s) => s.trim().length > 0),
   authorEmail: emailArb,
   commitDate: dateArb,
-  message: fc.string({ minLength: 1, maxLength: 80 }).filter(s => s.trim().length > 0),
+  message: fc.string({ minLength: 1, maxLength: 80 }).filter((s) => s.trim().length > 0),
   changedFiles: fc.array(changedFileArb, { minLength: 0, maxLength: 5 })
 });
 

@@ -74,7 +74,8 @@
     container.appendChild(controls);
 
     // SVG
-    svg = d3.select(container)
+    svg = d3
+      .select(container)
       .append('svg')
       .attr('width', width)
       .attr('height', height)
@@ -86,7 +87,8 @@
     yScale = d3.scaleLinear().range([chartHeight, 0]);
 
     // Clip path
-    svg.append('defs')
+    svg
+      .append('defs')
       .append('clipPath')
       .attr('id', 'timeline-clip')
       .append('rect')
@@ -97,12 +99,14 @@
     svg.append('g').attr('class', 'chart-area').attr('clip-path', 'url(#timeline-clip)');
 
     // X axis
-    svg.append('g')
+    svg
+      .append('g')
       .attr('class', 'x-axis')
       .attr('transform', 'translate(0,' + chartHeight + ')');
 
     // Left slider handle
-    svg.append('rect')
+    svg
+      .append('rect')
       .attr('class', 'slider-left')
       .attr('x', 0)
       .attr('y', 0)
@@ -113,7 +117,8 @@
       .call(d3.drag().on('drag', onDragLeft));
 
     // Right slider handle
-    svg.append('rect')
+    svg
+      .append('rect')
       .attr('class', 'slider-right')
       .attr('x', chartWidth - 6)
       .attr('y', 0)
@@ -124,16 +129,25 @@
       .call(d3.drag().on('drag', onDragRight));
 
     // Shaded regions outside selection
-    svg.append('rect').attr('class', 'shade-left')
-      .attr('y', 0).attr('height', chartHeight)
-      .attr('fill', 'rgba(0,0,0,0.15)').attr('pointer-events', 'none');
+    svg
+      .append('rect')
+      .attr('class', 'shade-left')
+      .attr('y', 0)
+      .attr('height', chartHeight)
+      .attr('fill', 'rgba(0,0,0,0.15)')
+      .attr('pointer-events', 'none');
 
-    svg.append('rect').attr('class', 'shade-right')
-      .attr('y', 0).attr('height', chartHeight)
-      .attr('fill', 'rgba(0,0,0,0.15)').attr('pointer-events', 'none');
+    svg
+      .append('rect')
+      .attr('class', 'shade-right')
+      .attr('y', 0)
+      .attr('height', chartHeight)
+      .attr('fill', 'rgba(0,0,0,0.15)')
+      .attr('pointer-events', 'none');
 
     // Scrub indicator
-    svg.append('line')
+    svg
+      .append('line')
       .attr('class', 'scrub-indicator')
       .attr('y1', 0)
       .attr('y2', chartHeight)
@@ -142,7 +156,8 @@
       .attr('display', 'none');
 
     // Middle area click for scrub mode
-    svg.append('rect')
+    svg
+      .append('rect')
       .attr('class', 'scrub-area')
       .attr('y', 0)
       .attr('height', chartHeight)
@@ -161,7 +176,9 @@
     currentRepoId = repoId;
 
     fetch('/api/v1/timeline?repoId=' + encodeURIComponent(repoId), { credentials: 'same-origin' })
-      .then(function (res) { return res.ok ? res.json() : { buckets: [], commits: [] }; })
+      .then(function (res) {
+        return res.ok ? res.json() : { buckets: [], commits: [] };
+      })
       .then(function (data) {
         buckets = (data.buckets || data || []).map(function (b) {
           return {
@@ -188,7 +205,9 @@
     if (!svg || !buckets.length) return;
 
     // Sort by date
-    buckets.sort(function (a, b) { return a.date - b.date; });
+    buckets.sort(function (a, b) {
+      return a.date - b.date;
+    });
 
     fullFrom = buckets[0].date;
     fullTo = buckets[buckets.length - 1].date;
@@ -198,9 +217,10 @@
 
     xScale.domain([fullFrom, fullTo]);
 
-    var maxY = d3.max(buckets, function (d) {
-      return d.additions + d.deletions + d.modifications;
-    }) || 1;
+    var maxY =
+      d3.max(buckets, function (d) {
+        return d.additions + d.deletions + d.modifications;
+      }) || 1;
     yScale.domain([0, maxY]);
 
     // Stack data
@@ -210,17 +230,25 @@
     var stack = d3.stack().keys(stackKeys);
     var series = stack(buckets);
 
-    var area = d3.area()
-      .x(function (d) { return xScale(d.data.date); })
-      .y0(function (d) { return yScale(d[0]); })
-      .y1(function (d) { return yScale(d[1]); })
+    var area = d3
+      .area()
+      .x(function (d) {
+        return xScale(d.data.date);
+      })
+      .y0(function (d) {
+        return yScale(d[0]);
+      })
+      .y1(function (d) {
+        return yScale(d[1]);
+      })
       .curve(d3.curveMonotoneX);
 
     var chartArea = svg.select('.chart-area');
     chartArea.selectAll('path').remove();
 
     series.forEach(function (s) {
-      chartArea.append('path')
+      chartArea
+        .append('path')
         .datum(s)
         .attr('d', area)
         .attr('fill', colors[s.key] || '#999')
@@ -228,8 +256,7 @@
     });
 
     // X axis
-    svg.select('.x-axis')
-      .call(d3.axisBottom(xScale).ticks(6).tickFormat(d3.timeFormat('%b %Y')));
+    svg.select('.x-axis').call(d3.axisBottom(xScale).ticks(6).tickFormat(d3.timeFormat('%b %Y')));
 
     updateSliders();
   }
@@ -247,10 +274,16 @@
     svg.select('.slider-right').attr('x', Math.min(chartWidth - 6, rx - 3));
 
     svg.select('.shade-left').attr('x', 0).attr('width', Math.max(0, lx));
-    svg.select('.shade-right').attr('x', rx).attr('width', Math.max(0, chartWidth - rx));
+    svg
+      .select('.shade-right')
+      .attr('x', rx)
+      .attr('width', Math.max(0, chartWidth - rx));
 
     // Scrub area between sliders
-    svg.select('.scrub-area').attr('x', lx).attr('width', Math.max(0, rx - lx));
+    svg
+      .select('.scrub-area')
+      .attr('x', lx)
+      .attr('width', Math.max(0, rx - lx));
 
     // Update date labels
     if (leftDateLabel) leftDateLabel.textContent = formatDate(rangeFrom);
@@ -322,10 +355,7 @@
     var rx = xScale(rangeTo);
     x = Math.max(lx, Math.min(x, rx));
 
-    svg.select('.scrub-indicator')
-      .attr('x1', x)
-      .attr('x2', x)
-      .attr('display', 'block');
+    svg.select('.scrub-indicator').attr('x1', x).attr('x2', x).attr('display', 'block');
 
     // Find closest commit index
     var scrubDate = xScale.invert(x);
@@ -338,7 +368,9 @@
       var closest = 0;
       var minDiff = Infinity;
       for (var i = 0; i < rangeCommits.length; i++) {
-        var diff = Math.abs(new Date(rangeCommits[i].commitDate || rangeCommits[i].date) - scrubDate);
+        var diff = Math.abs(
+          new Date(rangeCommits[i].commitDate || rangeCommits[i].date) - scrubDate
+        );
         if (diff < minDiff) {
           minDiff = diff;
           closest = i;
@@ -349,9 +381,11 @@
       scrubIndex = null;
     }
 
-    window.dispatchEvent(new CustomEvent('scrub-position-changed', {
-      detail: { position: scrubIndex }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('scrub-position-changed', {
+        detail: { position: scrubIndex }
+      })
+    );
 
     if (window.AppState) {
       window.AppState.setScrubPosition(scrubIndex);

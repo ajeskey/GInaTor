@@ -21,9 +21,7 @@ describe('Property 10: Webhook Signature Validation', () => {
   const secretArb = fc.string({ minLength: 1, maxLength: 128 });
 
   // Generator for a pair of distinct non-empty secrets
-  const distinctSecretPairArb = fc
-    .tuple(secretArb, secretArb)
-    .filter(([s1, s2]) => s1 !== s2);
+  const distinctSecretPairArb = fc.tuple(secretArb, secretArb).filter(([s1, s2]) => s1 !== s2);
 
   // Generator for webhook payloads (non-empty strings)
   const payloadArb = fc.string({ minLength: 1, maxLength: 2048 });
@@ -33,8 +31,7 @@ describe('Property 10: Webhook Signature Validation', () => {
       fc.assert(
         fc.property(payloadArb, secretArb, (payload, secret) => {
           const signature =
-            'sha256=' +
-            crypto.createHmac('sha256', secret).update(payload).digest('hex');
+            'sha256=' + crypto.createHmac('sha256', secret).update(payload).digest('hex');
           expect(validateGitHubSignature(payload, secret, signature)).toBe(true);
         }),
         { numRuns: 200 }
@@ -43,21 +40,11 @@ describe('Property 10: Webhook Signature Validation', () => {
 
     it('fails validation when signature is computed with a different secret', () => {
       fc.assert(
-        fc.property(
-          payloadArb,
-          distinctSecretPairArb,
-          (payload, [correctSecret, wrongSecret]) => {
-            const signature =
-              'sha256=' +
-              crypto
-                .createHmac('sha256', wrongSecret)
-                .update(payload)
-                .digest('hex');
-            expect(validateGitHubSignature(payload, correctSecret, signature)).toBe(
-              false
-            );
-          }
-        ),
+        fc.property(payloadArb, distinctSecretPairArb, (payload, [correctSecret, wrongSecret]) => {
+          const signature =
+            'sha256=' + crypto.createHmac('sha256', wrongSecret).update(payload).digest('hex');
+          expect(validateGitHubSignature(payload, correctSecret, signature)).toBe(false);
+        }),
         { numRuns: 200 }
       );
     });

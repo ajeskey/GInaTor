@@ -25,18 +25,22 @@
     this._render();
   };
 
-  ActivityMatrix.prototype.resize = function () { this._render(); };
+  ActivityMatrix.prototype.resize = function () {
+    this._render();
+  };
 
   ActivityMatrix.prototype._render = function () {
     var self = this;
     if (!this.repoId) return;
 
-    this._fetch(this._apiUrl('/api/v1/activity-matrix')).then(function (data) {
-      self.data = data;
-      self._draw(data);
-    }).catch(function (err) {
-      console.error('ActivityMatrix fetch error:', err);
-    });
+    this._fetch(this._apiUrl('/api/v1/activity-matrix'))
+      .then(function (data) {
+        self.data = data;
+        self._draw(data);
+      })
+      .catch(function (err) {
+        console.error('ActivityMatrix fetch error:', err);
+      });
   };
 
   ActivityMatrix.prototype._draw = function (data) {
@@ -59,7 +63,9 @@
 
     var maxVal = 0;
     grid.forEach(function (row) {
-      row.forEach(function (v) { if (v > maxVal) maxVal = v; });
+      row.forEach(function (v) {
+        if (v > maxVal) maxVal = v;
+      });
     });
     maxVal = maxVal || 1;
 
@@ -71,9 +77,17 @@
     var yScale = d3.scaleBand().domain(days).range([0, h]).padding(0.05);
 
     // X axis (hours)
-    g.append('g').attr('transform', 'translate(0,' + h + ')')
-      .call(d3.axisBottom(xScale).tickFormat(function (d) { return d + ':00'; }))
-      .selectAll('text').style('font-size', '9px').attr('transform', 'rotate(-45)').style('text-anchor', 'end');
+    g.append('g')
+      .attr('transform', 'translate(0,' + h + ')')
+      .call(
+        d3.axisBottom(xScale).tickFormat(function (d) {
+          return d + ':00';
+        })
+      )
+      .selectAll('text')
+      .style('font-size', '9px')
+      .attr('transform', 'rotate(-45)')
+      .style('text-anchor', 'end');
 
     // Y axis (days)
     g.append('g').call(d3.axisLeft(yScale)).selectAll('text').style('font-size', '11px');
@@ -92,16 +106,25 @@
           .on('mouseover', function (event) {
             self._showTooltip(tip, '<b>' + day + ' ' + hour + ':00</b><br>Commits: ' + val, event);
           })
-          .on('mouseout', function () { self._hideTooltip(tip); })
+          .on('mouseout', function () {
+            self._hideTooltip(tip);
+          })
           .on('click', function () {
-            window.dispatchEvent(new CustomEvent('viz:timeslot-selected', { detail: { day: di, hour: hour } }));
+            window.dispatchEvent(
+              new CustomEvent('viz:timeslot-selected', { detail: { day: di, hour: hour } })
+            );
           });
       });
     });
 
     // Title
-    svg.append('text').attr('x', dims.width / 2).attr('y', 25)
-      .attr('text-anchor', 'middle').style('font-size', '14px').style('font-weight', 'bold')
+    svg
+      .append('text')
+      .attr('x', dims.width / 2)
+      .attr('y', 25)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '14px')
+      .style('font-weight', 'bold')
       .text('Activity Matrix');
   };
 

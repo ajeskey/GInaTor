@@ -18,20 +18,34 @@ describe('Property 1: Email and Password Validation', () => {
 
   // Generator for well-formed emails: non-empty local part, exactly one @,
   // domain with at least one dot, dot not first or last in domain
-  const validEmailArb = fc.tuple(
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 20 }
-    ),
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
-    ),
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
+  const validEmailArb = fc
+    .tuple(
+      fc.stringOf(
+        fc
+          .char()
+          .filter((c) => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
+        { minLength: 1, maxLength: 20 }
+      ),
+      fc.stringOf(
+        fc
+          .char()
+          .filter(
+            (c) =>
+              c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126
+          ),
+        { minLength: 1, maxLength: 10 }
+      ),
+      fc.stringOf(
+        fc
+          .char()
+          .filter(
+            (c) =>
+              c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126
+          ),
+        { minLength: 1, maxLength: 10 }
+      )
     )
-  ).map(([local, domainLabel, tld]) => `${local}@${domainLabel}.${tld}`);
+    .map(([local, domainLabel, tld]) => `${local}@${domainLabel}.${tld}`);
 
   // Generator for valid passwords (>= 8 characters)
   const validPasswordArb = fc.string({ minLength: 8, maxLength: 50 });
@@ -41,64 +55,105 @@ describe('Property 1: Email and Password Validation', () => {
 
   // Generator for emails missing @ entirely
   const noAtEmailArb = fc.stringOf(
-    fc.char().filter(c => c !== '@'),
+    fc.char().filter((c) => c !== '@'),
     { minLength: 1, maxLength: 30 }
   );
 
   // Generator for emails with empty local part (starts with @)
-  const emptyLocalEmailArb = fc.tuple(
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
-    ),
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
+  const emptyLocalEmailArb = fc
+    .tuple(
+      fc.stringOf(
+        fc
+          .char()
+          .filter(
+            (c) =>
+              c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126
+          ),
+        { minLength: 1, maxLength: 10 }
+      ),
+      fc.stringOf(
+        fc
+          .char()
+          .filter(
+            (c) =>
+              c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126
+          ),
+        { minLength: 1, maxLength: 10 }
+      )
     )
-  ).map(([label, tld]) => `@${label}.${tld}`);
+    .map(([label, tld]) => `@${label}.${tld}`);
 
   // Generator for emails with multiple @ signs
-  const multipleAtEmailArb = fc.tuple(
-    fc.string({ minLength: 1, maxLength: 10 }),
-    fc.string({ minLength: 1, maxLength: 10 }),
-    fc.string({ minLength: 1, maxLength: 10 })
-  ).map(([a, b, c]) => `${a}@${b}@${c}`);
+  const multipleAtEmailArb = fc
+    .tuple(
+      fc.string({ minLength: 1, maxLength: 10 }),
+      fc.string({ minLength: 1, maxLength: 10 }),
+      fc.string({ minLength: 1, maxLength: 10 })
+    )
+    .map(([a, b, c]) => `${a}@${b}@${c}`);
 
   // Generator for emails with no dot in domain
-  const noDotDomainEmailArb = fc.tuple(
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
-    ),
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
+  const noDotDomainEmailArb = fc
+    .tuple(
+      fc.stringOf(
+        fc
+          .char()
+          .filter((c) => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
+        { minLength: 1, maxLength: 10 }
+      ),
+      fc.stringOf(
+        fc
+          .char()
+          .filter(
+            (c) =>
+              c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126
+          ),
+        { minLength: 1, maxLength: 10 }
+      )
     )
-  ).map(([local, domain]) => `${local}@${domain}`);
+    .map(([local, domain]) => `${local}@${domain}`);
 
   // Generator for emails where domain starts with dot
-  const dotStartDomainEmailArb = fc.tuple(
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
-    ),
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
+  const dotStartDomainEmailArb = fc
+    .tuple(
+      fc.stringOf(
+        fc
+          .char()
+          .filter((c) => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
+        { minLength: 1, maxLength: 10 }
+      ),
+      fc.stringOf(
+        fc
+          .char()
+          .filter(
+            (c) =>
+              c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126
+          ),
+        { minLength: 1, maxLength: 10 }
+      )
     )
-  ).map(([local, domain]) => `${local}@.${domain}`);
+    .map(([local, domain]) => `${local}@.${domain}`);
 
   // Generator for emails where domain ends with dot
-  const dotEndDomainEmailArb = fc.tuple(
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
-    ),
-    fc.stringOf(
-      fc.char().filter(c => c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
-      { minLength: 1, maxLength: 10 }
+  const dotEndDomainEmailArb = fc
+    .tuple(
+      fc.stringOf(
+        fc
+          .char()
+          .filter((c) => c !== '@' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126),
+        { minLength: 1, maxLength: 10 }
+      ),
+      fc.stringOf(
+        fc
+          .char()
+          .filter(
+            (c) =>
+              c !== '@' && c !== '.' && c !== ' ' && c.charCodeAt(0) >= 33 && c.charCodeAt(0) <= 126
+          ),
+        { minLength: 1, maxLength: 10 }
+      )
     )
-  ).map(([local, domain]) => `${local}@${domain}.`);
+    .map(([local, domain]) => `${local}@${domain}.`);
 
   // --- Property Tests ---
 
@@ -169,7 +224,7 @@ describe('Property 1: Email and Password Validation', () => {
   it('rejects non-string email inputs', () => {
     fc.assert(
       fc.property(
-        fc.anything().filter(v => typeof v !== 'string'),
+        fc.anything().filter((v) => typeof v !== 'string'),
         (email) => {
           expect(isValidEmail(email)).toBe(false);
         }
@@ -199,7 +254,7 @@ describe('Property 1: Email and Password Validation', () => {
   it('rejects non-string password inputs', () => {
     fc.assert(
       fc.property(
-        fc.anything().filter(v => typeof v !== 'string'),
+        fc.anything().filter((v) => typeof v !== 'string'),
         (password) => {
           expect(isValidPassword(password)).toBe(false);
         }

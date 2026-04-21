@@ -21,7 +21,11 @@ function createDocsRouter() {
         from: { type: 'string', required: false, description: 'Start date (ISO 8601, inclusive)' },
         to: { type: 'string', required: false, description: 'End date (ISO 8601, inclusive)' },
         limit: { type: 'integer', required: false, description: 'Page size (default 50, max 500)' },
-        offset: { type: 'integer', required: false, description: 'Number of items to skip (default 0)' }
+        offset: {
+          type: 'integer',
+          required: false,
+          description: 'Number of items to skip (default 0)'
+        }
       },
       paginationFormat: {
         items: 'Array of result objects',
@@ -30,9 +34,22 @@ function createDocsRouter() {
         offset: 'Offset used'
       },
       endpoints: [
-        { method: 'GET', path: '/commits', description: 'Paginated commits by repo and optional date range' },
-        { method: 'GET', path: '/stats', description: 'Repository statistics (contributor count, file count, date range, commit count)' },
-        { method: 'GET', path: '/heatmap', description: 'Contributor heatmap data (author × time grid)' },
+        {
+          method: 'GET',
+          path: '/commits',
+          description: 'Paginated commits by repo and optional date range'
+        },
+        {
+          method: 'GET',
+          path: '/stats',
+          description:
+            'Repository statistics (contributor count, file count, date range, commit count)'
+        },
+        {
+          method: 'GET',
+          path: '/heatmap',
+          description: 'Contributor heatmap data (author × time grid)'
+        },
         { method: 'GET', path: '/treemap', description: 'File hotspot treemap data' },
         { method: 'GET', path: '/sunburst', description: 'Code ownership sunburst data' },
         { method: 'GET', path: '/branches', description: 'Branch/merge graph data' },

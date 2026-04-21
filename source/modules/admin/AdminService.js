@@ -170,7 +170,7 @@ class AdminService {
     };
 
     // Remove undefined fields
-    Object.keys(item).forEach(k => item[k] === undefined && delete item[k]);
+    Object.keys(item).forEach((k) => item[k] === undefined && delete item[k]);
 
     if (data.repoId) {
       // Update existing
@@ -188,9 +188,7 @@ class AdminService {
         })
       );
     } else {
-      await this.docClient.send(
-        new PutCommand({ TableName: REPO_CONFIGS_TABLE, Item: item })
-      );
+      await this.docClient.send(new PutCommand({ TableName: REPO_CONFIGS_TABLE, Item: item }));
     }
 
     return { repoId, name, providerType };
@@ -222,9 +220,7 @@ class AdminService {
    * @returns {Promise<object[]>}
    */
   async listRepoConfigs() {
-    const result = await this.docClient.send(
-      new ScanCommand({ TableName: REPO_CONFIGS_TABLE })
-    );
+    const result = await this.docClient.send(new ScanCommand({ TableName: REPO_CONFIGS_TABLE }));
     return result.Items || [];
   }
 
@@ -302,9 +298,7 @@ class AdminService {
       description: data.description || ''
     };
 
-    await this.docClient.send(
-      new PutCommand({ TableName: SPRINT_MARKERS_TABLE, Item: item })
-    );
+    await this.docClient.send(new PutCommand({ TableName: SPRINT_MARKERS_TABLE, Item: item }));
 
     return item;
   }

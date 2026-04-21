@@ -1,6 +1,12 @@
 'use strict';
 
-const { requireAuth, requireApproved, requireAdmin, isPublicRoute, isApiRequest } = require('../../modules/middleware/authGuard');
+const {
+  requireAuth,
+  requireApproved,
+  requireAdmin,
+  isPublicRoute,
+  isApiRequest
+} = require('../../modules/middleware/authGuard');
 
 /**
  * Helper to create a mock request object.
@@ -22,9 +28,18 @@ function mockRes() {
     statusCode: null,
     body: null,
     redirectUrl: null,
-    status(code) { res.statusCode = code; return res; },
-    json(data) { res.body = data; return res; },
-    redirect(url) { res.redirectUrl = url; return res; }
+    status(code) {
+      res.statusCode = code;
+      return res;
+    },
+    json(data) {
+      res.body = data;
+      return res;
+    },
+    redirect(url) {
+      res.redirectUrl = url;
+      return res;
+    }
   };
   return res;
 }

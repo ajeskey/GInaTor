@@ -22,7 +22,7 @@
         return res.json();
       })
       .then(function (data) {
-        var repos = Array.isArray(data) ? data : (data.repos || data.items || []);
+        var repos = Array.isArray(data) ? data : data.repos || data.items || [];
         renderRepos(repos);
       })
       .catch(function () {
@@ -56,8 +56,10 @@
     // If only one repo, show as plain text (no dropdown indicator)
     if (repos.length === 1) {
       var repo = repos[0];
-      container.innerHTML = '<span class="font-semibold text-sm px-2">' +
-        escapeHtml(repo.name || repo.repoId) + '</span>';
+      container.innerHTML =
+        '<span class="font-semibold text-sm px-2">' +
+        escapeHtml(repo.name || repo.repoId) +
+        '</span>';
       // Auto-select the single repo
       notifyRepoChange(repo.repoId);
       return;
@@ -93,9 +95,11 @@
   function notifyRepoChange(repoId) {
     if (!repoId) return;
     localStorage.setItem(STORAGE_KEY, repoId);
-    window.dispatchEvent(new CustomEvent('repo-changed', {
-      detail: { repoId: repoId }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('repo-changed', {
+        detail: { repoId: repoId }
+      })
+    );
   }
 
   /**

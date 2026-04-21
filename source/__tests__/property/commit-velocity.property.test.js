@@ -11,12 +11,16 @@ const commitRecordArb = fc.record({
   commitHash: fc.hexaString({ minLength: 40, maxLength: 40 }),
   authorName: fc.string({ minLength: 1, maxLength: 50 }),
   authorEmail: fc.emailAddress(),
-  commitDate: fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') })
-    .map(d => d.toISOString()),
+  commitDate: fc
+    .date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') })
+    .map((d) => d.toISOString()),
   message: fc.string({ minLength: 1, maxLength: 200 }),
   changedFiles: fc.array(
     fc.record({
-      path: fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz/._-'.split('')), { minLength: 3, maxLength: 50 }),
+      path: fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz/._-'.split('')), {
+        minLength: 3,
+        maxLength: 50
+      }),
       changeType: fc.constantFrom('added', 'modified', 'deleted'),
       additions: fc.nat({ max: 500 }),
       deletions: fc.nat({ max: 500 })
@@ -46,7 +50,7 @@ describe('Property 18: Commit Velocity Aggregation', () => {
         // Test with daily granularity for easy verification
         const result = computeCommitVelocity(commits, 'daily');
         for (const dp of result) {
-          const expected = commits.filter(c => c.commitDate.slice(0, 10) === dp.period).length;
+          const expected = commits.filter((c) => c.commitDate.slice(0, 10) === dp.period).length;
           expect(dp.count).toBe(expected);
         }
       }),

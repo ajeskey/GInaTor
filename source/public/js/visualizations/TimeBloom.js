@@ -68,20 +68,24 @@
     window.VisualizationBase.prototype.destroy.call(this);
   };
 
-  TimeBloom.prototype.exportSVG = function () { return null; }; // WebGL — no SVG
+  TimeBloom.prototype.exportSVG = function () {
+    return null;
+  }; // WebGL — no SVG
 
   TimeBloom.prototype._fetchData = function () {
     var self = this;
     if (!this.repoId) return;
 
-    this._fetch(this._apiUrl('/api/v1/commits', { limit: 1000 })).then(function (data) {
-      self._commits = data.commits || data.items || [];
-      self._initScene();
-      self._buildControls();
-      self._animate();
-    }).catch(function (err) {
-      console.error('TimeBloom fetch error:', err);
-    });
+    this._fetch(this._apiUrl('/api/v1/commits', { limit: 1000 }))
+      .then(function (data) {
+        self._commits = data.commits || data.items || [];
+        self._initScene();
+        self._buildControls();
+        self._animate();
+      })
+      .catch(function (err) {
+        console.error('TimeBloom fetch error:', err);
+      });
   };
 
   TimeBloom.prototype._initScene = function () {
@@ -135,11 +139,14 @@
   TimeBloom.prototype._setupMouseControls = function () {
     var self = this;
     var isDragging = false;
-    var prevX = 0, prevY = 0;
+    var prevX = 0,
+      prevY = 0;
     var canvas = this._renderer.domElement;
 
     canvas.addEventListener('mousedown', function (e) {
-      isDragging = true; prevX = e.clientX; prevY = e.clientY;
+      isDragging = true;
+      prevX = e.clientX;
+      prevY = e.clientY;
     });
     canvas.addEventListener('mousemove', function (e) {
       if (!isDragging) return;
@@ -148,9 +155,12 @@
       self._camera.position.x -= dx * 0.5;
       self._camera.position.y += dy * 0.5;
       self._camera.lookAt(0, 0, 0);
-      prevX = e.clientX; prevY = e.clientY;
+      prevX = e.clientX;
+      prevY = e.clientY;
     });
-    canvas.addEventListener('mouseup', function () { isDragging = false; });
+    canvas.addEventListener('mouseup', function () {
+      isDragging = false;
+    });
     canvas.addEventListener('wheel', function (e) {
       self._camera.position.z += e.deltaY * 0.3;
       self._camera.position.z = Math.max(50, Math.min(800, self._camera.position.z));
@@ -165,12 +175,14 @@
 
     var bar = document.createElement('div');
     bar.className = 'tb-controls';
-    bar.style.cssText = 'position:absolute;bottom:10px;left:50%;transform:translateX(-50%);' +
+    bar.style.cssText =
+      'position:absolute;bottom:10px;left:50%;transform:translateX(-50%);' +
       'display:flex;gap:8px;align-items:center;background:rgba(0,0,0,0.7);padding:6px 14px;border-radius:8px;z-index:10;';
 
     var playBtn = document.createElement('button');
     playBtn.textContent = '▶ Play';
-    playBtn.style.cssText = 'color:#fff;background:none;border:1px solid #555;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;';
+    playBtn.style.cssText =
+      'color:#fff;background:none;border:1px solid #555;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;';
     playBtn.addEventListener('click', function () {
       self._playing = !self._playing;
       playBtn.textContent = self._playing ? '⏸ Pause' : '▶ Play';
@@ -180,8 +192,11 @@
     [0.5, 1, 2, 4].forEach(function (s) {
       var btn = document.createElement('button');
       btn.textContent = s + 'x';
-      btn.style.cssText = 'color:#fff;background:none;border:1px solid #555;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;';
-      btn.addEventListener('click', function () { self._speed = s; });
+      btn.style.cssText =
+        'color:#fff;background:none;border:1px solid #555;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;';
+      btn.addEventListener('click', function () {
+        self._speed = s;
+      });
       bar.appendChild(btn);
     });
 
@@ -226,7 +241,11 @@
             : new THREE.SphereGeometry(3, 10, 10);
 
           var color = isLeaf
-            ? (f.changeType === 'added' ? 0x22c55e : f.changeType === 'deleted' ? 0xef4444 : 0x3b82f6)
+            ? f.changeType === 'added'
+              ? 0x22c55e
+              : f.changeType === 'deleted'
+                ? 0xef4444
+                : 0x3b82f6
             : 0x8b5cf6;
 
           var mat = new THREE.MeshPhongMaterial({ color: color, transparent: true, opacity: 0 });
@@ -237,12 +256,22 @@
 
           // Edge to parent
           var edgeGeo = new THREE.BufferGeometry().setFromPoints([parentNode.pos, pos]);
-          var edgeMat = new THREE.LineBasicMaterial({ color: 0x444444, transparent: true, opacity: 0 });
+          var edgeMat = new THREE.LineBasicMaterial({
+            color: 0x444444,
+            transparent: true,
+            opacity: 0
+          });
           var edge = new THREE.Line(edgeGeo, edgeMat);
           self._scene.add(edge);
           self._edges.push({ line: edge, mat: edgeMat });
 
-          parentNode.children[part] = { mesh: mesh, pos: pos, children: {}, mat: mat, edgeMat: edgeMat };
+          parentNode.children[part] = {
+            mesh: mesh,
+            pos: pos,
+            children: {},
+            mat: mat,
+            edgeMat: edgeMat
+          };
 
           // Bloom animation — fade in
           self._tweenOpacity(mat, 0, 0.9, 500);

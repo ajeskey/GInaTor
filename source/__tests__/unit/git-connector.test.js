@@ -27,7 +27,9 @@ describe('Git Connector Module', () => {
 
     test('parseWebhookPayload() throws not implemented', () => {
       const connector = new GitConnector();
-      expect(() => connector.parseWebhookPayload({})).toThrow('parseWebhookPayload() must be implemented');
+      expect(() => connector.parseWebhookPayload({})).toThrow(
+        'parseWebhookPayload() must be implemented'
+      );
     });
   });
 
@@ -66,10 +68,15 @@ describe('Git Connector Module', () => {
     }
 
     test('parses a single commit entry', () => {
-      const raw = RECORD_DELIMITER + makeRawEntry(
-        'abc123def456', 'John Doe', 'john@example.com',
-        '2024-01-15T10:30:00+00:00', 'Initial commit'
-      );
+      const raw =
+        RECORD_DELIMITER +
+        makeRawEntry(
+          'abc123def456',
+          'John Doe',
+          'john@example.com',
+          '2024-01-15T10:30:00+00:00',
+          'Initial commit'
+        );
       const result = parseGitLog(raw, 'repo-1');
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
@@ -85,8 +92,10 @@ describe('Git Connector Module', () => {
 
     test('parses multiple commit entries', () => {
       const raw = [
-        RECORD_DELIMITER + makeRawEntry('hash1', 'Alice', 'alice@test.com', '2024-01-01T00:00:00Z', 'First'),
-        RECORD_DELIMITER + makeRawEntry('hash2', 'Bob', 'bob@test.com', '2024-01-02T00:00:00Z', 'Second')
+        RECORD_DELIMITER +
+          makeRawEntry('hash1', 'Alice', 'alice@test.com', '2024-01-01T00:00:00Z', 'First'),
+        RECORD_DELIMITER +
+          makeRawEntry('hash2', 'Bob', 'bob@test.com', '2024-01-02T00:00:00Z', 'Second')
       ].join('');
       const result = parseGitLog(raw, 'repo-2');
       expect(result).toHaveLength(2);
@@ -111,13 +120,15 @@ describe('Git Connector Module', () => {
     });
 
     test('attaches file changes from fileChanges parameter', () => {
-      const raw = RECORD_DELIMITER + makeRawEntry(
-        'hash1', 'Alice', 'alice@test.com', '2024-01-01T00:00:00Z', 'Add file'
-      );
-      const fileChanges = [{
-        hash: 'hash1',
-        files: [{ path: 'src/index.js', changeType: 'added', additions: 10, deletions: 0 }]
-      }];
+      const raw =
+        RECORD_DELIMITER +
+        makeRawEntry('hash1', 'Alice', 'alice@test.com', '2024-01-01T00:00:00Z', 'Add file');
+      const fileChanges = [
+        {
+          hash: 'hash1',
+          files: [{ path: 'src/index.js', changeType: 'added', additions: 10, deletions: 0 }]
+        }
+      ];
       const result = parseGitLog(raw, 'repo-1', fileChanges);
       expect(result[0].changedFiles).toHaveLength(1);
       expect(result[0].changedFiles[0].path).toBe('src/index.js');
@@ -130,8 +141,18 @@ describe('Git Connector Module', () => {
       const status = 'M\tsrc/app.js\nA\tREADME.md';
       const result = parseNumstat(numstat, status);
       expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ path: 'src/app.js', changeType: 'modified', additions: 10, deletions: 5 });
-      expect(result[1]).toEqual({ path: 'README.md', changeType: 'added', additions: 3, deletions: 0 });
+      expect(result[0]).toEqual({
+        path: 'src/app.js',
+        changeType: 'modified',
+        additions: 10,
+        deletions: 5
+      });
+      expect(result[1]).toEqual({
+        path: 'README.md',
+        changeType: 'added',
+        additions: 3,
+        deletions: 0
+      });
     });
 
     test('handles deleted files', () => {
@@ -145,7 +166,12 @@ describe('Git Connector Module', () => {
       const numstat = '-\t-\timage.png';
       const status = 'A\timage.png';
       const result = parseNumstat(numstat, status);
-      expect(result[0]).toEqual({ path: 'image.png', changeType: 'added', additions: 0, deletions: 0 });
+      expect(result[0]).toEqual({
+        path: 'image.png',
+        changeType: 'added',
+        additions: 0,
+        deletions: 0
+      });
     });
 
     test('returns empty array for empty input', () => {

@@ -1,11 +1,7 @@
 'use strict';
 
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const {
-  DynamoDBDocumentClient,
-  PutCommand,
-  QueryCommand
-} = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, QueryCommand } = require('@aws-sdk/lib-dynamodb');
 
 const TABLE_NAME = 'Commits';
 const GSI_NAME = 'repo-date-index';
@@ -67,7 +63,8 @@ class CommitStore {
             changedFiles: record.changedFiles || [],
             ...(record.branch != null && { branch: record.branch })
           },
-          ConditionExpression: 'attribute_not_exists(repositoryId) AND attribute_not_exists(commitHash)'
+          ConditionExpression:
+            'attribute_not_exists(repositoryId) AND attribute_not_exists(commitHash)'
         })
       );
       return { created: true };
@@ -215,7 +212,7 @@ class CommitStore {
       })
     );
 
-    return (result.Items && result.Items.length > 0) ? result.Items[0] : null;
+    return result.Items && result.Items.length > 0 ? result.Items[0] : null;
   }
 }
 

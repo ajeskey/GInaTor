@@ -1,7 +1,12 @@
 'use strict';
 
 const express = require('express');
-const { parseCommonParams, validateRepoId, validateDateRange, errorResponse } = require('./helpers');
+const {
+  parseCommonParams,
+  validateRepoId,
+  validateDateRange,
+  errorResponse
+} = require('./helpers');
 
 function createImpactRouter(commitStore) {
   const router = express.Router();
@@ -21,14 +26,22 @@ function createImpactRouter(commitStore) {
         commits = (await commitStore.getCommitsByRepo(repoId)).items;
       }
 
-      const impacts = commits.map(c => {
-        const totalLines = (c.changedFiles || []).reduce((s, f) => s + (f.additions || 0) + (f.deletions || 0), 0);
+      const impacts = commits.map((c) => {
+        const totalLines = (c.changedFiles || []).reduce(
+          (s, f) => s + (f.additions || 0) + (f.deletions || 0),
+          0
+        );
         return {
           commitHash: c.commitHash,
           authorName: c.authorName,
           commitDate: c.commitDate,
           totalLines,
-          files: (c.changedFiles || []).map(f => ({ path: f.path, changeType: f.changeType, additions: f.additions || 0, deletions: f.deletions || 0 }))
+          files: (c.changedFiles || []).map((f) => ({
+            path: f.path,
+            changeType: f.changeType,
+            additions: f.additions || 0,
+            deletions: f.deletions || 0
+          }))
         };
       });
 

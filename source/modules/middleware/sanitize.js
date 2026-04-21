@@ -20,7 +20,10 @@ function sanitizeString(str) {
   sanitized = sanitized.replace(/javascript\s*:/gi, '');
 
   // Remove NoSQL operators ($gt, $ne, $where, $lt, $gte, $lte, $in, $nin, $regex, $exists, $or, $and, $not, $nor, $eq)
-  sanitized = sanitized.replace(/\$(?:gt|gte|lt|lte|ne|eq|in|nin|regex|exists|where|or|and|not|nor)\b/gi, '');
+  sanitized = sanitized.replace(
+    /\$(?:gt|gte|lt|lte|ne|eq|in|nin|regex|exists|where|or|and|not|nor)\b/gi,
+    ''
+  );
 
   return sanitized;
 }

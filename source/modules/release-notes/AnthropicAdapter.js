@@ -33,9 +33,7 @@ class AnthropicAdapter {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
-        messages: [
-          { role: 'user', content: prompt }
-        ],
+        messages: [{ role: 'user', content: prompt }],
         system: 'You are a technical writer generating release notes.'
       })
     });

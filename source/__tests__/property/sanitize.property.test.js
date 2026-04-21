@@ -16,46 +16,94 @@ describe('Property 5: Input Sanitization', () => {
   // --- Generators ---
 
   // Arbitrary HTML tag wrapping arbitrary content
-  const htmlTagArb = fc.tuple(
-    fc.constantFrom('script', 'img', 'div', 'iframe', 'object', 'embed', 'link', 'style', 'svg', 'a', 'b', 'span'),
-    fc.string({ minLength: 0, maxLength: 30 })
-  ).map(([tag, content]) => `<${tag}>${content}</${tag}>`);
+  const htmlTagArb = fc
+    .tuple(
+      fc.constantFrom(
+        'script',
+        'img',
+        'div',
+        'iframe',
+        'object',
+        'embed',
+        'link',
+        'style',
+        'svg',
+        'a',
+        'b',
+        'span'
+      ),
+      fc.string({ minLength: 0, maxLength: 30 })
+    )
+    .map(([tag, content]) => `<${tag}>${content}</${tag}>`);
 
   // Self-closing HTML tags with attributes
-  const selfClosingTagArb = fc.tuple(
-    fc.constantFrom('img', 'br', 'hr', 'input', 'meta', 'link'),
-    fc.string({ minLength: 0, maxLength: 20 })
-  ).map(([tag, attr]) => `<${tag} ${attr}>`);
+  const selfClosingTagArb = fc
+    .tuple(
+      fc.constantFrom('img', 'br', 'hr', 'input', 'meta', 'link'),
+      fc.string({ minLength: 0, maxLength: 20 })
+    )
+    .map(([tag, attr]) => `<${tag} ${attr}>`);
 
   // JavaScript event handler patterns
-  const eventHandlerArb = fc.tuple(
-    fc.constantFrom('onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onsubmit', 'onchange', 'onkeydown', 'onkeyup'),
-    fc.string({ minLength: 1, maxLength: 20 })
-  ).map(([handler, value]) => `${handler}=${value}`);
+  const eventHandlerArb = fc
+    .tuple(
+      fc.constantFrom(
+        'onclick',
+        'onload',
+        'onerror',
+        'onmouseover',
+        'onfocus',
+        'onblur',
+        'onsubmit',
+        'onchange',
+        'onkeydown',
+        'onkeyup'
+      ),
+      fc.string({ minLength: 1, maxLength: 20 })
+    )
+    .map(([handler, value]) => `${handler}=${value}`);
 
   // javascript: protocol URIs
-  const jsProtocolArb = fc.tuple(
-    fc.constantFrom('javascript:', 'JavaScript:', 'JAVASCRIPT:', 'jAvAsCrIpT:'),
-    fc.string({ minLength: 0, maxLength: 20 })
-  ).map(([proto, code]) => `${proto}${code}`);
+  const jsProtocolArb = fc
+    .tuple(
+      fc.constantFrom('javascript:', 'JavaScript:', 'JAVASCRIPT:', 'jAvAsCrIpT:'),
+      fc.string({ minLength: 0, maxLength: 20 })
+    )
+    .map(([proto, code]) => `${proto}${code}`);
 
   // NoSQL operator patterns
-  const nosqlOperators = ['$gt', '$gte', '$lt', '$lte', '$ne', '$eq', '$in', '$nin', '$regex', '$exists', '$where', '$or', '$and', '$not', '$nor'];
+  const nosqlOperators = [
+    '$gt',
+    '$gte',
+    '$lt',
+    '$lte',
+    '$ne',
+    '$eq',
+    '$in',
+    '$nin',
+    '$regex',
+    '$exists',
+    '$where',
+    '$or',
+    '$and',
+    '$not',
+    '$nor'
+  ];
   const nosqlOperatorArb = fc.constantFrom(...nosqlOperators);
 
   // String containing a NoSQL operator embedded in surrounding text
-  const nosqlStringArb = fc.tuple(
-    fc.string({ minLength: 0, maxLength: 15 }),
-    nosqlOperatorArb,
-    fc.string({ minLength: 0, maxLength: 15 })
-  ).map(([prefix, op, suffix]) => `${prefix}${op}${suffix}`);
+  const nosqlStringArb = fc
+    .tuple(
+      fc.string({ minLength: 0, maxLength: 15 }),
+      nosqlOperatorArb,
+      fc.string({ minLength: 0, maxLength: 15 })
+    )
+    .map(([prefix, op, suffix]) => `${prefix}${op}${suffix}`);
 
   // Mixed malicious input combining multiple attack vectors
-  const mixedMaliciousArb = fc.tuple(
-    htmlTagArb,
-    eventHandlerArb,
-    nosqlStringArb
-  ).map(([html, handler, nosql]) => `${html} ${handler} ${nosql}`);
+  const mixedMaliciousArb = fc
+    .tuple(htmlTagArb, eventHandlerArb, nosqlStringArb)
+    .map(([html, handler, nosql]) => `${html} ${handler} ${nosql}`);
 
   // Regex to detect HTML tags in output
   const htmlTagRegex = /<[^>]*>/;
@@ -67,7 +115,8 @@ describe('Property 5: Input Sanitization', () => {
   const jsProtocolRegex = /javascript\s*:/i;
 
   // Regex to detect NoSQL operators in output
-  const nosqlOperatorRegex = /\$(?:gt|gte|lt|lte|ne|eq|in|nin|regex|exists|where|or|and|not|nor)\b/i;
+  const nosqlOperatorRegex =
+    /\$(?:gt|gte|lt|lte|ne|eq|in|nin|regex|exists|where|or|and|not|nor)\b/i;
 
   // --- Property Tests ---
 
@@ -166,13 +215,13 @@ describe('Property 5: Input Sanitization', () => {
       fc.property(
         nosqlOperatorArb,
         fc.anything(),
-        fc.string({ minLength: 1, maxLength: 10 }).filter(s => !s.startsWith('$')),
+        fc.string({ minLength: 1, maxLength: 10 }).filter((s) => !s.startsWith('$')),
         fc.string({ minLength: 0, maxLength: 20 }),
         (opKey, opValue, safeKey, safeValue) => {
           const input = { [opKey]: opValue, [safeKey]: safeValue };
           const result = sanitizeValue(input);
           // The $-prefixed key should be stripped
-          expect(Object.keys(result).some(k => k.startsWith('$'))).toBe(false);
+          expect(Object.keys(result).some((k) => k.startsWith('$'))).toBe(false);
           // The safe key should remain
           expect(safeKey in result).toBe(true);
         }

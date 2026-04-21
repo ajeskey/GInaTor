@@ -9,12 +9,14 @@ const { computeBuildingDimensions } = require('../../modules/api/computations');
 describe('Property 27: Building Dimension Proportionality', () => {
   // Generate two files with distinct line counts and change frequencies
   it('file with strictly greater line count has strictly greater building height', () => {
-    const arb = fc.record({
-      fileA: fc.string({ minLength: 3, maxLength: 20 }),
-      fileB: fc.string({ minLength: 3, maxLength: 20 }),
-      additionsA: fc.integer({ min: 2, max: 500 }),
-      additionsB: fc.integer({ min: 1, max: 499 })
-    }).filter(r => r.fileA !== r.fileB && r.additionsA > r.additionsB);
+    const arb = fc
+      .record({
+        fileA: fc.string({ minLength: 3, maxLength: 20 }),
+        fileB: fc.string({ minLength: 3, maxLength: 20 }),
+        additionsA: fc.integer({ min: 2, max: 500 }),
+        additionsB: fc.integer({ min: 1, max: 499 })
+      })
+      .filter((r) => r.fileA !== r.fileB && r.additionsA > r.additionsB);
 
     fc.assert(
       fc.property(arb, ({ fileA, fileB, additionsA, additionsB }) => {
@@ -33,8 +35,8 @@ describe('Property 27: Building Dimension Proportionality', () => {
           }
         ];
         const result = computeBuildingDimensions(commits);
-        const buildingA = result.buildings.find(b => b.path === fileA);
-        const buildingB = result.buildings.find(b => b.path === fileB);
+        const buildingA = result.buildings.find((b) => b.path === fileA);
+        const buildingB = result.buildings.find((b) => b.path === fileB);
         expect(buildingA.height).toBeGreaterThan(buildingB.height);
       }),
       { numRuns: 200 }
@@ -42,11 +44,13 @@ describe('Property 27: Building Dimension Proportionality', () => {
   });
 
   it('file with strictly greater change frequency has strictly greater footprint', () => {
-    const arb = fc.record({
-      fileA: fc.string({ minLength: 3, maxLength: 20 }),
-      fileB: fc.string({ minLength: 3, maxLength: 20 }),
-      extraCommits: fc.integer({ min: 1, max: 10 })
-    }).filter(r => r.fileA !== r.fileB);
+    const arb = fc
+      .record({
+        fileA: fc.string({ minLength: 3, maxLength: 20 }),
+        fileB: fc.string({ minLength: 3, maxLength: 20 }),
+        extraCommits: fc.integer({ min: 1, max: 10 })
+      })
+      .filter((r) => r.fileA !== r.fileB);
 
     fc.assert(
       fc.property(arb, ({ fileA, fileB, extraCommits }) => {
@@ -73,14 +77,12 @@ describe('Property 27: Building Dimension Proportionality', () => {
             authorEmail: 'alice@test.com',
             commitDate: `2024-01-0${i + 2}T00:00:00.000Z`,
             message: 'extra',
-            changedFiles: [
-              { path: fileA, changeType: 'modified', additions: 1, deletions: 0 }
-            ]
+            changedFiles: [{ path: fileA, changeType: 'modified', additions: 1, deletions: 0 }]
           });
         }
         const result = computeBuildingDimensions(commits);
-        const buildingA = result.buildings.find(b => b.path === fileA);
-        const buildingB = result.buildings.find(b => b.path === fileB);
+        const buildingA = result.buildings.find((b) => b.path === fileA);
+        const buildingB = result.buildings.find((b) => b.path === fileB);
         expect(buildingA.footprint).toBeGreaterThan(buildingB.footprint);
       }),
       { numRuns: 200 }

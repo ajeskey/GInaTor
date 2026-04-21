@@ -11,7 +11,12 @@
  * When DYNAMODB_ENDPOINT is not set, connects to AWS DynamoDB using default credentials.
  */
 
-const { DynamoDBClient, CreateTableCommand, UpdateTimeToLiveCommand, ListTablesCommand } = require('@aws-sdk/client-dynamodb');
+const {
+  DynamoDBClient,
+  CreateTableCommand,
+  UpdateTimeToLiveCommand,
+  ListTablesCommand
+} = require('@aws-sdk/client-dynamodb');
 
 const endpoint = process.env.DYNAMODB_ENDPOINT;
 const region = process.env.AWS_REGION || 'us-east-1';
@@ -26,9 +31,7 @@ const client = new DynamoDBClient(clientConfig);
 const tableDefinitions = [
   {
     TableName: 'Users',
-    KeySchema: [
-      { AttributeName: 'userId', KeyType: 'HASH' }
-    ],
+    KeySchema: [{ AttributeName: 'userId', KeyType: 'HASH' }],
     AttributeDefinitions: [
       { AttributeName: 'userId', AttributeType: 'S' },
       { AttributeName: 'email', AttributeType: 'S' }
@@ -36,9 +39,7 @@ const tableDefinitions = [
     GlobalSecondaryIndexes: [
       {
         IndexName: 'email-index',
-        KeySchema: [
-          { AttributeName: 'email', KeyType: 'HASH' }
-        ],
+        KeySchema: [{ AttributeName: 'email', KeyType: 'HASH' }],
         Projection: { ProjectionType: 'ALL' },
         ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
       }
@@ -47,12 +48,8 @@ const tableDefinitions = [
   },
   {
     TableName: 'Sessions',
-    KeySchema: [
-      { AttributeName: 'sessionId', KeyType: 'HASH' }
-    ],
-    AttributeDefinitions: [
-      { AttributeName: 'sessionId', AttributeType: 'S' }
-    ],
+    KeySchema: [{ AttributeName: 'sessionId', KeyType: 'HASH' }],
+    AttributeDefinitions: [{ AttributeName: 'sessionId', AttributeType: 'S' }],
     ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
   },
   {
@@ -81,22 +78,14 @@ const tableDefinitions = [
   },
   {
     TableName: 'RepositoryConfigs',
-    KeySchema: [
-      { AttributeName: 'repoId', KeyType: 'HASH' }
-    ],
-    AttributeDefinitions: [
-      { AttributeName: 'repoId', AttributeType: 'S' }
-    ],
+    KeySchema: [{ AttributeName: 'repoId', KeyType: 'HASH' }],
+    AttributeDefinitions: [{ AttributeName: 'repoId', AttributeType: 'S' }],
     ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
   },
   {
     TableName: 'AdminSettings',
-    KeySchema: [
-      { AttributeName: 'settingKey', KeyType: 'HASH' }
-    ],
-    AttributeDefinitions: [
-      { AttributeName: 'settingKey', AttributeType: 'S' }
-    ],
+    KeySchema: [{ AttributeName: 'settingKey', KeyType: 'HASH' }],
+    AttributeDefinitions: [{ AttributeName: 'settingKey', AttributeType: 'S' }],
     ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
   },
   {
@@ -138,7 +127,9 @@ const tableDefinitions = [
 ];
 
 async function initTables() {
-  console.log(`Initializing DynamoDB tables${endpoint ? ` (endpoint: ${endpoint})` : ' (AWS DynamoDB)'}...`);
+  console.log(
+    `Initializing DynamoDB tables${endpoint ? ` (endpoint: ${endpoint})` : ' (AWS DynamoDB)'}...`
+  );
 
   let existingTables = [];
   try {
@@ -170,13 +161,15 @@ async function initTables() {
 
   // Enable TTL on Sessions table
   try {
-    await client.send(new UpdateTimeToLiveCommand({
-      TableName: 'Sessions',
-      TimeToLiveSpecification: {
-        Enabled: true,
-        AttributeName: 'expires'
-      }
-    }));
+    await client.send(
+      new UpdateTimeToLiveCommand({
+        TableName: 'Sessions',
+        TimeToLiveSpecification: {
+          Enabled: true,
+          AttributeName: 'expires'
+        }
+      })
+    );
     console.log('  Enabled TTL on "Sessions" table (attribute: expires).');
   } catch (err) {
     if (err.name === 'ValidationException' && err.message.includes('already enabled')) {

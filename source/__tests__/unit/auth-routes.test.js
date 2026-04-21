@@ -84,13 +84,15 @@ describe('Auth Routes', () => {
       const hash = await bcrypt.hash('password123', 10);
       // passport authenticate calls authService.login -> _getUserByEmail
       mockSend.mockResolvedValueOnce({
-        Items: [{
-          userId: 'user-1',
-          email: 'user@example.com',
-          passwordHash: hash,
-          role: 'admin',
-          status: 'approved'
-        }]
+        Items: [
+          {
+            userId: 'user-1',
+            email: 'user@example.com',
+            passwordHash: hash,
+            role: 'admin',
+            status: 'approved'
+          }
+        ]
       });
       // passport deserializeUser may call _getUserById for session
       mockSend.mockResolvedValue({
@@ -133,13 +135,15 @@ describe('Auth Routes', () => {
     test('returns 401 on wrong password without revealing which field', async () => {
       const hash = await bcrypt.hash('password123', 10);
       mockSend.mockResolvedValueOnce({
-        Items: [{
-          userId: 'user-1',
-          email: 'user@example.com',
-          passwordHash: hash,
-          role: 'user',
-          status: 'approved'
-        }]
+        Items: [
+          {
+            userId: 'user-1',
+            email: 'user@example.com',
+            passwordHash: hash,
+            role: 'user',
+            status: 'approved'
+          }
+        ]
       });
 
       const res = await request(app)
@@ -183,9 +187,7 @@ describe('Auth Routes', () => {
       const agent = request.agent(app);
 
       // Login
-      await agent
-        .post('/auth/login')
-        .send({ email: 'user@example.com', password: 'password123' });
+      await agent.post('/auth/login').send({ email: 'user@example.com', password: 'password123' });
 
       // Logout
       const res = await agent.post('/auth/logout');
@@ -242,9 +244,7 @@ describe('Auth Routes', () => {
       const agent = request.agent(app);
 
       // Login
-      await agent
-        .post('/auth/login')
-        .send({ email: 'user@example.com', password: 'password123' });
+      await agent.post('/auth/login').send({ email: 'user@example.com', password: 'password123' });
 
       // Check status
       const res = await agent.get('/auth/status');

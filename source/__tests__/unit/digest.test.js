@@ -32,15 +32,11 @@ describe('digest module', () => {
       authorEmail: 'alice@test.com',
       commitDate: '2024-01-12T09:00:00Z',
       message: 'Fix bug',
-      changedFiles: [
-        { path: 'src/index.js', changeType: 'modified', additions: 5, deletions: 3 }
-      ]
+      changedFiles: [{ path: 'src/index.js', changeType: 'modified', additions: 5, deletions: 3 }]
     }
   ];
 
-  const sampleRepos = [
-    { repoId: 'repo-1', name: 'My Project' }
-  ];
+  const sampleRepos = [{ repoId: 'repo-1', name: 'My Project' }];
 
   describe('generateDigestHtml', () => {
     it('generates HTML with stats, contributors, files, and velocity', () => {
@@ -76,11 +72,10 @@ describe('digest module', () => {
       const mockSend = jest.fn().mockResolvedValue({});
       const mockSesClient = { send: mockSend };
 
-      const result = await sendDigest(
-        ['alice@test.com', 'bob@test.com'],
-        '<h1>Digest</h1>',
-        { sesClient: mockSesClient, logger: { error: jest.fn() } }
-      );
+      const result = await sendDigest(['alice@test.com', 'bob@test.com'], '<h1>Digest</h1>', {
+        sesClient: mockSesClient,
+        logger: { error: jest.fn() }
+      });
 
       expect(result.sent).toBe(2);
       expect(result.failed).toBe(0);
@@ -89,26 +84,24 @@ describe('digest module', () => {
     });
 
     it('logs failures per user without interrupting others', async () => {
-      const mockSend = jest.fn()
+      const mockSend = jest
+        .fn()
         .mockRejectedValueOnce(new Error('Bounce'))
         .mockResolvedValueOnce({});
       const mockSesClient = { send: mockSend };
       const mockLogger = { error: jest.fn() };
 
-      const result = await sendDigest(
-        ['bad@test.com', 'good@test.com'],
-        '<h1>Digest</h1>',
-        { sesClient: mockSesClient, logger: mockLogger }
-      );
+      const result = await sendDigest(['bad@test.com', 'good@test.com'], '<h1>Digest</h1>', {
+        sesClient: mockSesClient,
+        logger: mockLogger
+      });
 
       expect(result.sent).toBe(1);
       expect(result.failed).toBe(1);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].email).toBe('bad@test.com');
       expect(result.errors[0].error).toBe('Bounce');
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('bad@test.com')
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith(expect.stringContaining('bad@test.com'));
     });
 
     it('handles empty user list', async () => {

@@ -12,11 +12,11 @@ const RECORD_DELIMITER = '<<GIT_RECORD>>';
  * Fields: hash, author name, author email, ISO date, subject+body
  */
 const GIT_LOG_FORMAT = [
-  '%H',   // commit hash
-  '%an',  // author name
-  '%ae',  // author email
-  '%aI',  // author date ISO 8601
-  '%B'    // full commit message (subject + body)
+  '%H', // commit hash
+  '%an', // author name
+  '%ae', // author email
+  '%aI', // author date ISO 8601
+  '%B' // full commit message (subject + body)
 ].join(FIELD_DELIMITER);
 
 /**
@@ -31,7 +31,7 @@ function parseGitLog(rawLog, repositoryId, fileChanges) {
     return [];
   }
 
-  const records = rawLog.split(RECORD_DELIMITER).filter(r => r.trim());
+  const records = rawLog.split(RECORD_DELIMITER).filter((r) => r.trim());
   const fileChangeMap = new Map();
 
   if (fileChanges) {
@@ -40,30 +40,32 @@ function parseGitLog(rawLog, repositoryId, fileChanges) {
     }
   }
 
-  return records.map(record => {
-    const fields = record.split(FIELD_DELIMITER);
-    if (fields.length < 5) {
-      return null;
-    }
+  return records
+    .map((record) => {
+      const fields = record.split(FIELD_DELIMITER);
+      if (fields.length < 5) {
+        return null;
+      }
 
-    const commitHash = fields[0].trim();
-    const authorName = fields[1].trim();
-    const authorEmail = fields[2].trim();
-    const commitDate = fields[3].trim();
-    const message = fields[4].trim();
+      const commitHash = fields[0].trim();
+      const authorName = fields[1].trim();
+      const authorEmail = fields[2].trim();
+      const commitDate = fields[3].trim();
+      const message = fields[4].trim();
 
-    const changedFiles = fileChangeMap.get(commitHash) || [];
+      const changedFiles = fileChangeMap.get(commitHash) || [];
 
-    return {
-      repositoryId,
-      commitHash,
-      authorName,
-      authorEmail,
-      commitDate,
-      message,
-      changedFiles
-    };
-  }).filter(Boolean);
+      return {
+        repositoryId,
+        commitHash,
+        authorName,
+        authorEmail,
+        commitDate,
+        message,
+        changedFiles
+      };
+    })
+    .filter(Boolean);
 }
 
 /**
@@ -77,7 +79,7 @@ function parseNumstat(numstatOutput, statusOutput) {
   const statusMap = new Map();
 
   if (statusOutput) {
-    const statusLines = statusOutput.split('\n').filter(l => l.trim());
+    const statusLines = statusOutput.split('\n').filter((l) => l.trim());
     for (const line of statusLines) {
       const parts = line.split('\t');
       if (parts.length >= 2) {
@@ -89,7 +91,7 @@ function parseNumstat(numstatOutput, statusOutput) {
   }
 
   if (numstatOutput) {
-    const lines = numstatOutput.split('\n').filter(l => l.trim());
+    const lines = numstatOutput.split('\n').filter((l) => l.trim());
     for (const line of lines) {
       const parts = line.split('\t');
       if (parts.length >= 3) {
@@ -114,12 +116,18 @@ function parseNumstat(numstatOutput, statusOutput) {
 function normalizeChangeType(status) {
   const first = status.charAt(0).toUpperCase();
   switch (first) {
-    case 'A': return 'added';
-    case 'D': return 'deleted';
-    case 'M': return 'modified';
-    case 'R': return 'modified'; // rename treated as modified
-    case 'C': return 'added';    // copy treated as added
-    default: return 'modified';
+    case 'A':
+      return 'added';
+    case 'D':
+      return 'deleted';
+    case 'M':
+      return 'modified';
+    case 'R':
+      return 'modified'; // rename treated as modified
+    case 'C':
+      return 'added'; // copy treated as added
+    default:
+      return 'modified';
   }
 }
 

@@ -24,19 +24,23 @@ const app = express();
 app.use(helmet());
 
 // 2. CORS
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true
+  })
+);
 
 // 3. Body parsers (capture raw body for webhook HMAC signature validation)
-app.use(express.json({
-  verify: (req, res, buf) => {
-    if (req.originalUrl && req.originalUrl.startsWith('/webhooks')) {
-      req.rawBody = buf;
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      if (req.originalUrl && req.originalUrl.startsWith('/webhooks')) {
+        req.rawBody = buf;
+      }
     }
-  }
-}));
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 
 // 4. Input sanitization (XSS / NoSQL injection prevention)
@@ -50,18 +54,20 @@ const sessionStore = new DynamoDBStore({
   ttl: 86400 // 24 hours
 });
 
-app.use(session({
-  store: sessionStore,
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: 'strict',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+app.use(
+  session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  })
+);
 
 // 6. Passport.js initialization (before auth routes so login works)
 app.use(passport.initialize());

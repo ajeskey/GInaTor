@@ -62,9 +62,7 @@ class GitLabProvider extends GitConnector {
     const commits = await this._fetchAllCommits(encodedPath, apiBase, headers, sinceDate);
 
     // Filter out the sinceCommitHash itself
-    const filtered = sinceCommitHash
-      ? commits.filter(c => c.id !== sinceCommitHash)
-      : commits;
+    const filtered = sinceCommitHash ? commits.filter((c) => c.id !== sinceCommitHash) : commits;
 
     const records = [];
     for (const commit of filtered) {
@@ -86,7 +84,7 @@ class GitLabProvider extends GitConnector {
     }
 
     return {
-      commits: payload.commits.map(c => ({
+      commits: payload.commits.map((c) => ({
         commitHash: c.id,
         message: c.message || '',
         authorName: c.author?.name || '',
@@ -98,10 +96,9 @@ class GitLabProvider extends GitConnector {
 
   /** @private */
   async _getCommitDate(encodedPath, sha, apiBase, headers) {
-    const response = await fetch(
-      `${apiBase}/projects/${encodedPath}/repository/commits/${sha}`,
-      { headers }
-    );
+    const response = await fetch(`${apiBase}/projects/${encodedPath}/repository/commits/${sha}`, {
+      headers
+    });
     if (!response.ok) return undefined;
     const data = await response.json();
     return data.authored_date || data.created_at;
@@ -162,7 +159,7 @@ function parseGitLabUrl(url) {
   if (match) {
     // Remove protocol and domain
     const parts = cleaned.split('/');
-    const domainIndex = parts.findIndex(p => p.includes('.'));
+    const domainIndex = parts.findIndex((p) => p.includes('.'));
     if (domainIndex >= 0) {
       return parts.slice(domainIndex + 1).join('/');
     }
@@ -209,7 +206,7 @@ function buildHeaders(pat) {
  * @returns {import('./index').CommitRecord}
  */
 function toCommitRecord(commit, diff, repositoryId) {
-  const changedFiles = (diff || []).map(d => ({
+  const changedFiles = (diff || []).map((d) => ({
     path: d.new_path || d.old_path,
     changeType: normalizeGitLabStatus(d.new_file, d.deleted_file, d.renamed_file),
     additions: countLines(d.diff, '+'),

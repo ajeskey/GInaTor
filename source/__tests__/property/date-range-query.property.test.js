@@ -25,7 +25,7 @@ const fc = require('fast-check');
  */
 function filterByDateRange(commits, from, to) {
   return commits
-    .filter(c => c.commitDate >= from && c.commitDate <= to)
+    .filter((c) => c.commitDate >= from && c.commitDate <= to)
     .sort((a, b) => {
       if (a.commitDate > b.commitDate) return -1;
       if (a.commitDate < b.commitDate) return 1;
@@ -35,34 +35,44 @@ function filterByDateRange(commits, from, to) {
 
 // --- Generators ---
 
-const dateArb = fc.date({
-  min: new Date('2015-01-01T00:00:00.000Z'),
-  max: new Date('2030-12-31T23:59:59.000Z')
-}).map(d => d.toISOString());
+const dateArb = fc
+  .date({
+    min: new Date('2015-01-01T00:00:00.000Z'),
+    max: new Date('2030-12-31T23:59:59.000Z')
+  })
+  .map((d) => d.toISOString());
 
 const commitHashArb = fc.hexaString({ minLength: 40, maxLength: 40 });
 
-const emailArb = fc.tuple(
-  fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 8 }),
-  fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 1, maxLength: 6 }),
-  fc.constantFrom('com', 'org', 'net')
-).map(([local, domain, tld]) => `${local}@${domain}.${tld}`);
+const emailArb = fc
+  .tuple(
+    fc.stringOf(
+      fc.char().filter((c) => /[a-z0-9]/.test(c)),
+      { minLength: 1, maxLength: 8 }
+    ),
+    fc.stringOf(
+      fc.char().filter((c) => /[a-z0-9]/.test(c)),
+      { minLength: 1, maxLength: 6 }
+    ),
+    fc.constantFrom('com', 'org', 'net')
+  )
+  .map(([local, domain, tld]) => `${local}@${domain}.${tld}`);
 
 const commitRecordArb = fc.record({
   commitHash: commitHashArb,
-  authorName: fc.string({ minLength: 1, maxLength: 15 }).filter(s => s.trim().length > 0),
+  authorName: fc.string({ minLength: 1, maxLength: 15 }).filter((s) => s.trim().length > 0),
   authorEmail: emailArb,
   commitDate: dateArb,
-  message: fc.string({ minLength: 1, maxLength: 40 }).filter(s => s.trim().length > 0),
+  message: fc.string({ minLength: 1, maxLength: 40 }).filter((s) => s.trim().length > 0),
   changedFiles: fc.constant([])
 });
 
 /**
  * Generate a date range [from, to] where from <= to.
  */
-const dateRangeArb = fc.tuple(dateArb, dateArb).map(([a, b]) =>
-  a <= b ? { from: a, to: b } : { from: b, to: a }
-);
+const dateRangeArb = fc
+  .tuple(dateArb, dateArb)
+  .map(([a, b]) => (a <= b ? { from: a, to: b } : { from: b, to: a }));
 
 // --- Tests ---
 
@@ -83,7 +93,7 @@ describe('Property 12: Date Range Query Correctness', () => {
 
           // Every commit in the original set that is within range must appear in result
           const expectedCount = commits.filter(
-            c => c.commitDate >= range.from && c.commitDate <= range.to
+            (c) => c.commitDate >= range.from && c.commitDate <= range.to
           ).length;
           expect(result.length).toBe(expectedCount);
         }
@@ -116,11 +126,9 @@ describe('Property 12: Date Range Query Correctness', () => {
         dateRangeArb,
         (commits, range) => {
           // Shift all commits outside the range
-          const outsideCommits = commits.map(c => ({
+          const outsideCommits = commits.map((c) => ({
             ...c,
-            commitDate: new Date(
-              new Date(range.to).getTime() + 86400000
-            ).toISOString()
+            commitDate: new Date(new Date(range.to).getTime() + 86400000).toISOString()
           }));
 
           const result = filterByDateRange(outsideCommits, range.from, range.to);
@@ -133,17 +141,14 @@ describe('Property 12: Date Range Query Correctness', () => {
 
   it('returns all commits when range spans the full date extent', () => {
     fc.assert(
-      fc.property(
-        fc.array(commitRecordArb, { minLength: 1, maxLength: 20 }),
-        (commits) => {
-          const dates = commits.map(c => c.commitDate);
-          const minDate = dates.reduce((a, b) => (a < b ? a : b));
-          const maxDate = dates.reduce((a, b) => (a > b ? a : b));
+      fc.property(fc.array(commitRecordArb, { minLength: 1, maxLength: 20 }), (commits) => {
+        const dates = commits.map((c) => c.commitDate);
+        const minDate = dates.reduce((a, b) => (a < b ? a : b));
+        const maxDate = dates.reduce((a, b) => (a > b ? a : b));
 
-          const result = filterByDateRange(commits, minDate, maxDate);
-          expect(result.length).toBe(commits.length);
-        }
-      ),
+        const result = filterByDateRange(commits, minDate, maxDate);
+        expect(result.length).toBe(commits.length);
+      }),
       { numRuns: 200 }
     );
   });
@@ -155,7 +160,7 @@ describe('Property 12: Date Range Query Correctness', () => {
         dateRangeArb,
         (commits, range) => {
           const result = filterByDateRange(commits, range.from, range.to);
-          const resultSet = new Set(result.map(c => c.commitHash));
+          const resultSet = new Set(result.map((c) => c.commitHash));
 
           for (const c of commits) {
             if (c.commitDate < range.from || c.commitDate > range.to) {

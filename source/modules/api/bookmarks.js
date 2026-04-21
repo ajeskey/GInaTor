@@ -62,7 +62,7 @@ function createBookmarksRouter() {
       const { bookmarkId } = req.params;
       if (!bookmarksByUser[userId]) return errorResponse(res, 404, 'Bookmark not found');
 
-      const idx = bookmarksByUser[userId].findIndex(b => b.bookmarkId === bookmarkId);
+      const idx = bookmarksByUser[userId].findIndex((b) => b.bookmarkId === bookmarkId);
       if (idx === -1) return errorResponse(res, 404, 'Bookmark not found');
 
       bookmarksByUser[userId].splice(idx, 1);

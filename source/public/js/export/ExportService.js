@@ -19,16 +19,19 @@
     }
 
     var wrapper = _wrapWithHeader(container, meta);
-    window.html2canvas(wrapper, { useCORS: true, backgroundColor: null }).then(function (canvas) {
-      _cleanupWrapper(wrapper, container);
-      var link = document.createElement('a');
-      link.download = _filename(meta, 'png');
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }).catch(function (err) {
-      _cleanupWrapper(wrapper, container);
-      console.error('ExportService PNG error:', err);
-    });
+    window
+      .html2canvas(wrapper, { useCORS: true, backgroundColor: null })
+      .then(function (canvas) {
+        _cleanupWrapper(wrapper, container);
+        var link = document.createElement('a');
+        link.download = _filename(meta, 'png');
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      })
+      .catch(function (err) {
+        _cleanupWrapper(wrapper, container);
+        console.error('ExportService PNG error:', err);
+      });
   }
 
   /**
@@ -88,26 +91,29 @@
     }
 
     var wrapper = _wrapWithHeader(container, meta);
-    window.html2canvas(wrapper, { useCORS: true, backgroundColor: '#ffffff' }).then(function (canvas) {
-      _cleanupWrapper(wrapper, container);
-      var jsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
-      var pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
-      var pageWidth = pdf.internal.pageSize.getWidth();
-      var pageHeight = pdf.internal.pageSize.getHeight();
-      var imgRatio = canvas.width / canvas.height;
-      var pdfWidth = pageWidth - 40;
-      var pdfHeight = pdfWidth / imgRatio;
-      if (pdfHeight > pageHeight - 40) {
-        pdfHeight = pageHeight - 40;
-        pdfWidth = pdfHeight * imgRatio;
-      }
-      var imgData = canvas.toDataURL('image/png');
-      pdf.addImage(imgData, 'PNG', 20, 20, pdfWidth, pdfHeight);
-      pdf.save(_filename(meta, 'pdf'));
-    }).catch(function (err) {
-      _cleanupWrapper(wrapper, container);
-      console.error('ExportService PDF error:', err);
-    });
+    window
+      .html2canvas(wrapper, { useCORS: true, backgroundColor: '#ffffff' })
+      .then(function (canvas) {
+        _cleanupWrapper(wrapper, container);
+        var jsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+        var pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
+        var pageWidth = pdf.internal.pageSize.getWidth();
+        var pageHeight = pdf.internal.pageSize.getHeight();
+        var imgRatio = canvas.width / canvas.height;
+        var pdfWidth = pageWidth - 40;
+        var pdfHeight = pdfWidth / imgRatio;
+        if (pdfHeight > pageHeight - 40) {
+          pdfHeight = pageHeight - 40;
+          pdfWidth = pdfHeight * imgRatio;
+        }
+        var imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 20, 20, pdfWidth, pdfHeight);
+        pdf.save(_filename(meta, 'pdf'));
+      })
+      .catch(function (err) {
+        _cleanupWrapper(wrapper, container);
+        console.error('ExportService PDF error:', err);
+      });
   }
 
   /**
@@ -186,7 +192,10 @@
   function _filename(meta, ext) {
     var name = 'ginator-export';
     if (meta && meta.title) {
-      name = meta.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+      name = meta.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+$/, '');
     }
     return name + '.' + ext;
   }

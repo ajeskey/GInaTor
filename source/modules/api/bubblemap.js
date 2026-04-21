@@ -1,7 +1,12 @@
 'use strict';
 
 const express = require('express');
-const { parseCommonParams, validateRepoId, validateDateRange, errorResponse } = require('./helpers');
+const {
+  parseCommonParams,
+  validateRepoId,
+  validateDateRange,
+  errorResponse
+} = require('./helpers');
 
 function createBubblemapRouter(commitStore) {
   const router = express.Router();
@@ -25,7 +30,8 @@ function createBubblemapRouter(commitStore) {
       for (const c of commits) {
         if (c.changedFiles) {
           for (const f of c.changedFiles) {
-            if (!fileData[f.path]) fileData[f.path] = { frequency: 0, lines: 0, contributors: new Set() };
+            if (!fileData[f.path])
+              fileData[f.path] = { frequency: 0, lines: 0, contributors: new Set() };
             fileData[f.path].frequency++;
             fileData[f.path].lines += (f.additions || 0) + (f.deletions || 0);
             fileData[f.path].contributors.add(c.authorEmail);

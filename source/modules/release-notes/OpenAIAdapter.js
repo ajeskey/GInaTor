@@ -27,7 +27,7 @@ class OpenAIAdapter {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        Authorization: `Bearer ${this.apiKey}`
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',

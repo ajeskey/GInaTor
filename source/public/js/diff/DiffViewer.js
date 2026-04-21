@@ -28,10 +28,12 @@
 
     // Save current timeline range
     var appState = window.AppState ? window.AppState.getState() : {};
-    _savedDateRange = appState.dateRange ? { from: appState.dateRange.from, to: appState.dateRange.to } : null;
+    _savedDateRange = appState.dateRange
+      ? { from: appState.dateRange.from, to: appState.dateRange.to }
+      : null;
 
     _buildUI();
-    _fetchFileCommits(repoId || (appState.repoId || null));
+    _fetchFileCommits(repoId || appState.repoId || null);
   }
 
   /**
@@ -96,20 +98,26 @@
     header.className = 'flex items-center justify-between p-3 border-b border-base-300';
     header.innerHTML =
       '<div class="flex items-center gap-2">' +
-        '<span class="font-semibold text-sm">📄 ' + _escapeHtml(_filePath || '') + '</span>' +
-        '<span id="diff-commit-info" class="text-xs text-base-content opacity-60"></span>' +
+      '<span class="font-semibold text-sm">📄 ' +
+      _escapeHtml(_filePath || '') +
+      '</span>' +
+      '<span id="diff-commit-info" class="text-xs text-base-content opacity-60"></span>' +
       '</div>' +
       '<div class="flex items-center gap-2">' +
-        '<div class="btn-group">' +
-          '<button id="diff-mode-sbs" class="btn btn-xs ' + (_mode === 'side-by-side' ? 'btn-active' : '') + '">Side-by-Side</button>' +
-          '<button id="diff-mode-unified" class="btn btn-xs ' + (_mode === 'unified' ? 'btn-active' : '') + '">Unified</button>' +
-        '</div>' +
-        '<div class="flex items-center gap-1">' +
-          '<button id="diff-prev" class="btn btn-ghost btn-xs" title="Previous commit">◀</button>' +
-          '<span id="diff-position" class="text-xs">0/0</span>' +
-          '<button id="diff-next" class="btn btn-ghost btn-xs" title="Next commit">▶</button>' +
-        '</div>' +
-        '<button id="diff-close" class="btn btn-ghost btn-xs btn-circle" title="Close">✕</button>' +
+      '<div class="btn-group">' +
+      '<button id="diff-mode-sbs" class="btn btn-xs ' +
+      (_mode === 'side-by-side' ? 'btn-active' : '') +
+      '">Side-by-Side</button>' +
+      '<button id="diff-mode-unified" class="btn btn-xs ' +
+      (_mode === 'unified' ? 'btn-active' : '') +
+      '">Unified</button>' +
+      '</div>' +
+      '<div class="flex items-center gap-1">' +
+      '<button id="diff-prev" class="btn btn-ghost btn-xs" title="Previous commit">◀</button>' +
+      '<span id="diff-position" class="text-xs">0/0</span>' +
+      '<button id="diff-next" class="btn btn-ghost btn-xs" title="Next commit">▶</button>' +
+      '</div>' +
+      '<button id="diff-close" class="btn btn-ghost btn-xs btn-circle" title="Close">✕</button>' +
       '</div>';
     _container.appendChild(header);
 
@@ -129,16 +137,30 @@
     if (closeBtn) closeBtn.addEventListener('click', close);
 
     var prevBtn = document.getElementById('diff-prev');
-    if (prevBtn) prevBtn.addEventListener('click', function () { _navigate(-1); });
+    if (prevBtn)
+      prevBtn.addEventListener('click', function () {
+        _navigate(-1);
+      });
 
     var nextBtn = document.getElementById('diff-next');
-    if (nextBtn) nextBtn.addEventListener('click', function () { _navigate(1); });
+    if (nextBtn)
+      nextBtn.addEventListener('click', function () {
+        _navigate(1);
+      });
 
     var sbsBtn = document.getElementById('diff-mode-sbs');
-    if (sbsBtn) sbsBtn.addEventListener('click', function () { setMode('side-by-side'); _updateModeButtons(); });
+    if (sbsBtn)
+      sbsBtn.addEventListener('click', function () {
+        setMode('side-by-side');
+        _updateModeButtons();
+      });
 
     var unifiedBtn = document.getElementById('diff-mode-unified');
-    if (unifiedBtn) unifiedBtn.addEventListener('click', function () { setMode('unified'); _updateModeButtons(); });
+    if (unifiedBtn)
+      unifiedBtn.addEventListener('click', function () {
+        setMode('unified');
+        _updateModeButtons();
+      });
   }
 
   /**
@@ -153,9 +175,15 @@
       return;
     }
 
-    var url = '/api/v1/commits?repoId=' + encodeURIComponent(repoId) + '&file=' + encodeURIComponent(_filePath);
+    var url =
+      '/api/v1/commits?repoId=' +
+      encodeURIComponent(repoId) +
+      '&file=' +
+      encodeURIComponent(_filePath);
     fetch(url, { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : { commits: [] }; })
+      .then(function (r) {
+        return r.ok ? r.json() : { commits: [] };
+      })
       .then(function (data) {
         _fileCommits = (data.commits || data.items || []).sort(function (a, b) {
           return new Date(a.commitDate) - new Date(b.commitDate);
@@ -199,18 +227,26 @@
     var infoEl = document.getElementById('diff-commit-info');
 
     if (posEl) {
-      posEl.textContent = (_fileCommits.length > 0 ? (_currentIndex + 1) : 0) + '/' + _fileCommits.length;
+      posEl.textContent =
+        (_fileCommits.length > 0 ? _currentIndex + 1 : 0) + '/' + _fileCommits.length;
     }
 
     if (_fileCommits.length === 0) {
-      if (content) content.innerHTML = '<div class="text-center text-base-content opacity-50 py-8">No commits found for this file.</div>';
+      if (content)
+        content.innerHTML =
+          '<div class="text-center text-base-content opacity-50 py-8">No commits found for this file.</div>';
       if (infoEl) infoEl.textContent = '';
       return;
     }
 
     var commit = _fileCommits[_currentIndex];
     if (infoEl) {
-      infoEl.textContent = commit.commitHash.substring(0, 7) + ' — ' + commit.authorName + ' — ' + (commit.commitDate || '').substring(0, 10);
+      infoEl.textContent =
+        commit.commitHash.substring(0, 7) +
+        ' — ' +
+        commit.authorName +
+        ' — ' +
+        (commit.commitDate || '').substring(0, 10);
     }
 
     // Find the file's changes in this commit
@@ -227,7 +263,8 @@
     if (!content) return;
 
     if (!fileChange) {
-      content.innerHTML = '<div class="text-center text-base-content opacity-50 py-8">No diff data available for this commit.</div>';
+      content.innerHTML =
+        '<div class="text-center text-base-content opacity-50 py-8">No diff data available for this commit.</div>';
       return;
     }
 
@@ -280,10 +317,16 @@
       var line = lines[i];
       var bg = '';
       if (line.type === 'addition') bg = 'background-color: rgba(34,197,94,0.15); color: #166534;';
-      else if (line.type === 'deletion') bg = 'background-color: rgba(239,68,68,0.15); color: #991b1b;';
+      else if (line.type === 'deletion')
+        bg = 'background-color: rgba(239,68,68,0.15); color: #991b1b;';
       else if (line.type === 'header') bg = 'font-weight: bold;';
       else if (line.type === 'info') bg = 'color: #6366f1;';
-      html += '<div style="padding: 2px 8px; white-space: pre; ' + bg + '">' + _escapeHtml(line.content) + '</div>';
+      html +=
+        '<div style="padding: 2px 8px; white-space: pre; ' +
+        bg +
+        '">' +
+        _escapeHtml(line.content) +
+        '</div>';
     }
     html += '</div>';
     return html;
@@ -339,11 +382,18 @@
   function _renderDiffLine(line) {
     var bg = '';
     if (line.type === 'addition') bg = 'background-color: rgba(34,197,94,0.15); color: #166534;';
-    else if (line.type === 'deletion') bg = 'background-color: rgba(239,68,68,0.15); color: #991b1b;';
+    else if (line.type === 'deletion')
+      bg = 'background-color: rgba(239,68,68,0.15); color: #991b1b;';
     else if (line.type === 'header') bg = 'font-weight: bold;';
     else if (line.type === 'info') bg = 'color: #6366f1;';
     else if (line.type === 'empty') bg = 'background-color: rgba(0,0,0,0.03);';
-    return '<div style="padding: 2px 8px; white-space: pre; min-height: 1.4em; ' + bg + '">' + _escapeHtml(line.content) + '</div>';
+    return (
+      '<div style="padding: 2px 8px; white-space: pre; min-height: 1.4em; ' +
+      bg +
+      '">' +
+      _escapeHtml(line.content) +
+      '</div>'
+    );
   }
 
   /**

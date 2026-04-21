@@ -11,23 +11,23 @@
    * Map of viz type keys to their constructor names on window.
    */
   var VIZ_REGISTRY = {
-    'timebloom':        'TimeBloom',
-    'heatmap':          'ContributorHeatmap',
-    'treemap':          'FileHotspotTreemap',
-    'sunburst':         'OwnershipSunburst',
-    'branches':         'BranchMergeGraph',
-    'pulse':            'CommitPulse',
-    'impact':           'ImpactViz',
-    'collaboration':    'CollaborationNetwork',
-    'filetypes':        'FileTypeDistribution',
-    'activity-matrix':  'ActivityMatrix',
-    'bubblemap':        'BubbleMap',
-    'complexity':       'ComplexityTrend',
-    'pr-flow':          'PRReviewFlow',
-    'bus-factor':       'BusFactorView',
-    'stale-files':      'StaleFileView',
-    'city-block':       'CityBlock',
-    'genome':           'GenomeSequence'
+    timebloom: 'TimeBloom',
+    heatmap: 'ContributorHeatmap',
+    treemap: 'FileHotspotTreemap',
+    sunburst: 'OwnershipSunburst',
+    branches: 'BranchMergeGraph',
+    pulse: 'CommitPulse',
+    impact: 'ImpactViz',
+    collaboration: 'CollaborationNetwork',
+    filetypes: 'FileTypeDistribution',
+    'activity-matrix': 'ActivityMatrix',
+    bubblemap: 'BubbleMap',
+    complexity: 'ComplexityTrend',
+    'pr-flow': 'PRReviewFlow',
+    'bus-factor': 'BusFactorView',
+    'stale-files': 'StaleFileView',
+    'city-block': 'CityBlock',
+    genome: 'GenomeSequence'
   };
 
   var _activeVizType = null;
@@ -187,7 +187,7 @@
         // Avoid infinite loop — switchTo calls setVisualization
         var saved = _activeVizType;
         _activeVizType = vizType; // temporarily set to prevent re-entry
-        _activeVizType = saved;   // restore
+        _activeVizType = saved; // restore
         switchTo(vizType);
       }
     });

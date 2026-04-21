@@ -1,7 +1,11 @@
 'use strict';
 
 const crypto = require('node:crypto');
-const { WebhookHandler, validateGitHubSignature, validateGitLabSignature } = require('../../modules/webhooks');
+const {
+  WebhookHandler,
+  validateGitHubSignature,
+  validateGitLabSignature
+} = require('../../modules/webhooks');
 
 // Mock DynamoDB
 jest.mock('@aws-sdk/client-dynamodb', () => ({

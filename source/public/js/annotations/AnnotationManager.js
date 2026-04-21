@@ -25,7 +25,8 @@
   function ensureTooltip() {
     if (tooltip) return;
     tooltip = document.createElement('div');
-    tooltip.className = 'absolute hidden bg-base-200 border border-base-300 rounded shadow-lg p-2 text-xs z-50 pointer-events-none';
+    tooltip.className =
+      'absolute hidden bg-base-200 border border-base-300 rounded shadow-lg p-2 text-xs z-50 pointer-events-none';
     tooltip.style.maxWidth = '220px';
     document.body.appendChild(tooltip);
   }
@@ -38,10 +39,16 @@
     if (!repoId) return;
     currentRepoId = repoId;
 
-    fetch('/api/v1/annotations?repoId=' + encodeURIComponent(repoId), { credentials: 'same-origin' })
-      .then(function (res) { return res.ok ? res.json() : []; })
+    fetch('/api/v1/annotations?repoId=' + encodeURIComponent(repoId), {
+      credentials: 'same-origin'
+    })
+      .then(function (res) {
+        return res.ok ? res.json() : [];
+      })
       .then(function (data) {
-        annotations = (Array.isArray(data) ? data : data.annotations || []).map(normalizeAnnotation);
+        annotations = (Array.isArray(data) ? data : data.annotations || []).map(
+          normalizeAnnotation
+        );
         renderAnnotations();
       })
       .catch(function () {
@@ -66,10 +73,13 @@
       authorUserId: a.authorUserId || null,
       createdAt: a.createdAt || null,
       // For commit-targeted annotations, use a date for positioning
-      date: a.targetDateFrom ? new Date(a.targetDateFrom)
-        : a.commitDate ? new Date(a.commitDate)
-        : a.createdAt ? new Date(a.createdAt)
-        : new Date()
+      date: a.targetDateFrom
+        ? new Date(a.targetDateFrom)
+        : a.commitDate
+          ? new Date(a.commitDate)
+          : a.createdAt
+            ? new Date(a.createdAt)
+            : new Date()
     };
   }
 
@@ -85,7 +95,9 @@
       body: JSON.stringify(Object.assign({ repoId: currentRepoId }, annotationData)),
       credentials: 'same-origin'
     })
-      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        return res.json();
+      })
       .then(function (created) {
         annotations.push(normalizeAnnotation(created));
         renderAnnotations();
@@ -106,7 +118,9 @@
       body: JSON.stringify(Object.assign({ repoId: currentRepoId }, updates)),
       credentials: 'same-origin'
     })
-      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        return res.json();
+      })
       .then(function (updated) {
         for (var i = 0; i < annotations.length; i++) {
           if (annotations[i].id === annotationId) {
@@ -128,11 +142,12 @@
     return fetch('/api/v1/annotations/' + encodeURIComponent(annotationId), {
       method: 'DELETE',
       credentials: 'same-origin'
-    })
-      .then(function () {
-        annotations = annotations.filter(function (a) { return a.id !== annotationId; });
-        renderAnnotations();
+    }).then(function () {
+      annotations = annotations.filter(function (a) {
+        return a.id !== annotationId;
       });
+      renderAnnotations();
+    });
   }
 
   /**
@@ -143,7 +158,9 @@
    */
   function computeStackOffsets(items) {
     var THRESHOLD = MARKER_SIZE + 2;
-    items.sort(function (a, b) { return a.x - b.x; });
+    items.sort(function (a, b) {
+      return a.x - b.x;
+    });
 
     for (var i = 0; i < items.length; i++) {
       items[i].yOffset = 0;
@@ -186,17 +203,19 @@
     ensureTooltip();
 
     // Compute positions
-    var items = annotations.map(function (ann) {
-      var x;
-      if (ann.targetType === 'dateRange' && ann.targetDateFrom && ann.targetDateTo) {
-        x = xScale(new Date((ann.targetDateFrom.getTime() + ann.targetDateTo.getTime()) / 2));
-      } else {
-        x = xScale(ann.date);
-      }
-      return { annotation: ann, x: x };
-    }).filter(function (item) {
-      return item.x >= 0 && item.x <= chartWidth;
-    });
+    var items = annotations
+      .map(function (ann) {
+        var x;
+        if (ann.targetType === 'dateRange' && ann.targetDateFrom && ann.targetDateTo) {
+          x = xScale(new Date((ann.targetDateFrom.getTime() + ann.targetDateTo.getTime()) / 2));
+        } else {
+          x = xScale(ann.date);
+        }
+        return { annotation: ann, x: x };
+      })
+      .filter(function (item) {
+        return item.x >= 0 && item.x <= chartWidth;
+      });
 
     computeStackOffsets(items);
 
@@ -205,10 +224,13 @@
       var x = item.x;
       var baseY = chartHeight - 2 - item.yOffset;
 
-      var g = svgSel.append('g')
+      var g = svgSel
+        .append('g')
         .attr('class', 'annotation-marker')
         .attr('cursor', 'pointer')
-        .on('mouseover', function (event) { showTooltip(event, ann); })
+        .on('mouseover', function (event) {
+          showTooltip(event, ann);
+        })
         .on('mouseout', hideTooltip);
 
       // Date range annotations: draw a bracket
@@ -216,8 +238,10 @@
         var x1 = xScale(ann.targetDateFrom);
         var x2 = xScale(ann.targetDateTo);
         g.append('line')
-          .attr('x1', x1).attr('x2', x2)
-          .attr('y1', baseY).attr('y2', baseY)
+          .attr('x1', x1)
+          .attr('x2', x2)
+          .attr('y1', baseY)
+          .attr('y2', baseY)
           .attr('stroke', '#f59e0b')
           .attr('stroke-width', 2)
           .attr('opacity', 0.7);
@@ -232,8 +256,10 @@
 
       // Stem
       g.append('line')
-        .attr('x1', x).attr('x2', x)
-        .attr('y1', baseY).attr('y2', baseY + MARKER_SIZE)
+        .attr('x1', x)
+        .attr('x2', x)
+        .attr('y1', baseY)
+        .attr('y2', baseY + MARKER_SIZE)
         .attr('stroke', '#b45309')
         .attr('stroke-width', 1);
     });
@@ -248,7 +274,7 @@
   function flagPoints(x, y) {
     return [
       x + ',' + (y - MARKER_SIZE),
-      (x + MARKER_SIZE * 0.7) + ',' + (y - MARKER_SIZE * 0.65),
+      x + MARKER_SIZE * 0.7 + ',' + (y - MARKER_SIZE * 0.65),
       x + ',' + (y - MARKER_SIZE * 0.3)
     ].join(' ');
   }
@@ -265,7 +291,9 @@
       }
     }
     if (annotations.length >= 2) {
-      var dates = annotations.map(function (a) { return a.date; });
+      var dates = annotations.map(function (a) {
+        return a.date;
+      });
       return [d3.min(dates), d3.max(dates)];
     }
     return null;
@@ -283,12 +311,14 @@
       html += '<div class="mt-1">' + escapeHtml(ann.description) + '</div>';
     }
     if (ann.createdAt) {
-      html += '<div class="opacity-60 mt-1 text-[10px]">Created: ' +
-        new Date(ann.createdAt).toLocaleDateString() + '</div>';
+      html +=
+        '<div class="opacity-60 mt-1 text-[10px]">Created: ' +
+        new Date(ann.createdAt).toLocaleDateString() +
+        '</div>';
     }
     tooltip.innerHTML = html;
-    tooltip.style.left = (event.pageX + 10) + 'px';
-    tooltip.style.top = (event.pageY - 10) + 'px';
+    tooltip.style.left = event.pageX + 10 + 'px';
+    tooltip.style.top = event.pageY - 10 + 'px';
     tooltip.classList.remove('hidden');
   }
 
@@ -326,6 +356,8 @@
     create: createAnnotation,
     update: updateAnnotation,
     remove: deleteAnnotation,
-    getAnnotations: function () { return annotations.slice(); }
+    getAnnotations: function () {
+      return annotations.slice();
+    }
   };
 })();

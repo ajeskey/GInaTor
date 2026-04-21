@@ -15,14 +15,12 @@ const { encrypt, decrypt } = require('../../modules/crypto');
  */
 describe('Property 6: AES-256-GCM Encryption Round-Trip', () => {
   // Generator for valid 256-bit keys as hex strings (64 hex chars = 32 bytes)
-  const validKeyArb = fc.uint8Array({ minLength: 32, maxLength: 32 }).map(
-    (bytes) => Buffer.from(bytes).toString('hex')
-  );
+  const validKeyArb = fc
+    .uint8Array({ minLength: 32, maxLength: 32 })
+    .map((bytes) => Buffer.from(bytes).toString('hex'));
 
   // Generator for a pair of distinct 256-bit keys
-  const distinctKeyPairArb = fc
-    .tuple(validKeyArb, validKeyArb)
-    .filter(([k1, k2]) => k1 !== k2);
+  const distinctKeyPairArb = fc.tuple(validKeyArb, validKeyArb).filter(([k1, k2]) => k1 !== k2);
 
   it('encrypt then decrypt with the same key returns the original plaintext', () => {
     fc.assert(

@@ -42,12 +42,9 @@ function decrypt(encrypted, key) {
   const keyBuffer = toKeyBuffer(key);
   const { iv, ciphertext, authTag } = encrypted;
 
-  const decipher = crypto.createDecipheriv(
-    ALGORITHM,
-    keyBuffer,
-    Buffer.from(iv, 'hex'),
-    { authTagLength: AUTH_TAG_LENGTH }
-  );
+  const decipher = crypto.createDecipheriv(ALGORITHM, keyBuffer, Buffer.from(iv, 'hex'), {
+    authTagLength: AUTH_TAG_LENGTH
+  });
   decipher.setAuthTag(Buffer.from(authTag, 'hex'));
 
   try {

@@ -13,7 +13,13 @@
  */
 function computeStats(commits) {
   if (!commits || commits.length === 0) {
-    return { contributorCount: 0, fileCount: 0, firstCommitDate: null, lastCommitDate: null, commitCount: 0 };
+    return {
+      contributorCount: 0,
+      fileCount: 0,
+      firstCommitDate: null,
+      lastCommitDate: null,
+      commitCount: 0
+    };
   }
   const authors = new Set();
   const files = new Set();
@@ -159,12 +165,12 @@ function computeCommitVelocity(commits, granularity = 'daily') {
  */
 function detectSpikes(timeSeries) {
   if (!timeSeries || timeSeries.length === 0) return [];
-  const counts = timeSeries.map(t => t.count);
+  const counts = timeSeries.map((t) => t.count);
   const mean = counts.reduce((s, v) => s + v, 0) / counts.length;
   const variance = counts.reduce((s, v) => s + (v - mean) ** 2, 0) / counts.length;
   const stddev = Math.sqrt(variance);
   const threshold = mean + 2 * stddev;
-  return timeSeries.map(t => ({
+  return timeSeries.map((t) => ({
     period: t.period,
     count: t.count,
     isSpike: t.count > threshold
@@ -197,8 +203,10 @@ function computeCollaborationGraph(commits) {
     }
   }
 
-  const nodes = Object.entries(authorCommits)
-    .map(([author, commitCount]) => ({ author, commitCount }));
+  const nodes = Object.entries(authorCommits).map(([author, commitCount]) => ({
+    author,
+    commitCount
+  }));
 
   // Count shared files per author pair
   const edgeMap = {};
@@ -241,8 +249,7 @@ function computeFileTypeDistribution(commits) {
       }
     }
   }
-  const types = Object.entries(extCounts)
-    .map(([extension, count]) => ({ extension, count }));
+  const types = Object.entries(extCounts).map(([extension, count]) => ({ extension, count }));
   return { types };
 }
 
@@ -319,8 +326,8 @@ function computeStaleFiles(commits, thresholdMonths = 6, referenceDate = new Dat
   const files = [];
   for (const [path, info] of Object.entries(fileInfo)) {
     const lastDate = new Date(info.lastModified);
-    const monthsSince = (ref.getFullYear() - lastDate.getFullYear()) * 12 +
-      (ref.getMonth() - lastDate.getMonth());
+    const monthsSince =
+      (ref.getFullYear() - lastDate.getFullYear()) * 12 + (ref.getMonth() - lastDate.getMonth());
     if (monthsSince > thresholdMonths) {
       files.push({
         path,
@@ -383,7 +390,7 @@ function computeBuildingDimensions(commits) {
       const seen = new Set();
       for (const f of c.changedFiles) {
         if (!fileData[f.path]) fileData[f.path] = { height: 0, footprint: 0 };
-        fileData[f.path].height += (f.additions || 0);
+        fileData[f.path].height += f.additions || 0;
         if (!seen.has(f.path)) {
           fileData[f.path].footprint += 1;
           seen.add(f.path);
@@ -391,8 +398,11 @@ function computeBuildingDimensions(commits) {
       }
     }
   }
-  const buildings = Object.entries(fileData)
-    .map(([path, data]) => ({ path, height: data.height, footprint: data.footprint }));
+  const buildings = Object.entries(fileData).map(([path, data]) => ({
+    path,
+    height: data.height,
+    footprint: data.footprint
+  }));
   return { buildings };
 }
 

@@ -19,7 +19,7 @@ describe('Property 19: Activity Spike Detection', () => {
     fc.assert(
       fc.property(timeSeriesArb, (timeSeries) => {
         const result = detectSpikes(timeSeries);
-        const counts = timeSeries.map(t => t.count);
+        const counts = timeSeries.map((t) => t.count);
         const mean = counts.reduce((s, v) => s + v, 0) / counts.length;
         const variance = counts.reduce((s, v) => s + (v - mean) ** 2, 0) / counts.length;
         const stddev = Math.sqrt(variance);
@@ -41,7 +41,7 @@ describe('Property 19: Activity Spike Detection', () => {
     fc.assert(
       fc.property(timeSeriesArb, (timeSeries) => {
         const result = detectSpikes(timeSeries);
-        const counts = timeSeries.map(t => t.count);
+        const counts = timeSeries.map((t) => t.count);
         const mean = counts.reduce((s, v) => s + v, 0) / counts.length;
         const variance = counts.reduce((s, v) => s + (v - mean) ** 2, 0) / counts.length;
         const stddev = Math.sqrt(variance);

@@ -33,9 +33,7 @@ describe('Express app middleware stack', () => {
   });
 
   test('CSRF protection rejects POST without token', async () => {
-    const res = await request(app)
-      .post('/health')
-      .send({ data: 'test' });
+    const res = await request(app).post('/health').send({ data: 'test' });
     expect(res.status).toBe(403);
   });
 
@@ -46,9 +44,7 @@ describe('Express app middleware stack', () => {
   });
 
   test('CORS headers are set', async () => {
-    const res = await request(app)
-      .get('/health')
-      .set('Origin', 'http://localhost:3000');
+    const res = await request(app).get('/health').set('Origin', 'http://localhost:3000');
     expect(res.headers['access-control-allow-origin']).toBeDefined();
   });
 

@@ -7,10 +7,23 @@
   'use strict';
 
   var VALID_VIZ_TYPES = [
-    'timebloom', 'heatmap', 'treemap', 'sunburst', 'branches',
-    'pulse', 'impact', 'collaboration', 'filetypes', 'activity-matrix',
-    'bubblemap', 'complexity', 'pr-flow', 'bus-factor', 'stale-files',
-    'city-block', 'genome'
+    'timebloom',
+    'heatmap',
+    'treemap',
+    'sunburst',
+    'branches',
+    'pulse',
+    'impact',
+    'collaboration',
+    'filetypes',
+    'activity-matrix',
+    'bubblemap',
+    'complexity',
+    'pr-flow',
+    'bus-factor',
+    'stale-files',
+    'city-block',
+    'genome'
   ];
 
   /**
