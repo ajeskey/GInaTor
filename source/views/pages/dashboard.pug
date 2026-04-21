@@ -1,0 +1,80 @@
+extends ../layout
+
+block head
+  title GInaTor - Dashboard
+
+block content
+  //- Cross-visualization filter indicator
+  #crossviz-indicator.hidden.mb-2.flex.items-center.gap-2
+
+  //- Visualization container — each viz module renders into this area
+  #viz-container.w-full.min-h-96.bg-base-100.rounded-lg.shadow-sm.p-4
+    //- Default welcome state
+    #viz-placeholder.flex.flex-col.items-center.justify-center.h-96.text-base-content.opacity-50
+      .text-6xl.mb-4 🌸
+      h2.text-2xl.font-semibold Select a visualization
+      p.mt-2 Choose a visualization type from the sidebar to get started.
+
+  //- Detail panel for commit info, file lists, etc.
+  #detail-panel.hidden.mt-4.bg-base-100.rounded-lg.shadow-sm.p-4
+
+block scripts
+  //- D3.js for 2D visualizations
+  script(src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js")
+  //- Three.js for 3D visualizations
+  script(src="https://cdn.jsdelivr.net/npm/three@0.160/build/three.min.js")
+  //- Export libraries
+  script(src="https://cdn.jsdelivr.net/npm/html2canvas@1/dist/html2canvas.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/jspdf@2/dist/jspdf.umd.min.js")
+
+  //- AppState (loaded first)
+  script(src="/js/state/AppState.js")
+  script(src="/js/state/UrlState.js")
+
+  //- Visualization base
+  script(src="/js/visualizations/VisualizationBase.js")
+
+  //- All 17 visualization modules
+  script(src="/js/visualizations/TimeBloom.js")
+  script(src="/js/visualizations/CityBlock.js")
+  script(src="/js/visualizations/GenomeSequence.js")
+  script(src="/js/visualizations/ContributorHeatmap.js")
+  script(src="/js/visualizations/FileHotspotTreemap.js")
+  script(src="/js/visualizations/OwnershipSunburst.js")
+  script(src="/js/visualizations/BranchMergeGraph.js")
+  script(src="/js/visualizations/CommitPulse.js")
+  script(src="/js/visualizations/ImpactViz.js")
+  script(src="/js/visualizations/CollaborationNetwork.js")
+  script(src="/js/visualizations/FileTypeDistribution.js")
+  script(src="/js/visualizations/ActivityMatrix.js")
+  script(src="/js/visualizations/BubbleMap.js")
+  script(src="/js/visualizations/ComplexityTrend.js")
+  script(src="/js/visualizations/PRReviewFlow.js")
+  script(src="/js/visualizations/BusFactorView.js")
+  script(src="/js/visualizations/StaleFileView.js")
+
+  //- Cross-cutting features
+  script(src="/js/linking/CrossVizLinker.js")
+  script(src="/js/comparison/ComparisonMode.js")
+  script(src="/js/export/ExportService.js")
+  script(src="/js/diff/DiffViewer.js")
+  script(src="/js/bookmarks/BookmarkManager.js")
+
+  //- Viz Switcher (must load after all viz modules)
+  script(src="/js/VizSwitcher.js")
+
+  //- Initialize all modules
+  script.
+    (function() {
+      'use strict';
+      // Initialize ComparisonMode
+      if (window.ComparisonMode) window.ComparisonMode.init();
+      // Wire ComparisonMode factory to VizSwitcher
+      if (window.ComparisonMode && window.VizSwitcher) {
+        window.ComparisonMode.setVizFactory(window.VizSwitcher.createVizForContainer);
+      }
+      // Initialize BookmarkManager
+      if (window.BookmarkManager) window.BookmarkManager.init();
+      // Initialize VizSwitcher (wires sidebar clicks and loads initial viz)
+      if (window.VizSwitcher) window.VizSwitcher.init();
+    })();

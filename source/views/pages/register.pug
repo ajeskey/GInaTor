@@ -1,0 +1,85 @@
+doctype html
+html(lang="en" data-theme="light")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title GInaTor - Register
+    link(href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css" rel="stylesheet")
+    script(src="https://cdn.tailwindcss.com")
+  body.bg-base-200.min-h-screen.flex.items-center.justify-center
+    .card.w-full.max-w-md.bg-base-100.shadow-xl
+      .card-body
+        h2.card-title.text-2xl.font-bold.mb-4.justify-center GInaTor
+        p.text-center.text-base-content.opacity-70.mb-6 Create a new account
+
+        #register-error.alert.alert-error.hidden.mb-4
+          span#register-error-msg
+
+        #register-success.alert.alert-success.hidden.mb-4
+          span Registration successful! Your account is pending admin approval.
+
+        form#register-form(method="POST" action="/auth/register")
+          .form-control.mb-4
+            label.label
+              span.label-text Email
+            input.input.input-bordered.w-full(type="email" name="email" required placeholder="you@example.com")
+          .form-control.mb-4
+            label.label
+              span.label-text Password
+            input.input.input-bordered.w-full(type="password" name="password" required placeholder="At least 8 characters" minlength="8")
+          .form-control.mb-6
+            label.label
+              span.label-text Confirm Password
+            input.input.input-bordered.w-full(type="password" name="confirmPassword" required placeholder="••••••••" minlength="8")
+          button.btn.btn-primary.w-full(type="submit") Register
+
+        .divider OR
+
+        p.text-center.text-sm
+          | Already have an account?&nbsp;
+          a.link.link-primary(href="/login") Sign In
+
+    script.
+      (function() {
+        var form = document.getElementById('register-form');
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var data = new FormData(form);
+          var pw = data.get('password');
+          var cpw = data.get('confirmPassword');
+          var errEl = document.getElementById('register-error');
+          var msgEl = document.getElementById('register-error-msg');
+          var successEl = document.getElementById('register-success');
+
+          errEl.classList.add('hidden');
+          successEl.classList.add('hidden');
+
+          if (pw !== cpw) {
+            errEl.classList.remove('hidden');
+            msgEl.textContent = 'Passwords do not match';
+            return;
+          }
+
+          fetch('/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: data.get('email'),
+              password: pw
+            })
+          }).then(function(res) {
+            if (res.ok) {
+              form.classList.add('hidden');
+              successEl.classList.remove('hidden');
+            } else {
+              return res.json().then(function(body) {
+                errEl.classList.remove('hidden');
+                msgEl.textContent = body.error || 'Registration failed';
+              });
+            }
+          }).catch(function() {
+            errEl.classList.remove('hidden');
+            msgEl.textContent = 'Network error. Please try again.';
+          });
+        });
+      })();

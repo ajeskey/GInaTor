@@ -1,0 +1,198 @@
+extends ../layout
+
+block head
+  title GInaTor - Admin Panel
+
+block content
+  h1.text-3xl.font-bold.mb-6 Admin Panel
+
+  //- ─── User Management ───
+  section.card.bg-base-100.shadow-md.mb-6
+    .card-body
+      h2.card-title.text-xl User Management
+      if pendingUsers && pendingUsers.length
+        .overflow-x-auto
+          table.table.table-zebra.w-full
+            thead
+              tr
+                th Email
+                th Registered
+                th Actions
+            tbody
+              each user in pendingUsers
+                tr
+                  td= user.email
+                  td= user.createdAt || '—'
+                  td.flex.gap-2
+                    form(method="POST" action="/admin/users/" + user.userId + "/approve")
+                      button.btn.btn-success.btn-sm(type="submit") Approve
+                    form(method="POST" action="/admin/users/" + user.userId + "/reject")
+                      button.btn.btn-error.btn-sm(type="submit") Reject
+      else
+        p.text-base-content.opacity-60 No pending users.
+
+  //- ─── Repository Configuration ───
+  section.card.bg-base-100.shadow-md.mb-6
+    .card-body
+      h2.card-title.text-xl Repository Configuration
+
+      if repoConfigs && repoConfigs.length
+        .overflow-x-auto.mb-4
+          table.table.table-zebra.w-full
+            thead
+              tr
+                th Name
+                th Provider
+                th Last Sync
+                th Actions
+            tbody
+              each repo in repoConfigs
+                tr
+                  td= repo.name
+                  td= repo.providerType
+                  td= repo.lastSyncAt || 'Never'
+                  td
+                    form(method="POST" action="/admin/repos/" + repo.repoId style="display:inline")
+                      input(type="hidden" name="_method" value="DELETE")
+                      button.btn.btn-error.btn-sm(type="submit") Delete
+
+      h3.font-semibold.mt-4.mb-2 Add / Update Repository
+      form(method="POST" action="/admin/repos")
+        div(class="grid grid-cols-1 md:grid-cols-2 gap-4")
+          .form-control
+            label.label
+              span.label-text Repository Name
+            input.input.input-bordered.w-full(type="text" name="name" required)
+          .form-control
+            label.label
+              span.label-text Provider Type
+            select.select.select-bordered.w-full(name="providerType" required)
+              option(value="local") Local
+              option(value="github") GitHub
+              option(value="gitlab") GitLab
+              option(value="codecommit") CodeCommit
+          .form-control
+            label.label
+              span.label-text Path / URL
+            input.input.input-bordered.w-full(type="text" name="path" placeholder="Filesystem path or repo URL")
+          .form-control
+            label.label
+              span.label-text PAT / ARN (encrypted at rest)
+            input.input.input-bordered.w-full(type="password" name="credential" placeholder="Personal Access Token or ARN")
+        .mt-4
+          button.btn.btn-primary(type="submit") Save Repository
+
+  //- ─── AI Provider Configuration ───
+  section.card.bg-base-100.shadow-md.mb-6
+    .card-body
+      h2.card-title.text-xl AI Provider Configuration
+      form(method="POST" action="/admin/ai-config")
+        div(class="grid grid-cols-1 md:grid-cols-2 gap-4")
+          .form-control
+            label.label
+              span.label-text AI Provider
+            select.select.select-bordered.w-full(name="provider" required)
+              option(value="openai") OpenAI
+              option(value="anthropic") Anthropic
+          .form-control
+            label.label
+              span.label-text OpenAI API Key
+            input.input.input-bordered.w-full(type="password" name="openaiApiKey" placeholder="sk-...")
+          .form-control
+            label.label
+              span.label-text Anthropic API Key
+            input.input.input-bordered.w-full(type="password" name="anthropicApiKey" placeholder="sk-ant-...")
+        .mt-4
+          button.btn.btn-primary(type="submit") Save AI Config
+
+  //- ─── Prompt Template ───
+  section.card.bg-base-100.shadow-md.mb-6
+    .card-body
+      h2.card-title.text-xl Release Notes Prompt Template
+      form(method="POST" action="/admin/prompt")
+        .form-control
+          label.label
+            span.label-text Prompt Template
+          textarea.textarea.textarea-bordered.w-full.h-32(name="promptTemplate" placeholder="Enter the prompt template used for AI release notes generation...")
+        .mt-4
+          button.btn.btn-primary(type="submit") Save Prompt
+
+  //- ─── Sprint / Release Markers ───
+  section.card.bg-base-100.shadow-md.mb-6
+    .card-body
+      h2.card-title.text-xl Sprint / Release Markers
+      form(method="POST" action="/admin/markers")
+        div(class="grid grid-cols-1 md:grid-cols-3 gap-4")
+          .form-control
+            label.label
+              span.label-text Repository
+            select.select.select-bordered.w-full(name="repositoryId" required)
+              if repoConfigs && repoConfigs.length
+                each repo in repoConfigs
+                  option(value=repo.repoId)= repo.name
+          .form-control
+            label.label
+              span.label-text Label
+            input.input.input-bordered.w-full(type="text" name="label" required placeholder="e.g. v1.0.0")
+          .form-control
+            label.label
+              span.label-text Date
+            input.input.input-bordered.w-full(type="date" name="date" required)
+        .form-control.mt-2
+          label.label
+            span.label-text Description (optional)
+          input.input.input-bordered.w-full(type="text" name="description" placeholder="Sprint goal or release notes summary")
+        .mt-4
+          button.btn.btn-primary(type="submit") Save Marker
+
+  //- ─── Digest Email Configuration ───
+  section.card.bg-base-100.shadow-md.mb-6
+    .card-body
+      h2.card-title.text-xl Digest Email Configuration
+      form(method="POST" action="/admin/digest")
+        div(class="grid grid-cols-1 md:grid-cols-2 gap-4")
+          .form-control
+            label.label
+              span.label-text Digest Enabled
+            input.toggle.toggle-primary(type="checkbox" name="enabled" value="true")
+          .form-control
+            label.label
+              span.label-text Frequency
+            select.select.select-bordered.w-full(name="frequency")
+              option(value="weekly") Weekly
+              option(value="monthly") Monthly
+        .form-control.mt-2
+          label.label
+            span.label-text Repositories to Include
+          if repoConfigs && repoConfigs.length
+            each repo in repoConfigs
+              label.flex.items-center.gap-2.cursor-pointer.mb-1
+                input.checkbox.checkbox-primary(type="checkbox" name="repoIds" value=repo.repoId)
+                span= repo.name
+          else
+            p.text-base-content.opacity-60 No repositories configured.
+        .mt-4
+          button.btn.btn-primary(type="submit") Save Digest Config
+
+  //- ─── Webhook Configuration ───
+  section.card.bg-base-100.shadow-md.mb-6
+    .card-body
+      h2.card-title.text-xl Webhook Configuration
+      if repoConfigs && repoConfigs.length
+        each repo in repoConfigs
+          if repo.providerType === 'github' || repo.providerType === 'gitlab'
+            .border.border-base-300.rounded-lg.p-4.mb-4
+              h3.font-semibold.mb-2= repo.name
+              p.text-sm.opacity-70.mb-2 Webhook URL: 
+                code /webhooks/#{repo.repoId}
+              if repo.lastWebhookAt
+                p.text-sm.opacity-70.mb-2 Last webhook sync: #{repo.lastWebhookAt}
+              form(method="POST" action="/admin/webhooks/" + repo.repoId)
+                .form-control
+                  label.label
+                    span.label-text Webhook Secret
+                  input.input.input-bordered.w-full(type="password" name="webhookSecret" placeholder="Shared secret for signature validation")
+                .mt-2
+                  button.btn.btn-primary.btn-sm(type="submit") Save Webhook
+      else
+        p.text-base-content.opacity-60 No GitHub or GitLab repositories configured.

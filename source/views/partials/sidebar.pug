@@ -1,0 +1,97 @@
+//- Visualization switcher sidebar with 17 viz types
+aside#sidebar.bg-base-100.w-64.min-h-screen.shadow-md.flex.flex-col.transition-all.duration-300(class="lg:w-64")
+  //- Sidebar header with collapse toggle
+  .flex.items-center.justify-between.p-4.border-b.border-base-300
+    a.text-xl.font-bold.text-primary(href="/") GInaTor
+    button#sidebar-toggle.btn.btn-ghost.btn-sm.btn-circle(title="Toggle sidebar")
+      svg.w-5.h-5(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16")
+
+  //- Visualization list
+  nav.flex-1.overflow-y-auto.py-2
+    ul#viz-list.menu.menu-sm.w-full
+      li
+        a.viz-item(href="#" data-viz="timebloom")
+          span.text-lg 🌸
+          span TimeBloom
+      li
+        a.viz-item(href="#" data-viz="heatmap")
+          span.text-lg 🔥
+          span Contributor Heatmap
+      li
+        a.viz-item(href="#" data-viz="treemap")
+          span.text-lg 🗺️
+          span File Hotspot Treemap
+      li
+        a.viz-item(href="#" data-viz="sunburst")
+          span.text-lg ☀️
+          span Code Ownership Sunburst
+      li
+        a.viz-item(href="#" data-viz="branches")
+          span.text-lg 🌿
+          span Branch/Merge Graph
+      li
+        a.viz-item(href="#" data-viz="pulse")
+          span.text-lg 💓
+          span Commit Pulse
+      li
+        a.viz-item(href="#" data-viz="impact")
+          span.text-lg 💥
+          span Impact Visualization
+      li
+        a.viz-item(href="#" data-viz="collaboration")
+          span.text-lg 🤝
+          span Collaboration Network
+      li
+        a.viz-item(href="#" data-viz="filetypes")
+          span.text-lg 📊
+          span File Type Distribution
+      li
+        a.viz-item(href="#" data-viz="activity-matrix")
+          span.text-lg 📅
+          span Activity Matrix
+      li
+        a.viz-item(href="#" data-viz="bubblemap")
+          span.text-lg 🫧
+          span Bubble Map
+      li
+        a.viz-item(href="#" data-viz="complexity")
+          span.text-lg 📈
+          span Code Complexity Trend
+      li
+        a.viz-item(href="#" data-viz="pr-flow")
+          span.text-lg 🔀
+          span PR/MR Review Flow
+      li
+        a.viz-item(href="#" data-viz="bus-factor")
+          span.text-lg 🚌
+          span Bus Factor
+      li
+        a.viz-item(href="#" data-viz="stale-files")
+          span.text-lg 🕸️
+          span Stale Files
+      li
+        a.viz-item(href="#" data-viz="city-block")
+          span.text-lg 🏙️
+          span City Block
+      li
+        a.viz-item(href="#" data-viz="genome")
+          span.text-lg 🧬
+          span Genome Sequence
+
+  //- Sidebar collapse script
+  script.
+    (function() {
+      var toggle = document.getElementById('sidebar-toggle');
+      var sidebar = document.getElementById('sidebar');
+      if (toggle && sidebar) {
+        toggle.addEventListener('click', function() {
+          sidebar.classList.toggle('w-64');
+          sidebar.classList.toggle('w-16');
+          var labels = sidebar.querySelectorAll('nav span:not(.text-lg)');
+          labels.forEach(function(el) { el.classList.toggle('hidden'); });
+          var header = sidebar.querySelector('.text-xl');
+          if (header) header.classList.toggle('hidden');
+        });
+      }
+    })();

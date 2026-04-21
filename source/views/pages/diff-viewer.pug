@@ -1,0 +1,24 @@
+extends ../layout
+
+block head
+  title GInaTor - Diff Viewer
+
+block content
+  .flex.flex-col.gap-4
+    //- Diff header with file info and mode toggle
+    .flex.items-center.justify-between.bg-base-100.rounded-lg.shadow-sm.p-4
+      .flex.items-center.gap-2
+        a.btn.btn-ghost.btn-sm(href="/dashboard") ← Back
+        h2#diff-file-path.text-lg.font-semibold --
+      .flex.items-center.gap-2
+        .btn-group
+          button#diff-mode-split.btn.btn-sm.btn-active(data-mode="split") Side by Side
+          button#diff-mode-unified.btn.btn-sm(data-mode="unified") Unified
+
+    //- Diff content area
+    #diff-content.bg-base-100.rounded-lg.shadow-sm.p-4.min-h-96.overflow-auto
+      .flex.items-center.justify-center.h-64.text-base-content.opacity-50
+        p Select a file from a visualization to view its diff history.
+
+block scripts
+  script(src="/js/diff/DiffViewer.js" type="module")

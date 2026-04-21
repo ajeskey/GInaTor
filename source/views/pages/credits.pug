@@ -1,0 +1,86 @@
+extends ../layout
+
+block head
+  title GInaTor - Credits &amp; Attribution
+
+block content
+  .max-w-3xl.mx-auto
+    h1.text-3xl.font-bold.mb-6 Credits &amp; Attribution
+
+    p.text-base-content.opacity-80.mb-8
+      | GInaTor — the Git Inator — is inspired by&nbsp;
+      a.link.link-primary(href="https://gource.io" target="_blank" rel="noopener") Gource
+      | , the software version control visualization tool. The name is a playful nod to Dr. Doofenshmirtz from Phineas and Ferb and his elaborate "-inator" machines.
+
+    section.mb-8
+      h2.text-xl.font-semibold.mb-4 Core Technologies
+      .grid.gap-4(class="grid-cols-1 md:grid-cols-2")
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base Express.js
+            p.text-sm.opacity-70 Fast, unopinionated web framework for Node.js
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base Passport.js
+            p.text-sm.opacity-70 Simple, unobtrusive authentication for Node.js
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base Amazon DynamoDB
+            p.text-sm.opacity-70 Fully managed NoSQL database service
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base Pug
+            p.text-sm.opacity-70 High-performance template engine for Node.js
+
+    section.mb-8
+      h2.text-xl.font-semibold.mb-4 Frontend &amp; Visualization
+      .grid.gap-4(class="grid-cols-1 md:grid-cols-2")
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base D3.js
+            p.text-sm.opacity-70 Data-driven documents for powerful visualizations
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base Three.js
+            p.text-sm.opacity-70 3D library for WebGL rendering
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base Tailwind CSS
+            p.text-sm.opacity-70 Utility-first CSS framework
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base DaisyUI
+            p.text-sm.opacity-70 Component library for Tailwind CSS
+
+    section.mb-8
+      h2.text-xl.font-semibold.mb-4 Testing &amp; Quality
+      .grid.gap-4(class="grid-cols-1 md:grid-cols-2")
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base Jest
+            p.text-sm.opacity-70 JavaScript testing framework
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base fast-check
+            p.text-sm.opacity-70 Property-based testing for JavaScript
+
+    section.mb-8
+      h2.text-xl.font-semibold.mb-4 Export &amp; Reporting
+      .grid.gap-4(class="grid-cols-1 md:grid-cols-2")
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base html2canvas
+            p.text-sm.opacity-70 Screenshots with JavaScript
+        .card.bg-base-100.shadow-sm
+          .card-body
+            h3.card-title.text-base jsPDF
+            p.text-sm.opacity-70 Client-side PDF generation
+
+    section
+      h2.text-xl.font-semibold.mb-4 Inspiration
+      .card.bg-base-100.shadow-sm
+        .card-body
+          h3.card-title.text-base Gource
+          p.text-sm.opacity-70
+            | Software version control visualization by Andrew Cain.&nbsp;
+            a.link.link-primary(href="https://gource.io" target="_blank" rel="noopener") gource.io

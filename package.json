@@ -1,0 +1,52 @@
+{
+  "name": "ginator",
+  "version": "1.0.0",
+  "description": "GInaTor — the Git Inator: a web-based git version control visualization tool",
+  "main": "source/app.js",
+  "scripts": {
+    "start": "node source/server.js",
+    "dev": "NODE_ENV=development node source/server.js",
+    "db:init": "DYNAMODB_ENDPOINT=http://localhost:8000 node source/scripts/init-tables.js",
+    "dev:local": "docker compose up -d && npm run db:init && npm run dev",
+    "test": "jest --runInBand",
+    "test:unit": "jest --runInBand source/__tests__/unit",
+    "test:property": "jest --runInBand source/__tests__/property",
+    "test:integration": "jest --runInBand source/__tests__/integration",
+    "test:coverage": "jest --runInBand --coverage"
+  },
+  "keywords": [
+    "git",
+    "visualization",
+    "gource",
+    "d3",
+    "threejs",
+    "express",
+    "dynamodb"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "bcrypt": "^5.1.1",
+    "express-session": "^1.18.1",
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "@aws-sdk/client-codecommit": "^3.700.0",
+    "@aws-sdk/client-ses": "^3.700.0",
+    "d3": "^7.9.0",
+    "three": "^0.170.0",
+    "helmet": "^8.0.0",
+    "cors": "^2.8.5",
+    "csurf": "^1.11.0",
+    "node-cron": "^3.0.3",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "pug": "^3.0.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "fast-check": "^3.23.2"
+  }
+}
