@@ -57,6 +57,7 @@
   };
 
   ContributorHeatmap.prototype._draw = function (data) {
+    var self = this;
     var dims = this._dims();
     var margin = { top: 40, right: 20, bottom: 60, left: 120 };
     var w = dims.width - margin.left - margin.right;
@@ -75,8 +76,8 @@
     var maxVal = d3.max(grid, function (r) { return d3.max(r); }) || 1;
     var color = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, maxVal]);
 
-    var cellW = Math.max(2, w / (periods.length || 1));
-    var cellH = Math.max(2, h / (authors.length || 1));
+    var _cellW = Math.max(2, w / (periods.length || 1));
+    var _cellH = Math.max(2, h / (authors.length || 1));
 
     var xScale = d3.scaleBand().domain(periods).range([0, w]).padding(0.05);
     var yScale = d3.scaleBand().domain(authors).range([0, h]).padding(0.05);
@@ -119,7 +120,7 @@
       .text('Contributor Heatmap');
   };
 
-  ContributorHeatmap.prototype.scrubTo = function (idx) {
+  ContributorHeatmap.prototype.scrubTo = function (_idx) {
     // Heatmap is aggregate — no per-commit scrub
   };
 

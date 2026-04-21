@@ -31,7 +31,7 @@
 
   GenomeSequence.prototype.scrubTo = function (idx) {
     if (idx == null || !this.data) return;
-    var commits = this.data.commits || [];
+    var _commits = this.data.commits || [];
     // Highlight the scrub position commit
     d3.select(this.container).selectAll('.gs-band')
       .attr('opacity', function (d) { return d.commitIdx === idx ? 1 : 0.5; });

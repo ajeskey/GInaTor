@@ -168,13 +168,13 @@
    * Update visualization for a scrub position.
    * @param {number|null} commitIndex
    */
-  VisualizationBase.prototype.scrubTo = function (commitIndex) {};
+  VisualizationBase.prototype.scrubTo = function (_commitIndex) {};
 
   /**
    * Highlight elements for cross-viz linking.
    * @param {object} selection - e.g. { author: '...' } or { file: '...' }
    */
-  VisualizationBase.prototype.highlight = function (selection) {};
+  VisualizationBase.prototype.highlight = function (_selection) {};
 
   /**
    * Remove cross-viz highlights.

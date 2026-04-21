@@ -17,7 +17,6 @@ jest.mock('@aws-sdk/lib-dynamodb', () => {
 });
 
 const DynamoDBStore = require('../../modules/session/DynamoDBStore');
-const { DynamoDBDocumentClient } = require('@aws-sdk/lib-dynamodb');
 
 describe('DynamoDBStore', () => {
   let store;

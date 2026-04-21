@@ -2,13 +2,11 @@
 
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
-const path = require('node:path');
 const GitConnector = require('./GitConnector');
 const {
   parseGitLog,
   parseNumstat,
   GIT_LOG_FORMAT,
-  FIELD_DELIMITER,
   RECORD_DELIMITER
 } = require('./parseGitLog');
 
@@ -66,13 +64,11 @@ class LocalGitProvider extends GitConnector {
     try {
       rawLog = execSync(logCmd, execOpts).toString('utf-8');
     } catch (err) {
-      throw new Error(`Failed to fetch git log: ${err.message}`);
+      throw new Error(`Failed to fetch git log: ${err.message}`, { cause: err });
     }
 
-    // Get file changes per commit using --numstat and --name-status
     const commits = parseGitLog(rawLog, repositoryId);
 
-    const fileChanges = [];
     for (const commit of commits) {
       try {
         const numstatOut = execSync(
@@ -99,7 +95,7 @@ class LocalGitProvider extends GitConnector {
    * @param {object} payload
    * @returns {{ commits: Array }}
    */
-  parseWebhookPayload(payload) {
+  parseWebhookPayload(_payload) {
     throw new Error('Webhooks are not supported for local git repositories');
   }
 }

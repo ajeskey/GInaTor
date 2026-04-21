@@ -34,7 +34,7 @@ function createAuthRouter(authService) {
    * Returns generic 401 error on invalid credentials.
    */
   router.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', (err, user, _info) => {
       if (err) {
         return res.status(500).json({ error: 'Internal server error' });
       }

@@ -71,7 +71,7 @@
           '<b>' + d.data.extension + '</b><br>Changes: ' + d.data.count,
           event);
       })
-      .on('mouseout', function (event, d) {
+      .on('mouseout', function (_event, _d) {
         d3.select(this).transition().duration(150).attr('d', arc);
         self._hideTooltip(tip);
       })

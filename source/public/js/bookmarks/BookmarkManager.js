@@ -277,7 +277,7 @@
     document.body.appendChild(ta);
     ta.select();
     try { document.execCommand('copy'); _showToast('Link copied to clipboard'); }
-    catch (e) { /* ignore */ }
+    catch { /* ignore */ }
     document.body.removeChild(ta);
   }
 

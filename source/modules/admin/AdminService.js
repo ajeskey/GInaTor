@@ -8,10 +8,9 @@ const {
   PutCommand,
   DeleteCommand,
   ScanCommand,
-  QueryCommand,
   UpdateCommand
 } = require('@aws-sdk/lib-dynamodb');
-const { encrypt, decrypt } = require('../crypto');
+const { encrypt } = require('../crypto');
 
 const USERS_TABLE = 'Users';
 const REPO_CONFIGS_TABLE = 'RepositoryConfigs';
@@ -59,7 +58,7 @@ class AdminService {
         ExpressionAttributeValues: { ':pending': 'pending' }
       })
     );
-    return (result.Items || []).map(({ passwordHash, ...user }) => user);
+    return (result.Items || []).map(({ passwordHash: _passwordHash, ...user }) => user);
   }
 
   /**
@@ -91,7 +90,7 @@ class AdminService {
       })
     );
 
-    const { passwordHash, ...safeUser } = { ...user, status: 'approved' };
+    const { passwordHash: _passwordHash, ...safeUser } = { ...user, status: 'approved' };
     return safeUser;
   }
 

@@ -41,7 +41,7 @@ describe('Property 4: Pending User Access Denial', () => {
   // --- Generators ---
 
   const pathSegmentArb = fc.stringOf(
-    fc.char().filter(c => /[a-z0-9\-]/.test(c)),
+    fc.char().filter(c => /[a-z0-9-]/.test(c)),
     { minLength: 1, maxLength: 15 }
   );
 

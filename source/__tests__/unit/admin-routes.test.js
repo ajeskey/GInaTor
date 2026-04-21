@@ -9,7 +9,7 @@ function createTestApp(adminService) {
   app.use(express.json());
   // Stub res.render so we don't need actual pug templates
   app.use((req, res, next) => {
-    const originalRender = res.render.bind(res);
+    const _originalRender = res.render.bind(res);
     res.render = (view, locals) => {
       res.json({ view, ...locals });
     };

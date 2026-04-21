@@ -40,7 +40,7 @@
         month: 'short',
         day: 'numeric'
       });
-    } catch (e) {
+    } catch {
       return '--';
     }
   }

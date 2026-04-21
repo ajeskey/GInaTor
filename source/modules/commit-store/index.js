@@ -4,13 +4,11 @@ const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const {
   DynamoDBDocumentClient,
   PutCommand,
-  QueryCommand,
-  BatchWriteCommand
+  QueryCommand
 } = require('@aws-sdk/lib-dynamodb');
 
 const TABLE_NAME = 'Commits';
 const GSI_NAME = 'repo-date-index';
-const BATCH_WRITE_MAX = 25; // DynamoDB batch write limit
 
 /**
  * DynamoDB-backed store for git commit records.

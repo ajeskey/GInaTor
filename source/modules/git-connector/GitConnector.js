@@ -11,7 +11,7 @@ class GitConnector {
    * @param {object} config - Provider-specific configuration.
    * @returns {Promise<{ valid: boolean, error?: string }>}
    */
-  async validate(config) {
+  async validate(_config) {
     throw new Error('validate() must be implemented by subclass');
   }
 
@@ -22,7 +22,7 @@ class GitConnector {
    * @param {string} [sinceCommitHash] - If provided, fetch only commits after this hash.
    * @returns {Promise<Array<import('./index').CommitRecord>>}
    */
-  async fetchLog(config, sinceCommitHash) {
+  async fetchLog(_config, _sinceCommitHash) {
     throw new Error('fetchLog() must be implemented by subclass');
   }
 
@@ -31,7 +31,7 @@ class GitConnector {
    * @param {object} payload - The raw webhook payload body.
    * @returns {{ commits: Array<{ commitHash: string, message: string, authorName: string, authorEmail: string, timestamp: string }> }}
    */
-  parseWebhookPayload(payload) {
+  parseWebhookPayload(_payload) {
     throw new Error('parseWebhookPayload() must be implemented by subclass');
   }
 }

@@ -19,7 +19,7 @@ function createAdminRouter(adminService) {
       const pendingUsers = await adminService.listPendingUsers();
       const repoConfigs = await adminService.listRepoConfigs();
       res.render('pages/admin', { pendingUsers, repoConfigs });
-    } catch (err) {
+    } catch {
       res.status(500).json({ error: 'Internal server error' });
     }
   });

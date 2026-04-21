@@ -55,7 +55,7 @@ function decrypt(encrypted, key) {
     plaintext += decipher.final('utf8');
     return plaintext;
   } catch (err) {
-    throw new Error('Decryption failed: authentication error');
+    throw new Error('Decryption failed: authentication error', { cause: err });
   }
 }
 

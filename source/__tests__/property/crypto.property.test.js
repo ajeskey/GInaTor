@@ -1,6 +1,6 @@
 'use strict';
 
-const crypto = require('node:crypto');
+const _crypto = require('node:crypto');
 const fc = require('fast-check');
 const { encrypt, decrypt } = require('../../modules/crypto');
 

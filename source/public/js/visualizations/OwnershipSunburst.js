@@ -105,7 +105,7 @@
         var transition = g.transition().duration(500);
         g.selectAll('.sb-arc').transition(transition)
           .attrTween('d', function (node) {
-            var xi = d3.interpolate(node.x0, Math.max(0, Math.min(2 * Math.PI, (node.x0 - d.x0) / (d.x1 - d.x0) * 2 * Math.PI)));
+            var _xi = d3.interpolate(node.x0, Math.max(0, Math.min(2 * Math.PI, (node.x0 - d.x0) / (d.x1 - d.x0) * 2 * Math.PI)));
             return function () { return arc(node); };
           });
       });

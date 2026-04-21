@@ -13,8 +13,8 @@
   if (!container || !d3) return;
 
   var markers = [];
-  var currentRepoId = null;
-  var markerGroup = null;
+  var _currentRepoId = null;
+  var _markerGroup = null;
   var tooltip = null;
 
   /**
@@ -34,7 +34,7 @@
    */
   function fetchMarkers(repoId) {
     if (!repoId) return;
-    currentRepoId = repoId;
+    _currentRepoId = repoId;
 
     fetch('/api/v1/markers?repoId=' + encodeURIComponent(repoId), { credentials: 'same-origin' })
       .then(function (res) { return res.ok ? res.json() : []; })

@@ -234,7 +234,7 @@ function toCommitRecord(commit, diff, repositoryId) {
  * @param {boolean} renamedFile
  * @returns {'added' | 'modified' | 'deleted'}
  */
-function normalizeGitLabStatus(newFile, deletedFile, renamedFile) {
+function normalizeGitLabStatus(newFile, deletedFile, _renamedFile) {
   if (newFile) return 'added';
   if (deletedFile) return 'deleted';
   return 'modified';

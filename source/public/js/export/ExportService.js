@@ -170,7 +170,7 @@
    * @param {HTMLElement} container
    * @private
    */
-  function _cleanupWrapper(wrapper, container) {
+  function _cleanupWrapper(wrapper, _container) {
     if (wrapper && wrapper.parentNode) {
       wrapper.parentNode.removeChild(wrapper);
     }

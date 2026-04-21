@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var d3 = window.d3;
+  var _d3 = window.d3;
 
   function BusFactorView(containerId, appState) {
     window.VisualizationBase.call(this, containerId, appState);
@@ -47,7 +47,7 @@
 
   BusFactorView.prototype._draw = function (data) {
     var dims = this._dims();
-    var self = this;
+    var _self = this;
     var files = (data.files || []).slice().sort(function (a, b) { return a.busFactor - b.busFactor; });
 
     // Clear container and build table

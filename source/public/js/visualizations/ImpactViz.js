@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var d3 = window.d3;
+  var _d3 = window.d3;
 
   function ImpactViz(containerId, appState) {
     window.VisualizationBase.call(this, containerId, appState);

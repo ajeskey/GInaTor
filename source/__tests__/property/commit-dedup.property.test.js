@@ -36,7 +36,7 @@ const CommitStore = require('../../modules/commit-store');
 const commitHashArb = fc.hexaString({ minLength: 40, maxLength: 40 });
 
 const repoIdArb = fc.stringOf(
-  fc.char().filter(c => /[a-zA-Z0-9\-]/.test(c)),
+  fc.char().filter(c => /[a-zA-Z0-9-]/.test(c)),
   { minLength: 1, maxLength: 30 }
 ).filter(s => s.trim().length > 0);
 
@@ -54,7 +54,7 @@ const emailArb = fc.tuple(
 const changeTypeArb = fc.constantFrom('added', 'modified', 'deleted');
 
 const changedFileArb = fc.record({
-  path: fc.stringOf(fc.char().filter(c => /[a-zA-Z0-9\/\.\-_]/.test(c)), { minLength: 1, maxLength: 30 })
+  path: fc.stringOf(fc.char().filter(c => /[a-zA-Z0-9/._-]/.test(c)), { minLength: 1, maxLength: 30 })
     .filter(s => s.trim().length > 0),
   changeType: changeTypeArb
 });

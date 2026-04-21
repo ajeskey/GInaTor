@@ -267,7 +267,7 @@
     });
   };
 
-  CityBlock.prototype._buildLegend = function (data) {
+  CityBlock.prototype._buildLegend = function (_data) {
     var existing = this.container.querySelector('.cb-legend');
     if (existing) existing.remove();
 

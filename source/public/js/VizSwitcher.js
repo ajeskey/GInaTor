@@ -173,7 +173,7 @@
     if (!window.AppState) return;
 
     // When repo changes, reload the active viz
-    window.AppState.on('state:repo-changed', function (e) {
+    window.AppState.on('state:repo-changed', function (_e) {
       if (_activeVizInstance && typeof _activeVizInstance.load === 'function') {
         var state = window.AppState.getState();
         _activeVizInstance.load(state.repoId, state.dateRange);

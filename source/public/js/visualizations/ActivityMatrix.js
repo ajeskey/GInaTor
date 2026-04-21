@@ -64,8 +64,8 @@
     maxVal = maxVal || 1;
 
     var color = d3.scaleSequential(d3.interpolateYlGnBu).domain([0, maxVal]);
-    var cellW = w / 24;
-    var cellH = h / 7;
+    var _cellW = w / 24;
+    var _cellH = h / 7;
 
     var xScale = d3.scaleBand().domain(hours).range([0, w]).padding(0.05);
     var yScale = d3.scaleBand().domain(days).range([0, h]).padding(0.05);

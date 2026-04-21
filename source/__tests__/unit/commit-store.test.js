@@ -90,7 +90,7 @@ describe('CommitStore', () => {
 
     it('should omit branch when not provided', async () => {
       mockSend.mockResolvedValueOnce({});
-      const { branch, ...noBranch } = sampleCommit;
+      const { branch: _branch, ...noBranch } = sampleCommit;
 
       await store.putCommit(noBranch);
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const fc = require('fast-check');
-const { requireAuth, isPublicRoute, isApiRequest } = require('../../modules/middleware/authGuard');
+const { requireAuth, isPublicRoute } = require('../../modules/middleware/authGuard');
 
 /**
  * Property 3: Protected Route Authentication Enforcement
@@ -44,7 +44,7 @@ describe('Property 3: Protected Route Authentication Enforcement', () => {
 
   // Generator for path segments (alphanumeric + hyphens)
   const pathSegmentArb = fc.stringOf(
-    fc.char().filter(c => /[a-z0-9\-]/.test(c)),
+    fc.char().filter(c => /[a-z0-9-]/.test(c)),
     { minLength: 1, maxLength: 15 }
   );
 

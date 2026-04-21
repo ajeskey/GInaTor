@@ -21,7 +21,7 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
 
 // Mock crypto module
 jest.mock('../../modules/crypto', () => ({
-  encrypt: jest.fn((plaintext) => ({ iv: 'mock-iv', ciphertext: 'mock-ct', authTag: 'mock-tag' })),
+  encrypt: jest.fn((_plaintext) => ({ iv: 'mock-iv', ciphertext: 'mock-ct', authTag: 'mock-tag' })),
   decrypt: jest.fn(() => 'decrypted-value')
 }));
 

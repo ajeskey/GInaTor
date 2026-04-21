@@ -48,7 +48,7 @@ describe('Property 7: Credential Exclusion from Unauthenticated Responses', () =
   const arnArb = fc.tuple(
     fc.constantFrom('us-east-1', 'us-west-2', 'eu-west-1'),
     fc.stringOf(fc.char().filter(c => /[a-z0-9]/.test(c)), { minLength: 4, maxLength: 12 }),
-    fc.stringOf(fc.char().filter(c => /[a-zA-Z0-9\-]/.test(c)), { minLength: 4, maxLength: 20 })
+    fc.stringOf(fc.char().filter(c => /[a-zA-Z0-9-]/.test(c)), { minLength: 4, maxLength: 20 })
   ).map(([region, account, resource]) =>
     `arn:aws:codecommit:${region}:${account}:${resource}`
   );
@@ -145,7 +145,7 @@ describe('Property 7: Credential Exclusion from Unauthenticated Responses', () =
 
   it('response bodies from any unauthenticated request contain only safe error messages', async () => {
     // Known safe error messages that the app should return
-    const SAFE_PATTERNS = [
+    const _SAFE_PATTERNS = [
       'Authentication required',
       'Invalid credentials',
       'Not authenticated',

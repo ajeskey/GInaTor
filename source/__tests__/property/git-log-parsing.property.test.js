@@ -50,7 +50,7 @@ describe('Property 8: Git Log Parsing Completeness', () => {
 
   // Generator for repository IDs
   const repoIdArb = fc.stringOf(
-    fc.char().filter(c => /[a-z0-9\-]/.test(c)),
+    fc.char().filter(c => /[a-z0-9-]/.test(c)),
     { minLength: 1, maxLength: 20 }
   ).filter(s => s.trim().length > 0);
 
