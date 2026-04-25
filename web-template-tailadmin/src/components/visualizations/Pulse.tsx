@@ -24,7 +24,7 @@ export default function Pulse({ repoId, from, to }: { repoId: string; from?: str
     if (to) url += `&to=${encodeURIComponent(to)}`;
     fetch(url, { credentials: "include" })
       .then((r) => { if (!r.ok) throw new Error("Failed to fetch"); return r.json(); })
-      .then((d) => { setData(d); setLoading(false); })
+      .then((d) => { setData(Array.isArray(d) ? d : d.timeSeries || d.items || []); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
   }, [repoId, from, to]);
 
