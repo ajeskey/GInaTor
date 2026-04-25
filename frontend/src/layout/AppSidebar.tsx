@@ -2,7 +2,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
   BoxCubeIcon,
@@ -69,6 +69,7 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -181,7 +182,24 @@ const AppSidebar: React.FC = () => {
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const isActive = useCallback((path: string) => path === pathname, [pathname]);
+  const isActive = useCallback(
+    (path: string) => {
+      // Split path into pathname and query string parts
+      const [itemPath, itemQuery] = path.split("?");
+      if (itemQuery) {
+        // For paths with query params (e.g. /dashboard?viz=heatmap)
+        const itemParams = new URLSearchParams(itemQuery);
+        if (itemPath !== pathname) return false;
+        for (const [key, value] of itemParams.entries()) {
+          if (searchParams.get(key) !== value) return false;
+        }
+        return true;
+      }
+      // For plain paths (e.g. /dashboard), only match if no viz param is set
+      return path === pathname && !searchParams.get("viz");
+    },
+    [pathname, searchParams]
+  );
 
   useEffect(() => {
     let submenuMatched = false;
