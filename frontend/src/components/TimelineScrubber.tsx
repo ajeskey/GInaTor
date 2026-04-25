@@ -30,30 +30,14 @@ export default function TimelineScrubber({ repoId, onRangeChange }: Props) {
         const items = data.items || [];
         if (items.length === 0) { setLoading(false); return; }
 
-        // When there are few commits, show one bar per commit for maximum granularity.
-        // When there are many, group by date.
+        // One bar per commit — always show individual commits
         const sorted: { date: string; count: number }[] = [];
-
-        if (items.length <= 100) {
-          // One bar per commit — use full ISO timestamp as the key
-          const commits = items
-            .map((c: Record<string, string>) => c.commitDate || "")
-            .filter((d: string) => d.length > 0)
-            .sort();
-          for (const ts of commits) {
-            sorted.push({ date: ts, count: 1 });
-          }
-        } else {
-          // Many commits — group by date
-          const dateMap = new Map<string, number>();
-          for (const c of items) {
-            const d = (c.commitDate || "").slice(0, 10);
-            if (d) dateMap.set(d, (dateMap.get(d) || 0) + 1);
-          }
-          const entries = Array.from(dateMap.entries())
-            .map(([date, count]) => ({ date, count }))
-            .sort((a, b) => a.date.localeCompare(b.date));
-          sorted.push(...entries);
+        const commits = items
+          .map((c: Record<string, string>) => c.commitDate || "")
+          .filter((d: string) => d.length > 0)
+          .sort();
+        for (const ts of commits) {
+          sorted.push({ date: ts, count: 1 });
         }
 
         setDates(sorted);
