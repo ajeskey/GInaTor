@@ -349,27 +349,29 @@ function computeTimelineAggregation(commits) {
   if (!commits || commits.length === 0) {
     return { buckets: [] };
   }
-  const bucketMap = {};
-  for (const c of commits) {
-    const period = c.commitDate.slice(0, 10); // daily buckets
-    if (!bucketMap[period]) {
-      bucketMap[period] = { additions: 0, deletions: 0, modifications: 0 };
-    }
+  // One bucket per commit — show every commit individually
+  const sorted = [...commits].sort((a, b) =>
+    (a.commitDate || '').localeCompare(b.commitDate || '')
+  );
+  const buckets = sorted.map((c) => {
+    let additions = 0;
+    let deletions = 0;
+    let modifications = 0;
     if (c.changedFiles) {
       for (const f of c.changedFiles) {
         if (f.changeType === 'added') {
-          bucketMap[period].additions += (f.additions || 0) + (f.deletions || 0);
+          additions += (f.additions || 0) + (f.deletions || 0);
         } else if (f.changeType === 'deleted') {
-          bucketMap[period].deletions += (f.additions || 0) + (f.deletions || 0);
+          deletions += (f.additions || 0) + (f.deletions || 0);
         } else {
-          bucketMap[period].modifications += (f.additions || 0) + (f.deletions || 0);
+          modifications += (f.additions || 0) + (f.deletions || 0);
         }
       }
     }
-  }
-  const buckets = Object.entries(bucketMap)
-    .map(([period, data]) => ({ period, ...data }))
-    .sort((a, b) => a.period.localeCompare(b.period));
+    // Use short timestamp as label
+    const period = (c.commitDate || '').slice(0, 16).replace('T', ' ');
+    return { period, additions, deletions, modifications };
+  });
   return { buckets };
 }
 
