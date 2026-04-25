@@ -69,8 +69,6 @@ const VIZ_LABELS: Record<string, string> = {
 export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [user, setUser] = useState<{ email: string } | null>(null);
-  const [isGuest, setIsGuest] = useState(false);
   const { selectedRepo } = useRepo();
   const [dateFrom, setDateFrom] = useState<string | null>(null);
   const [dateTo, setDateTo] = useState<string | null>(null);
@@ -90,19 +88,17 @@ export default function DashboardPage() {
           return fetch("/api/v1/guest-access")
             .then((gr) => gr.json())
             .then((gd) => {
-              if (gd.enabled) { setIsGuest(true); return null; }
-              router.push("/signin");
+              if (!gd.enabled) router.push("/signin");
               return null;
             })
             .catch(() => { router.push("/signin"); return null; });
         }
-        return r.json();
+        return null;
       })
-      .then((data) => { if (data?.user) setUser(data.user); })
       .catch(() => {
         fetch("/api/v1/guest-access")
           .then((gr) => gr.json())
-          .then((gd) => { if (gd.enabled) setIsGuest(true); else router.push("/signin"); })
+          .then((gd) => { if (!gd.enabled) router.push("/signin"); })
           .catch(() => router.push("/signin"));
       });
   }, [router]);
@@ -112,23 +108,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Card */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-brand-500/10 text-brand-500">
-            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">GInaTor</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {isGuest ? "Viewing as guest" : user ? `${user.email}` : "Git visualization dashboard"}
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Timeline Scrubber */}
       {selectedRepo && <TimelineScrubber repoId={selectedRepo} onRangeChange={handleRangeChange} />}
 
