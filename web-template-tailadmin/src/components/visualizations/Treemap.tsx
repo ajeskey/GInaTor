@@ -11,7 +11,7 @@ interface TreemapData {
   files: TreemapFile[];
 }
 
-export default function Treemap({ repoId }: { repoId: string }) {
+export default function Treemap({ repoId, from, to }: { repoId: string; from?: string; to?: string }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -23,11 +23,11 @@ export default function Treemap({ repoId }: { repoId: string }) {
     if (!repoId) return;
     setLoading(true);
     setError(null);
-    fetch(`/api/v1/treemap?repoId=${encodeURIComponent(repoId)}`, { credentials: "include" })
+    fetch(`/api/v1/treemap?repoId=${encodeURIComponent(repoId)}${from ? `&from=${encodeURIComponent(from)}` : ""}${to ? `&to=${encodeURIComponent(to)}` : ""}`, { credentials: "include" })
       .then((r) => { if (!r.ok) throw new Error("Failed to fetch"); return r.json(); })
       .then((d) => { setData(d); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
-  }, [repoId]);
+  }, [repoId, from, to]);
 
   const renderChart = useCallback(() => {
     if (!data || !svgRef.current || !containerRef.current) return;

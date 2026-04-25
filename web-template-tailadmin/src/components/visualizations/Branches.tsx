@@ -20,7 +20,7 @@ const BRANCH_COLORS = [
   "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
 ];
 
-export default function Branches({ repoId }: { repoId: string }) {
+export default function Branches({ repoId, from, to }: { repoId: string; from?: string; to?: string }) {
   const [data, setData] = useState<BranchCommit[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,11 +29,11 @@ export default function Branches({ repoId }: { repoId: string }) {
     if (!repoId) return;
     setLoading(true);
     setError(null);
-    fetch(`/api/v1/branches?repoId=${encodeURIComponent(repoId)}`, { credentials: "include" })
+    fetch(`/api/v1/branches?repoId=${encodeURIComponent(repoId)}${from ? `&from=${encodeURIComponent(from)}` : ""}${to ? `&to=${encodeURIComponent(to)}` : ""}`, { credentials: "include" })
       .then((r) => { if (!r.ok) throw new Error("Failed to fetch"); return r.json(); })
       .then((d) => { setData(Array.isArray(d) ? d : d.commits || d.branches || []); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
-  }, [repoId]);
+  }, [repoId, from, to]);
 
   if (loading) return <p className="text-sm text-gray-500">Loading...</p>;
   if (error) return <p className="text-sm text-red-500">{error}</p>;

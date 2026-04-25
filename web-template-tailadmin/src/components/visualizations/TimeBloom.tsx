@@ -549,7 +549,7 @@ function updateContributorDot(dot: ContributorDot, dt: number) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function TimeBloom({ repoId }: { repoId: string }) {
+export default function TimeBloom({ repoId, from, to }: { repoId: string; from?: string; to?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [commits, setCommits] = useState<Commit[]>([]);
   const [loading, setLoading] = useState(true);
