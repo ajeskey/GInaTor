@@ -128,18 +128,13 @@ export default function DashboardPage() {
   }, [router]);
 
   useEffect(() => {
-    // Guests can't access /admin, so skip repo fetching in guest mode
-    if (isGuest) {
-      setReposLoading(false);
-      return;
-    }
-    fetch("/admin", { credentials: "include" })
+    fetch("/api/v1/repos", { credentials: "include" })
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch repos");
         return r.json();
       })
       .then((data) => {
-        const configs: RepoConfig[] = data.repoConfigs || [];
+        const configs: RepoConfig[] = Array.isArray(data) ? data : (data.repoConfigs || []);
         setRepos(configs);
         if (configs.length > 0 && !selectedRepo) {
           setSelectedRepo(configs[0].repoId);

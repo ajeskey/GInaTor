@@ -32,6 +32,26 @@ const { createBookmarksRouter } = require('./bookmarks');
 function createApiRouter({ commitStore }) {
   const router = express.Router();
 
+  // Repos list (accessible to all authenticated users, not just admin)
+  router.get('/repos', async (_req, res) => {
+    try {
+      const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+      const { DynamoDBDocumentClient, ScanCommand } = require('@aws-sdk/lib-dynamodb');
+      const clientConfig = { region: process.env.AWS_REGION || 'us-east-1' };
+      if (process.env.DYNAMODB_ENDPOINT) clientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+      const docClient = DynamoDBDocumentClient.from(new DynamoDBClient(clientConfig));
+      const result = await docClient.send(new ScanCommand({ TableName: 'RepositoryConfigs' }));
+      const repos = (result.Items || []).map(r => ({
+        repoId: r.repoId,
+        name: r.name,
+        providerType: r.providerType
+      }));
+      res.json(repos);
+    } catch {
+      res.status(500).json({ error: 'Failed to fetch repos' });
+    }
+  });
+
   // Mount sub-routers
   router.use('/commits', createCommitsRouter(commitStore));
   router.use('/docs', createDocsRouter());
