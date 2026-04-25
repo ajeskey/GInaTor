@@ -1,5 +1,7 @@
 # GInaTor — The Git Inator
 
+*/jee·**NAY**·tər/*
+
 Just as Dr. Doofenshmirtz builds elaborate "-inator" machines in *Phineas and Ferb*, **GInaTor** is the **G**it **Ina**tor: a web-based tool that transforms raw git history into rich, interactive browser-based visualizations.
 
 GInaTor ingests commit data from local git repos, GitHub, GitLab, and AWS CodeCommit, stores normalized records in DynamoDB, and renders **18 distinct visualization types** in the browser — from animated radial trees and 3D city metaphors to heatmaps, Sankey diagrams, and genome-sequence timelines.
