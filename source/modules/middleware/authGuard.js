@@ -140,6 +140,7 @@ function requireAuth(req, res, next) {
 
 /**
  * Middleware that checks if the authenticated user has 'approved' status.
+ * - Skips public routes and guest-accessible API routes when guest access is enabled
  * - Redirects pending users to /auth/pending for page requests
  * - Returns 403 JSON for pending users on API requests
  */
@@ -153,7 +154,25 @@ function requireApproved(req, res, next) {
     return next();
   }
 
-  if (!req.user || req.user.status !== 'approved') {
+  // If user is not authenticated, check if guest access allows this route
+  if (!req.user || !req.isAuthenticated || !req.isAuthenticated()) {
+    return isGuestAccessEnabled().then((guestEnabled) => {
+      if (guestEnabled && isGuestAllowedRoute(req.path)) {
+        return next();
+      }
+      if (isApiRequest(req)) {
+        return res.status(403).json({ error: 'Account pending approval' });
+      }
+      return res.redirect('/auth/pending');
+    }).catch(() => {
+      if (isApiRequest(req)) {
+        return res.status(403).json({ error: 'Account pending approval' });
+      }
+      return res.redirect('/auth/pending');
+    });
+  }
+
+  if (req.user.status !== 'approved') {
     if (isApiRequest(req)) {
       return res.status(403).json({ error: 'Account pending approval' });
     }
