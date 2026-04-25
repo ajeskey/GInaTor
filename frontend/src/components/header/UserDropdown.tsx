@@ -13,18 +13,20 @@ export default function UserDropdown() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     fetch("/auth/status", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.user) setUser(data.user);
+        else setIsGuest(true);
       })
-      .catch(() => {});
+      .catch(() => setIsGuest(true));
   }, []);
 
-  const displayName = user?.email?.split("@")[0] || "Admin";
-  const initials = displayName.slice(0, 2).toUpperCase();
+  const displayName = isGuest ? "Guest" : (user?.email?.split("@")[0] || "");
+  const initials = isGuest ? "G" : displayName.slice(0, 2).toUpperCase();
 
   async function handleSignOut() {
     await fetch("/auth/logout", { method: "POST", credentials: "include" });
@@ -73,7 +75,7 @@ export default function UserDropdown() {
             {displayName}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {user?.email || ""}
+            {isGuest ? "Viewing as guest" : user?.email || ""}
           </span>
           {user?.role && (
             <span className="mt-1 inline-block rounded-full bg-brand-500/10 px-2 py-0.5 text-theme-xs font-medium text-brand-500">
@@ -82,6 +84,17 @@ export default function UserDropdown() {
           )}
         </div>
 
+        {isGuest ? (
+          <div className="pt-4">
+            <button
+              onClick={() => router.push("/signin")}
+              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 w-full"
+            >
+              Sign in
+            </button>
+          </div>
+        ) : (
+        <>
         <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
           <li>
             <DropdownItem
@@ -130,6 +143,8 @@ export default function UserDropdown() {
           </svg>
           Sign out
         </button>
+        </>
+        )}
       </Dropdown>
     </div>
   );
