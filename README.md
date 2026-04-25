@@ -58,7 +58,7 @@ npm run dev
 npm run dev:frontend
 ```
 
-Open **http://localhost:3001** in your browser. The first user to register becomes the admin.
+Open **http://your-server:3001** in your browser. The first user to register becomes the admin.
 
 > **Note:** Two servers run simultaneously — the Express API on port 3000 and the Next.js frontend on port 3001. The frontend proxies all API calls to the backend automatically. You only need to open port 3001 in your browser.
 
@@ -67,10 +67,10 @@ Open **http://localhost:3001** in your browser. The first user to register becom
 To enable "Connect GitHub" in the admin panel:
 
 1. Create a GitHub OAuth App at https://github.com/settings/developers
-2. Set callback URL to `http://localhost:3000/auth/github/callback`
+2. Set callback URL to `http://your-server:3000/auth/github/callback`
 3. Add `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` to your `.env`
 
-The Express API runs on **http://localhost:3000** and the Next.js frontend on **http://localhost:3001**.
+The Express API runs on **port 3000** and the Next.js frontend on **port 3001**.
 
 ### NPM Scripts
 
@@ -121,13 +121,13 @@ aws ecs update-service --cluster ginator --service ginator --force-new-deploymen
 | ------------------------ | ---------------------------------------------------- | --------------------- |
 | `SESSION_SECRET`         | Secret for express-session cookie signing            | *(required)*          |
 | `ENCRYPTION_KEY`         | AES-256 key for stored credentials (64 hex chars)    | *(required)*          |
-| `DYNAMODB_ENDPOINT`      | DynamoDB endpoint URL (set for local dev)            | `http://localhost:8000` |
+| `DYNAMODB_ENDPOINT`      | DynamoDB endpoint URL (set for local dev)            | *(unset for AWS)* |
 | `AWS_REGION`             | AWS region                                           | `us-east-1`           |
 | `AWS_ACCESS_KEY_ID`      | AWS access key                                       | —                     |
 | `AWS_SECRET_ACCESS_KEY`  | AWS secret key                                       | —                     |
 | `PORT`                   | Express server listen port                           | `3000`                |
 | `NODE_ENV`               | `development` or `production`                        | `development`         |
-| `CORS_ORIGIN`            | Allowed CORS origin                                  | `http://localhost:3001` |
+| `CORS_ORIGIN`            | Allowed CORS origin for the frontend                 | *(your frontend URL)* |
 | `GITHUB_CLIENT_ID`       | GitHub OAuth App client ID                           | —                     |
 | `GITHUB_CLIENT_SECRET`   | GitHub OAuth App client secret                       | —                     |
 
