@@ -39,19 +39,35 @@ DynamoDB (8 tables)
 ### Quick Start
 
 ```bash
-# Install dependencies
+# 1. Install all dependencies
 npm install
 cd web-template-tailadmin && npm install && cd ..
 
-# Copy environment config
+# 2. Copy environment config and edit as needed
 cp .env.example .env
 
-# Start DynamoDB Local + init tables + Express API
-npm run dev:local
+# 3. Start Docker (DynamoDB Local)
+docker compose up -d
 
-# In a second terminal — start the Next.js frontend
+# 4. Initialize DynamoDB tables
+npm run db:init
+
+# 5. Start the Express API (Terminal 1)
+npm run dev
+
+# 6. Start the Next.js frontend (Terminal 2)
 cd web-template-tailadmin && npm run dev
 ```
+
+Open **http://localhost:3001** in your browser. The first user to register becomes the admin.
+
+### GitHub OAuth (optional)
+
+To enable "Connect GitHub" in the admin panel:
+
+1. Create a GitHub OAuth App at https://github.com/settings/developers
+2. Set callback URL to `http://localhost:3000/auth/github/callback`
+3. Add `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` to your `.env`
 
 The Express API runs on **http://localhost:3000** and the Next.js frontend on **http://localhost:3001**.
 
