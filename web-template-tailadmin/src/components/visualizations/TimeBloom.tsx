@@ -27,32 +27,36 @@ interface TreeNode {
   isFile: boolean;
   children: Map<string, TreeNode>;
   parent: TreeNode | null;
-  // 3D state
+  // 3D objects
   mesh: THREE.Mesh | null;
-  line: THREE.Line | null;
+  edge: THREE.Line | null;
+  label: THREE.Sprite | null;
+  // Fixed position (set once, never changes)
   position: THREE.Vector3;
-  velocity: THREE.Vector3;
-  // visual state
+  // Visual state for animations
   alive: boolean;
   opacity: number;
-  scale: number;
-  glowIntensity: number;
+  currentScale: number;
+  targetScale: number;
   lastChangeType: "added" | "modified" | "deleted" | null;
   animationTimer: number;
   depth: number;
   angle: number;
-  targetRadius: number;
+  // Color state
+  baseColor: number;
+  flashColor: number | null;
+  flashTimer: number;
 }
 
 interface ContributorDot {
   name: string;
   color: THREE.Color;
   mesh: THREE.Mesh;
+  label: THREE.Sprite;
   position: THREE.Vector3;
   targetPosition: THREE.Vector3;
   opacity: number;
   fadeTimer: number;
-  label: string;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -61,10 +65,11 @@ const COLORS = {
   background: 0x0a0a1a,
   root: 0x8b5cf6,
   directory: 0x3b82f6,
+  fileIdle: 0x6b7280,
   added: 0x22c55e,
   modified: 0xf59e0b,
   deleted: 0xef4444,
-  edge: 0x333333,
+  edge: 0x374151,
 };
 
 const CONTRIBUTOR_COLORS = [
@@ -74,8 +79,16 @@ const CONTRIBUTOR_COLORS = [
 ];
 
 const SPEED_OPTIONS = [0.5, 1, 2, 4];
-const COMMIT_INTERVAL_BASE = 1200; // ms at 1x speed
-const STAR_COUNT = 600;
+const COMMIT_INTERVAL_BASE = 1200;
+const STAR_COUNT = 500;
+const RADIUS_STEP = 55;
+const LABEL_SHOW_DISTANCE = 400;
+
+const NODE_RADIUS = {
+  root: 6,
+  directory: 3.5,
+  file: 1.5,
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -93,6 +106,51 @@ function getContributorColor(name: string): number {
 
 function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max - 1) + "…" : s;
+}
+
+
+// ─── Text label creation (Canvas → Sprite) ──────────────────────────────────
+
+function createTextSprite(
+  text: string,
+  fontSize: number,
+  color: string = "#ffffff",
+  bold: boolean = false
+): THREE.Sprite {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
+  const font = `${bold ? "bold " : ""}${fontSize}px "SF Mono", "Fira Code", "Consolas", monospace`;
+  ctx.font = font;
+  const metrics = ctx.measureText(text);
+  const textWidth = metrics.width;
+
+  const padding = 8;
+  canvas.width = Math.ceil(textWidth + padding * 2);
+  canvas.height = Math.ceil(fontSize * 1.4 + padding * 2);
+
+  // Re-set font after resize
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, padding, canvas.height / 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const sprite = new THREE.Sprite(material);
+  // Scale sprite to world units — roughly 1 world unit per 4 canvas pixels
+  const scale = 0.25;
+  sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
+
+  return sprite;
 }
 
 // ─── File tree builder ───────────────────────────────────────────────────────
@@ -113,18 +171,20 @@ function createTreeNode(
     children: new Map(),
     parent,
     mesh: null,
-    line: null,
+    edge: null,
+    label: null,
     position: new THREE.Vector3(),
-    velocity: new THREE.Vector3(),
-    alive: true,
-    opacity: 1,
-    scale: 1,
-    glowIntensity: 0,
+    alive: false,
+    opacity: 0,
+    currentScale: 0,
+    targetScale: 1,
     lastChangeType: null,
     animationTimer: 0,
     depth,
     angle: 0,
-    targetRadius: 0,
+    baseColor: isFile ? COLORS.fileIdle : (depth === 0 ? COLORS.root : COLORS.directory),
+    flashColor: null,
+    flashTimer: 0,
   };
 }
 
@@ -136,14 +196,7 @@ function ensurePath(root: TreeNode, filePath: string): TreeNode {
     const isLast = i === parts.length - 1;
     const fullPath = parts.slice(0, i + 1).join("/");
     if (!current.children.has(part)) {
-      const node = createTreeNode(
-        fullPath,
-        part,
-        fullPath,
-        isLast,
-        current,
-        current.depth + 1
-      );
+      const node = createTreeNode(fullPath, part, fullPath, isLast, current, current.depth + 1);
       current.children.set(part, node);
     }
     current = current.children.get(part)!;
@@ -151,245 +204,272 @@ function ensurePath(root: TreeNode, filePath: string): TreeNode {
   return current;
 }
 
-function collectAllNodes(root: TreeNode): TreeNode[] {
-  const result: TreeNode[] = [root];
-  function walk(node: TreeNode) {
-    for (const child of node.children.values()) {
-      result.push(child);
-      walk(child);
-    }
+function findNode(root: TreeNode, filePath: string): TreeNode | null {
+  const parts = filePath.split("/");
+  let current: TreeNode | undefined = root;
+  for (const part of parts) {
+    current = current.children.get(part);
+    if (!current) return null;
   }
-  walk(root);
-  return result;
+  return current;
 }
 
-// ─── Radial layout ──────────────────────────────────────────────────────────
+// ─── Deterministic radial tree layout ────────────────────────────────────────
+// Positions are computed ONCE and never change. No physics, no jitter.
 
 function layoutRadialTree(root: TreeNode) {
-  const RADIUS_STEP = 60;
+  function countLeaves(node: TreeNode): number {
+    if (node.children.size === 0) return 1;
+    let total = 0;
+    for (const child of node.children.values()) {
+      total += countLeaves(child);
+    }
+    return total;
+  }
 
   function layoutChildren(node: TreeNode, startAngle: number, endAngle: number) {
     const children = Array.from(node.children.values());
     if (children.length === 0) return;
 
-    const angleSpan = endAngle - startAngle;
-    const angleStep = angleSpan / children.length;
+    // Distribute angle proportional to subtree leaf count
+    const totalLeaves = children.reduce((sum, c) => sum + countLeaves(c), 0);
+    let currentAngle = startAngle;
 
-    children.forEach((child, i) => {
-      const angle = startAngle + angleStep * (i + 0.5);
+    for (const child of children) {
+      const leafCount = countLeaves(child);
+      const angleSpan = ((endAngle - startAngle) * leafCount) / totalLeaves;
+      const midAngle = currentAngle + angleSpan / 2;
       const radius = child.depth * RADIUS_STEP;
-      child.angle = angle;
-      child.targetRadius = radius;
+
+      child.angle = midAngle;
       child.position.set(
-        Math.cos(angle) * radius,
-        Math.sin(angle) * radius,
-        (Math.random() - 0.5) * 15
+        Math.cos(midAngle) * radius,
+        Math.sin(midAngle) * radius,
+        0
       );
-      layoutChildren(child, startAngle + angleStep * i, startAngle + angleStep * (i + 1));
-    });
+
+      layoutChildren(child, currentAngle, currentAngle + angleSpan);
+      currentAngle += angleSpan;
+    }
   }
 
   root.position.set(0, 0, 0);
+  root.angle = 0;
   layoutChildren(root, 0, Math.PI * 2);
 }
 
-// ─── Force simulation (lightweight) ─────────────────────────────────────────
 
-function applyForces(nodes: TreeNode[], _dt: number) {
-  const REPULSION = 200;
-  const SPRING = 0.02;
-  const DAMPING = 0.85;
-  const RADIUS_STEP = 60;
-
-  for (let i = 0; i < nodes.length; i++) {
-    const a = nodes[i];
-    if (a.depth === 0) continue;
-
-    // Spring toward radial target
-    const targetR = a.depth * RADIUS_STEP;
-    const targetX = Math.cos(a.angle) * targetR;
-    const targetY = Math.sin(a.angle) * targetR;
-    a.velocity.x += (targetX - a.position.x) * SPRING;
-    a.velocity.y += (targetY - a.position.y) * SPRING;
-
-    // Repulsion from siblings
-    for (let j = i + 1; j < nodes.length; j++) {
-      const b = nodes[j];
-      if (a.depth !== b.depth) continue;
-      const dx = a.position.x - b.position.x;
-      const dy = a.position.y - b.position.y;
-      const distSq = dx * dx + dy * dy + 1;
-      if (distSq < REPULSION * REPULSION) {
-        const force = REPULSION / distSq;
-        a.velocity.x += dx * force;
-        a.velocity.y += dy * force;
-        b.velocity.x -= dx * force;
-        b.velocity.y -= dy * force;
-      }
-    }
-
-    // Damping
-    a.velocity.multiplyScalar(DAMPING);
-    a.position.add(a.velocity);
-  }
-}
-
-// ─── Three.js scene builder ─────────────────────────────────────────────────
-
-function createGlowMaterial(color: number, opacity = 1): THREE.MeshBasicMaterial {
-  return new THREE.MeshBasicMaterial({
-    color,
-    transparent: true,
-    opacity,
-    depthWrite: false,
-  });
-}
+// ─── Three.js object creation ────────────────────────────────────────────────
 
 function createNodeMesh(node: TreeNode, scene: THREE.Scene) {
+  // Determine radius and color
   let radius: number;
   let color: number;
 
   if (node.depth === 0) {
-    radius = 5;
+    radius = NODE_RADIUS.root;
     color = COLORS.root;
   } else if (!node.isFile) {
-    radius = Math.max(2, 4 - node.depth * 0.5);
+    radius = NODE_RADIUS.directory;
     color = COLORS.directory;
   } else {
-    radius = 1.8;
-    color = 0x6b7280; // neutral gray until animated
+    radius = NODE_RADIUS.file;
+    color = COLORS.fileIdle;
   }
 
-  const geometry = new THREE.SphereGeometry(radius, 16, 16);
-  const material = createGlowMaterial(color);
+  // Sphere
+  const segments = node.isFile ? 12 : 16;
+  const geometry = new THREE.SphereGeometry(radius, segments, segments);
+  const material = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+  });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.copy(node.position);
   scene.add(mesh);
   node.mesh = mesh;
 
-  // Glow halo for root and directories
-  if (node.depth === 0 || !node.isFile) {
-    const haloGeo = new THREE.SphereGeometry(radius * 2.2, 16, 16);
-    const haloMat = createGlowMaterial(color, 0.08);
+  // Glow halo for root
+  if (node.depth === 0) {
+    const haloGeo = new THREE.SphereGeometry(radius * 2.5, 16, 16);
+    const haloMat = new THREE.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.06,
+      depthWrite: false,
+    });
     const halo = new THREE.Mesh(haloGeo, haloMat);
     mesh.add(halo);
   }
 
-  // Edge to parent
-  if (node.parent && node.parent.mesh) {
-    const lineGeo = new THREE.BufferGeometry().setFromPoints([
-      node.parent.position.clone(),
-      node.position.clone(),
-    ]);
+  // Text label
+  const isRoot = node.depth === 0;
+  const fontSize = isRoot ? 48 : (!node.isFile ? 36 : 28);
+  const labelColor = isRoot ? "#c4b5fd" : (!node.isFile ? "#93c5fd" : "#d1d5db");
+  const label = createTextSprite(node.name, fontSize, labelColor, isRoot || !node.isFile);
+  // Position label offset from node
+  const labelOffset = radius + 2;
+  label.position.copy(node.position);
+  label.position.x += labelOffset;
+  label.position.y += labelOffset * 0.5;
+  label.material.opacity = 0;
+  scene.add(label);
+  node.label = label;
+
+  // Edge line to parent
+  if (node.parent) {
+    const points = [node.parent.position.clone(), node.position.clone()];
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
     const lineMat = new THREE.LineBasicMaterial({
       color: COLORS.edge,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0,
+      depthWrite: false,
     });
     const line = new THREE.Line(lineGeo, lineMat);
     scene.add(line);
-    node.line = line;
+    node.edge = line;
   }
 }
 
-function updateNodeVisuals(node: TreeNode, time: number) {
+// ─── Node animation update (called every frame) ─────────────────────────────
+
+function updateNodeVisuals(node: TreeNode, dt: number, cameraZ: number) {
   if (!node.mesh) return;
   const mat = node.mesh.material as THREE.MeshBasicMaterial;
 
-  // Position
-  node.mesh.position.copy(node.position);
+  // ── Flash timer (modified files pulse) ──
+  if (node.flashTimer > 0) {
+    node.flashTimer = Math.max(0, node.flashTimer - dt);
+    if (node.flashColor !== null) {
+      mat.color.setHex(node.flashColor);
+    }
+    if (node.flashTimer <= 0) {
+      node.flashColor = null;
+      mat.color.setHex(node.baseColor);
+    }
+  }
 
-  // Breathing effect
-  const breathe = 1 + Math.sin(time * 1.5 + node.angle * 3) * 0.03;
-
-  // Animation timer
+  // ── Animation timer (bloom in / fade out) ──
   if (node.animationTimer > 0) {
-    node.animationTimer = Math.max(0, node.animationTimer - 0.016);
-    const t = node.animationTimer;
+    node.animationTimer = Math.max(0, node.animationTimer - dt);
 
     if (node.lastChangeType === "added") {
-      // Bloom: scale up from 0 with glow
-      const progress = 1 - Math.min(t / 0.8, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      node.scale = eased * 1.3;
-      node.glowIntensity = (1 - progress) * 2;
+      // Bloom: scale 0→1 over 500ms
+      const progress = 1 - node.animationTimer / 0.5;
+      const eased = 1 - Math.pow(1 - Math.min(progress, 1), 3); // ease-out cubic
+      node.currentScale = eased;
+      node.opacity = eased;
       mat.color.setHex(COLORS.added);
-      mat.opacity = eased;
-    } else if (node.lastChangeType === "modified") {
-      // Pulse
-      const pulse = Math.sin(t * 12) * 0.4 + 1;
-      node.scale = pulse;
-      node.glowIntensity = Math.abs(Math.sin(t * 8));
-      mat.color.setHex(COLORS.modified);
-      mat.opacity = 1;
+      // After bloom completes, fade to idle color
+      if (node.animationTimer <= 0) {
+        node.baseColor = COLORS.fileIdle;
+        mat.color.setHex(COLORS.fileIdle);
+        node.currentScale = 1;
+        node.opacity = 1;
+      }
     } else if (node.lastChangeType === "deleted") {
-      // Shrink and fade
-      const progress = Math.min(t / 0.8, 1);
-      node.scale = progress * 0.8;
+      // Fade out over 500ms
+      const progress = node.animationTimer / 0.5;
+      node.opacity = Math.max(0, progress);
+      node.currentScale = Math.max(0.01, progress);
       mat.color.setHex(COLORS.deleted);
-      mat.opacity = progress * 0.6;
-    }
-  } else {
-    // Idle state
-    node.scale = 1;
-    node.glowIntensity = Math.max(0, node.glowIntensity - 0.02);
-    if (node.isFile && node.lastChangeType !== "deleted") {
-      mat.opacity = Math.min(1, mat.opacity + 0.01);
+      if (node.animationTimer <= 0) {
+        node.alive = false;
+        node.opacity = 0;
+        node.currentScale = 0;
+      }
     }
   }
 
-  const finalScale = node.scale * breathe;
-  node.mesh.scale.setScalar(finalScale);
+  // ── Apply visual state ──
+  mat.opacity = node.opacity;
+  node.mesh.scale.setScalar(Math.max(0.001, node.currentScale));
 
-  // Emissive-like glow via brightness
-  if (node.glowIntensity > 0) {
-    const base = mat.color.clone();
-    base.lerp(new THREE.Color(0xffffff), node.glowIntensity * 0.3);
-    mat.color.copy(base);
+  // ── Label visibility (LOD based on camera distance) ──
+  if (node.label) {
+    const labelMat = node.label.material as THREE.SpriteMaterial;
+    if (node.alive && node.opacity > 0.1) {
+      // Show labels when camera is close enough
+      const showLabel = cameraZ < LABEL_SHOW_DISTANCE || node.depth <= 1;
+      const targetOpacity = showLabel ? node.opacity * 0.9 : 0;
+      // Smooth fade
+      labelMat.opacity += (targetOpacity - labelMat.opacity) * 0.1;
+    } else {
+      labelMat.opacity *= 0.9;
+    }
   }
 
-  // Update edge line
-  if (node.line && node.parent) {
-    const positions = node.line.geometry.attributes.position;
-    if (positions && node.parent.position) {
-      const arr = positions.array as Float32Array;
-      arr[0] = node.parent.position.x;
-      arr[1] = node.parent.position.y;
-      arr[2] = node.parent.position.z;
-      arr[3] = node.position.x;
-      arr[4] = node.position.y;
-      arr[5] = node.position.z;
-      positions.needsUpdate = true;
-    }
+  // ── Edge opacity matches node ──
+  if (node.edge) {
+    const edgeMat = node.edge.material as THREE.LineBasicMaterial;
+    edgeMat.opacity = node.opacity * 0.4;
   }
 }
+
+// ─── Make a node visible (bloom it in) ───────────────────────────────────────
+
+function bloomNode(node: TreeNode) {
+  if (node.alive) return; // Already visible
+  node.alive = true;
+  node.currentScale = 0;
+  node.opacity = 0;
+  node.lastChangeType = "added";
+  node.animationTimer = 0.5;
+
+  // Also ensure all ancestor directories are visible
+  let parent = node.parent;
+  while (parent && !parent.alive) {
+    parent.alive = true;
+    parent.currentScale = 0;
+    parent.opacity = 0;
+    parent.lastChangeType = "added";
+    parent.animationTimer = 0.5;
+    parent = parent.parent;
+  }
+}
+
+// ─── Flash a node (modified) ─────────────────────────────────────────────────
+
+function flashNode(node: TreeNode) {
+  if (!node.alive) {
+    bloomNode(node);
+    return;
+  }
+  node.flashColor = COLORS.modified;
+  node.flashTimer = 0.3;
+}
+
+// ─── Delete a node (fade out) ────────────────────────────────────────────────
+
+function deleteNode(node: TreeNode) {
+  if (!node.alive) return;
+  node.lastChangeType = "deleted";
+  node.animationTimer = 0.5;
+}
+
 
 // ─── Starfield ──────────────────────────────────────────────────────────────
 
 function createStarfield(scene: THREE.Scene): THREE.Points {
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(STAR_COUNT * 3);
-  const sizes = new Float32Array(STAR_COUNT);
-
   for (let i = 0; i < STAR_COUNT; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 2000;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 600 - 200;
-    sizes[i] = Math.random() * 1.5 + 0.3;
+    positions[i * 3] = (Math.random() - 0.5) * 3000;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 3000;
+    positions[i * 3 + 2] = -200 - Math.random() * 300;
   }
-
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-
   const material = new THREE.PointsMaterial({
     color: 0xffffff,
-    size: 1,
+    size: 1.2,
     transparent: true,
-    opacity: 0.6,
+    opacity: 0.5,
     sizeAttenuation: true,
     depthWrite: false,
   });
-
   const stars = new THREE.Points(geometry, material);
   scene.add(stars);
   return stars;
@@ -397,11 +477,10 @@ function createStarfield(scene: THREE.Scene): THREE.Points {
 
 // ─── Contributor dots ───────────────────────────────────────────────────────
 
-function createContributorDot(
-  name: string,
-  scene: THREE.Scene
-): ContributorDot {
+function createContributorDot(name: string, scene: THREE.Scene): ContributorDot {
   const color = new THREE.Color(getContributorColor(name));
+
+  // Dot sphere
   const geo = new THREE.SphereGeometry(2.5, 12, 12);
   const mat = new THREE.MeshBasicMaterial({
     color,
@@ -411,8 +490,8 @@ function createContributorDot(
   });
   const mesh = new THREE.Mesh(geo, mat);
 
-  // Ring around contributor
-  const ringGeo = new THREE.RingGeometry(3.2, 3.8, 24);
+  // Ring
+  const ringGeo = new THREE.RingGeometry(3.5, 4.0, 24);
   const ringMat = new THREE.MeshBasicMaterial({
     color,
     transparent: true,
@@ -420,38 +499,38 @@ function createContributorDot(
     side: THREE.DoubleSide,
     depthWrite: false,
   });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
-  mesh.add(ring);
-
+  mesh.add(new THREE.Mesh(ringGeo, ringMat));
   scene.add(mesh);
+
+  // Name label
+  const label = createTextSprite(name, 32, `#${color.getHexString()}`, true);
+  label.position.set(0, 6, 0);
+  label.material.opacity = 0;
+  mesh.add(label);
 
   return {
     name,
     color,
     mesh,
-    position: new THREE.Vector3(
-      (Math.random() - 0.5) * 100,
-      (Math.random() - 0.5) * 100,
-      10
-    ),
-    targetPosition: new THREE.Vector3(),
+    label,
+    position: new THREE.Vector3(0, 0, 15),
+    targetPosition: new THREE.Vector3(0, 0, 15),
     opacity: 0,
     fadeTimer: 0,
-    label: name,
   };
 }
 
-function updateContributorDot(dot: ContributorDot) {
-  // Move toward target
-  dot.position.lerp(dot.targetPosition, 0.06);
+function updateContributorDot(dot: ContributorDot, dt: number) {
+  // Smooth move toward target
+  dot.position.lerp(dot.targetPosition, 0.08);
   dot.mesh.position.copy(dot.position);
 
-  // Fade
+  // Fade logic
   if (dot.fadeTimer > 0) {
-    dot.fadeTimer = Math.max(0, dot.fadeTimer - 0.016);
-    dot.opacity = Math.min(1, dot.opacity + 0.05);
+    dot.fadeTimer = Math.max(0, dot.fadeTimer - dt);
+    dot.opacity = Math.min(1, dot.opacity + dt * 3);
   } else {
-    dot.opacity = Math.max(0, dot.opacity - 0.01);
+    dot.opacity = Math.max(0, dot.opacity - dt * 0.5);
   }
 
   const mat = dot.mesh.material as THREE.MeshBasicMaterial;
@@ -459,11 +538,14 @@ function updateContributorDot(dot: ContributorDot) {
 
   // Ring
   if (dot.mesh.children[0]) {
-    const ringMat = (dot.mesh.children[0] as THREE.Mesh)
-      .material as THREE.MeshBasicMaterial;
+    const ringMat = (dot.mesh.children[0] as THREE.Mesh).material as THREE.MeshBasicMaterial;
     ringMat.opacity = dot.opacity * 0.5;
   }
+
+  // Label
+  dot.label.material.opacity = dot.opacity * 0.8;
 }
+
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
@@ -479,7 +561,7 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentCommit, setCurrentCommit] = useState<Commit | null>(null);
 
-  // Refs for animation loop access
+  // Refs for animation loop
   const playbackRef = useRef({
     isPlaying: false,
     speed: 1,
@@ -493,11 +575,10 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
     camera: THREE.PerspectiveCamera;
     renderer: THREE.WebGLRenderer;
     root: TreeNode;
-    allNodes: TreeNode[];
+    nodeMap: Map<string, TreeNode>;
     contributors: Map<string, ContributorDot>;
     animFrameId: number;
     stars: THREE.Points;
-    clock: THREE.Clock;
     isDragging: boolean;
     lastMouse: { x: number; y: number };
     cameraTarget: THREE.Vector3;
@@ -511,16 +592,14 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
     setLoading(true);
     setError(null);
 
-    fetch(
-      `/api/v1/commits?repoId=${encodeURIComponent(repoId)}&limit=500`,
-      { credentials: "include" }
-    )
+    fetch(`/api/v1/commits?repoId=${encodeURIComponent(repoId)}&limit=500`, {
+      credentials: "include",
+    })
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch commits");
         return r.json();
       })
       .then((data) => {
-        // Sort chronologically (oldest first)
         const sorted = (data.items || []).sort(
           (a: Commit, b: Commit) =>
             new Date(a.commitDate).getTime() - new Date(b.commitDate).getTime()
@@ -544,92 +623,87 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
     const width = container.clientWidth;
     const height = container.clientHeight || 600;
 
-    // Scene
+    // ── Scene ──
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(COLORS.background);
-    scene.fog = new THREE.FogExp2(COLORS.background, 0.0015);
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 3000);
-    camera.position.set(0, 0, 350);
+    // ── Camera ──
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 5000);
+    camera.position.set(0, 0, 500);
     camera.lookAt(0, 0, 0);
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: false,
-    });
+    // ── Renderer ──
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambient);
-    const point1 = new THREE.PointLight(0x8b5cf6, 1, 800);
-    point1.position.set(100, 100, 200);
-    scene.add(point1);
-    const point2 = new THREE.PointLight(0x3b82f6, 0.6, 600);
-    point2.position.set(-100, -80, 150);
-    scene.add(point2);
-
-    // Starfield
+    // ── Starfield ──
     const stars = createStarfield(scene);
 
-    // Build file tree from ALL commits
+    // ── Build the FULL file tree from all commits (for layout) ──
+    // We pre-compute the tree structure so positions are deterministic.
+    // Nodes start invisible and bloom in during playback.
     const root = createTreeNode("root", "root", "", false, null, 0);
+    root.alive = true;
+    root.opacity = 1;
+    root.currentScale = 1;
+
     for (const commit of commits) {
       for (const file of commit.changedFiles) {
         ensurePath(root, file.path);
       }
     }
 
-    // Layout
+    // ── Compute fixed layout ──
     layoutRadialTree(root);
 
-    // Create meshes
-    const allNodes = collectAllNodes(root);
+    // ── Collect all nodes into a flat map for fast lookup ──
+    const nodeMap = new Map<string, TreeNode>();
+    function collectNodes(node: TreeNode) {
+      nodeMap.set(node.fullPath || "root", node);
+      for (const child of node.children.values()) {
+        collectNodes(child);
+      }
+    }
+    collectNodes(root);
 
-    // Sort by depth so parents are created before children
-    allNodes.sort((a, b) => a.depth - b.depth);
+    // ── Create all Three.js objects (sorted by depth so parents first) ──
+    const allNodes = Array.from(nodeMap.values()).sort((a, b) => a.depth - b.depth);
     for (const node of allNodes) {
       createNodeMesh(node, scene);
     }
 
-    // Initially hide file nodes (they'll bloom in during playback)
-    for (const node of allNodes) {
-      if (node.isFile && node.mesh) {
-        node.mesh.scale.setScalar(0);
-        (node.mesh.material as THREE.MeshBasicMaterial).opacity = 0;
-        node.alive = false;
-      }
+    // ── Root starts visible, everything else hidden ──
+    if (root.mesh) {
+      (root.mesh.material as THREE.MeshBasicMaterial).opacity = 1;
+      root.mesh.scale.setScalar(1);
+    }
+    if (root.label) {
+      root.label.material.opacity = 0.9;
     }
 
-    // Contributors
+    // ── Contributors ──
     const contributors = new Map<string, ContributorDot>();
 
-    // Camera state
+    // ── Camera state ──
     const cameraTarget = new THREE.Vector3(0, 0, 0);
     let isDragging = false;
     let lastMouse = { x: 0, y: 0 };
-    let autoFollow = true;
-
-    const clock = new THREE.Clock();
 
     const state = {
       scene,
       camera,
       renderer,
       root,
-      allNodes,
+      nodeMap,
       contributors,
       animFrameId: 0,
       stars,
-      clock,
       isDragging,
       lastMouse,
       cameraTarget,
-      autoFollow,
+      autoFollow: true,
     };
     sceneRef.current = state;
 
@@ -637,7 +711,7 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      camera.position.z = Math.max(50, Math.min(800, camera.position.z + e.deltaY * 0.5));
+      camera.position.z = Math.max(60, Math.min(1500, camera.position.z + e.deltaY * 0.8));
     };
 
     const onMouseDown = (e: MouseEvent) => {
@@ -650,8 +724,9 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
       if (!state.isDragging) return;
       const dx = e.clientX - state.lastMouse.x;
       const dy = e.clientY - state.lastMouse.y;
-      state.cameraTarget.x -= dx * 0.5;
-      state.cameraTarget.y += dy * 0.5;
+      const panScale = camera.position.z * 0.002;
+      state.cameraTarget.x -= dx * panScale;
+      state.cameraTarget.y += dy * panScale;
       state.lastMouse = { x: e.clientX, y: e.clientY };
     };
 
@@ -677,26 +752,34 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
 
     // ─── Animation loop ─────────────────────────────────────────────────────
 
+    let lastTime = performance.now();
+
     const animate = () => {
       state.animFrameId = requestAnimationFrame(animate);
-      const time = clock.getElapsedTime();
+      const now = performance.now();
+      const dt = Math.min((now - lastTime) / 1000, 0.05); // cap delta
+      lastTime = now;
+
       const pb = playbackRef.current;
 
       // ── Playback: advance commits ──
       if (pb.isPlaying && pb.commits.length > 0) {
         const interval = COMMIT_INTERVAL_BASE / pb.speed;
-        const now = performance.now();
 
         if (now - pb.lastCommitTime > interval && pb.currentIndex < pb.commits.length) {
           const commit = pb.commits[pb.currentIndex];
 
-          // Animate changed files
+          // Process changed files
           for (const file of commit.changedFiles) {
             const node = findNode(root, file.path);
-            if (node) {
-              node.alive = true;
-              node.lastChangeType = file.changeType;
-              node.animationTimer = file.changeType === "deleted" ? 1.2 : 0.8;
+            if (!node) continue;
+
+            if (file.changeType === "added") {
+              bloomNode(node);
+            } else if (file.changeType === "modified") {
+              flashNode(node);
+            } else if (file.changeType === "deleted") {
+              deleteNode(node);
             }
           }
 
@@ -707,9 +790,9 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
               dot = createContributorDot(commit.authorName, scene);
               contributors.set(commit.authorName, dot);
             }
-            dot.fadeTimer = 2;
+            dot.fadeTimer = 2.5;
 
-            // Move toward average position of changed files
+            // Move toward centroid of affected files
             if (commit.changedFiles.length > 0) {
               const avg = new THREE.Vector3();
               let count = 0;
@@ -722,7 +805,7 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
               }
               if (count > 0) {
                 avg.divideScalar(count);
-                avg.z = 15; // float above the tree
+                avg.z = 15;
                 dot.targetPosition.copy(avg);
               }
             }
@@ -741,18 +824,15 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
             }
             if (count > 0) {
               avg.divideScalar(count);
-              state.cameraTarget.lerp(avg, 0.1);
+              state.cameraTarget.lerp(avg, 0.08);
             }
           }
 
           pb.currentIndex++;
           pb.lastCommitTime = now;
-
-          // Update React state (throttled)
           setCurrentIndex(pb.currentIndex);
           setCurrentCommit(commit);
 
-          // Auto-pause at end
           if (pb.currentIndex >= pb.commits.length) {
             pb.isPlaying = false;
             setIsPlaying(false);
@@ -760,26 +840,24 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
         }
       }
 
-      // ── Force simulation ──
-      applyForces(allNodes, 0.016);
-
-      // ── Update visuals ──
+      // ── Update all node visuals ──
+      const cameraZ = camera.position.z;
       for (const node of allNodes) {
-        updateNodeVisuals(node, time);
+        updateNodeVisuals(node, dt, cameraZ);
       }
 
       // ── Update contributors ──
       for (const dot of contributors.values()) {
-        updateContributorDot(dot);
+        updateContributorDot(dot, dt);
       }
 
       // ── Camera smooth follow ──
-      camera.position.x += (state.cameraTarget.x - camera.position.x) * 0.03;
-      camera.position.y += (state.cameraTarget.y - camera.position.y) * 0.03;
+      camera.position.x += (state.cameraTarget.x - camera.position.x) * 0.04;
+      camera.position.y += (state.cameraTarget.y - camera.position.y) * 0.04;
       camera.lookAt(state.cameraTarget.x, state.cameraTarget.y, 0);
 
-      // ── Subtle star rotation ──
-      stars.rotation.z += 0.00005;
+      // ── Subtle star drift ──
+      stars.rotation.z += 0.00003;
 
       renderer.render(scene, camera);
     };
@@ -796,7 +874,6 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("resize", onResize);
 
-      // Dispose Three.js resources
       scene.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
           obj.geometry.dispose();
@@ -814,6 +891,10 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
           obj.geometry.dispose();
           (obj.material as THREE.Material).dispose();
         }
+        if (obj instanceof THREE.Sprite) {
+          (obj.material as THREE.SpriteMaterial).map?.dispose();
+          obj.material.dispose();
+        }
       });
 
       renderer.dispose();
@@ -823,6 +904,7 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commits, loading, error]);
+
 
   // ─── Sync playback ref ──────────────────────────────────────────────────
 
@@ -841,22 +923,37 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
 
   const handlePlayPause = useCallback(() => {
     if (playbackRef.current.currentIndex >= commits.length) {
-      // Reset to beginning
+      // Reset
       playbackRef.current.currentIndex = 0;
       setCurrentIndex(0);
       setCurrentCommit(null);
 
-      // Reset file node visuals
+      // Reset all nodes to hidden (except root)
       if (sceneRef.current) {
-        for (const node of sceneRef.current.allNodes) {
-          if (node.isFile && node.mesh) {
-            node.mesh.scale.setScalar(0);
+        for (const node of sceneRef.current.nodeMap.values()) {
+          if (node.depth === 0) continue;
+          node.alive = false;
+          node.opacity = 0;
+          node.currentScale = 0;
+          node.animationTimer = 0;
+          node.lastChangeType = null;
+          node.flashColor = null;
+          node.flashTimer = 0;
+          node.baseColor = node.isFile ? COLORS.fileIdle : COLORS.directory;
+          if (node.mesh) {
             (node.mesh.material as THREE.MeshBasicMaterial).opacity = 0;
-            node.alive = false;
-            node.animationTimer = 0;
-            node.lastChangeType = null;
+            node.mesh.scale.setScalar(0.001);
+          }
+          if (node.label) {
+            node.label.material.opacity = 0;
+          }
+          if (node.edge) {
+            (node.edge.material as THREE.LineBasicMaterial).opacity = 0;
           }
         }
+        // Reset camera
+        sceneRef.current.cameraTarget.set(0, 0, 0);
+        sceneRef.current.autoFollow = true;
       }
     }
     setIsPlaying((p) => !p);
@@ -906,7 +1003,7 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
 
   return (
     <div className="relative w-full overflow-hidden rounded-xl" style={{ height: "calc(100vh - 200px)", minHeight: 500 }}>
-      {/* Three.js canvas container */}
+      {/* Three.js canvas */}
       <div ref={containerRef} className="h-full w-full" />
 
       {/* ── Controls overlay ── */}
@@ -930,7 +1027,6 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
 
           {/* Controls row */}
           <div className="flex items-center gap-3">
-            {/* Play/Pause */}
             <button
               onClick={handlePlayPause}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-white transition-colors hover:bg-violet-500"
@@ -948,7 +1044,6 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
               )}
             </button>
 
-            {/* Speed selector */}
             <div className="flex items-center gap-1">
               {SPEED_OPTIONS.map((s) => (
                 <button
@@ -965,10 +1060,8 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
               ))}
             </div>
 
-            {/* Spacer */}
             <div className="flex-1" />
 
-            {/* Auto-follow toggle */}
             <button
               onClick={handleAutoFollow}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
@@ -1014,15 +1107,9 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
                   ).length;
                   return (
                     <>
-                      {added > 0 && (
-                        <span className="text-green-400">+{added}</span>
-                      )}
-                      {modified > 0 && (
-                        <span className="text-amber-400">~{modified}</span>
-                      )}
-                      {deleted > 0 && (
-                        <span className="text-red-400">-{deleted}</span>
-                      )}
+                      {added > 0 && <span className="text-green-400">+{added}</span>}
+                      {modified > 0 && <span className="text-amber-400">~{modified}</span>}
+                      {deleted > 0 && <span className="text-red-400">-{deleted}</span>}
                     </>
                   );
                 })()}
@@ -1055,6 +1142,10 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
             <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-500" />
             <span className="text-gray-300">Deleted</span>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-gray-500" />
+            <span className="text-gray-300">File (idle)</span>
+          </div>
         </div>
       </div>
 
@@ -1065,16 +1156,4 @@ export default function TimeBloom({ repoId }: { repoId: string }) {
       </div>
     </div>
   );
-}
-
-// ─── Utility: find node by path ─────────────────────────────────────────────
-
-function findNode(root: TreeNode, filePath: string): TreeNode | null {
-  const parts = filePath.split("/");
-  let current: TreeNode | undefined = root;
-  for (const part of parts) {
-    current = current.children.get(part);
-    if (!current) return null;
-  }
-  return current;
 }
