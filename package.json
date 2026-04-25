@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node source/server.js",
     "dev": "NODE_ENV=development node source/server.js",
+    "dev:frontend": "cd web-template-tailadmin && npm run dev",
+    "postinstall": "cd web-template-tailadmin && npm install",
     "db:init": "DYNAMODB_ENDPOINT=http://localhost:8000 node source/scripts/init-tables.js",
     "dev:local": "docker compose up -d && npm run db:init && npm run dev",
     "test": "jest --runInBand",

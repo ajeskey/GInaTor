@@ -7,7 +7,7 @@ GInaTor ingests commit data from local git repos, GitHub, GitLab, and AWS CodeCo
 ## Architecture
 
 ```
-Browser (Next.js + TailAdmin template)
+Browser (Next.js frontend)
   ├── D3.js visualizations (2D)
   ├── Three.js visualizations (3D — TimeBloom, CityBlock)
   ├── Timeline Scrubber
@@ -39,9 +39,8 @@ DynamoDB (8 tables)
 ### Quick Start
 
 ```bash
-# 1. Install dependencies (both backend and frontend)
+# 1. Install all dependencies (backend + frontend)
 npm install
-cd web-template-tailadmin && npm install && cd ..
 
 # 2. Copy environment config
 cp .env.example .env
@@ -56,7 +55,7 @@ npm run db:init
 npm run dev
 
 # 6. Start the frontend (Terminal 2)
-cd web-template-tailadmin && npm run dev
+npm run dev:frontend
 ```
 
 Open **http://localhost:3001** in your browser. The first user to register becomes the admin.
@@ -79,7 +78,8 @@ The Express API runs on **http://localhost:3000** and the Next.js frontend on **
 | -------------------- | ------------------------------------------------ |
 | `npm start`          | Start the production Express server              |
 | `npm run dev`        | Start Express in development mode                |
-| `npm run dev:local`  | Docker + table init + dev server (all-in-one)    |
+| `npm run dev:frontend` | Start the Next.js frontend (port 3001)         |
+| `npm run dev:local`  | Docker + table init + API server (all-in-one)    |
 | `npm run db:init`    | Initialize DynamoDB tables against local endpoint|
 | `npm test`           | Run all tests (unit + property)                  |
 | `npm run test:unit`  | Run unit tests only                              |
@@ -174,8 +174,7 @@ npm run test:coverage # With coverage
 - [Three.js](https://threejs.org) — 3D visualizations (TimeBloom, CityBlock)
 - [Express](https://expressjs.com) — backend framework
 - [Passport.js](https://www.passportjs.org) — authentication
-- [Tailwind CSS](https://tailwindcss.com) + [DaisyUI](https://daisyui.com) — styling
-- [TailAdmin](https://tailadmin.com) — dashboard template
+- [Tailwind CSS](https://tailwindcss.com) — styling
 - [fast-check](https://fast-check.dev) — property-based testing
 
 ## License
