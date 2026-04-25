@@ -10,9 +10,9 @@ import UnOrderedList from "@/components/ui/list/UnorderedList";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js List | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js List | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js List page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js List page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function List() {

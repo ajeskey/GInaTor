@@ -7,6 +7,10 @@
 const PUBLIC_ROUTES = [
   '/auth/register',
   '/auth/login',
+  '/auth/setup-available',
+  '/auth/github',
+  '/auth/github/callback',
+  '/auth/github/status',
   '/health',
   '/csrf-token',
   '/login',
@@ -31,7 +35,12 @@ function isPublicRoute(path) {
  * @returns {boolean}
  */
 function isApiRequest(req) {
-  return req.path.startsWith('/api/') || req.path.startsWith('/api');
+  return (
+    req.path.startsWith('/api/') ||
+    req.path.startsWith('/api') ||
+    req.path.startsWith('/admin') ||
+    req.headers.accept?.includes('application/json')
+  );
 }
 
 /**

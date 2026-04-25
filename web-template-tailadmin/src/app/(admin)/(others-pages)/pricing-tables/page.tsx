@@ -6,9 +6,9 @@ import PriceTableTwo from "@/components/price-table/PriceTableTwo";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Pricing Table | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Pricing Table | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Pricing Table page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Pricing Table page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function PricingTables() {

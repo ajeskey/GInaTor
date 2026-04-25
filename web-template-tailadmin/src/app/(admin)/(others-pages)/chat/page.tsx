@@ -4,9 +4,9 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Messages | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Messages | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Messages page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Messages page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
   // other metadata
 };
 

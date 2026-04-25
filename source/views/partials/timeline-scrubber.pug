@@ -1,12 +1,9 @@
 //- Timeline scrubber bar placeholder
-#timeline-scrubber.bg-base-100.border-b.border-base-300.px-4.py-2
-  .flex.items-center.gap-2
-    span#timeline-date-start.text-xs.text-base-content.opacity-60 --
-    .flex-1.relative
-      //- Stacked area chart will be rendered here by D3
-      #timeline-chart.w-full.h-12.bg-base-200.rounded
-      //- Range slider handles (rendered by TimelineScrubber.js)
-      #timeline-range.absolute.inset-0
-    span#timeline-date-end.text-xs.text-base-content.opacity-60 --
-  .flex.justify-end.mt-1
-    button#timeline-select-all.btn.btn-ghost.btn-xs Select All
+#timeline-scrubber.flex.items-center.gap-3.px-4.py-2.bg-base-100.border-b.border-base-300.text-sm
+  span#timeline-date-start.badge.badge-ghost --
+  .flex-1.relative.h-8
+    //- Stacked area chart will be rendered here by D3
+    #timeline-chart.w-full.h-full
+    //- Range slider handles (rendered by TimelineScrubber.js)
+    #timeline-range.absolute.inset-0
+  span#timeline-date-end.badge.badge-ghost --

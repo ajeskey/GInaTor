@@ -7,7 +7,7 @@ export default function UrlPrefixInput() {
         http://
       </span>
 
-      <Input type="url" placeholder="www.tailadmin.com" className="pl-[90px]" />
+      <Input type="url" placeholder="www.ginator.example.com" className="pl-[90px]" />
     </div>
   );
 }

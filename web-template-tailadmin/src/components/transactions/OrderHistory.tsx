@@ -40,7 +40,7 @@ export default function OrderHistory() {
               Checkout Started
             </h4>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              via tailadmin.com
+              via ginator.example.com
             </p>
           </div>
 

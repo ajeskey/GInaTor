@@ -12,13 +12,13 @@ function createAdminRouter(adminService) {
 
   /**
    * GET /admin
-   * Render the admin panel page.
+   * Return admin panel data as JSON (page rendering handled by Next.js frontend).
    */
   router.get('/', async (req, res) => {
     try {
       const pendingUsers = await adminService.listPendingUsers();
       const repoConfigs = await adminService.listRepoConfigs();
-      res.render('pages/admin', { pendingUsers, repoConfigs });
+      res.json({ pendingUsers, repoConfigs });
     } catch {
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -161,6 +161,85 @@ function createAdminRouter(adminService) {
     } catch (err) {
       const status = err.statusCode || 500;
       return res.status(status).json({ error: err.message });
+    }
+  });
+
+  // ─── Sync ───
+
+  /**
+   * POST /admin/repos/validate-local
+   * Validate that a filesystem path is a valid git repository.
+   */
+  router.post('/repos/validate-local', async (req, res) => {
+    try {
+      const { path } = req.body;
+      if (!path) {
+        return res.status(400).json({ valid: false, error: 'Path is required' });
+      }
+
+      const LocalGitProvider = require('../git-connector/LocalGitProvider');
+      const provider = new LocalGitProvider();
+      const result = await provider.validate({ path });
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ valid: false, error: err.message || 'Validation failed' });
+    }
+  });
+
+  /**
+   * POST /admin/sync/:repoId
+   * Trigger a git sync for a repository — fetches commits and stores them.
+   */
+  router.post('/sync/:repoId', async (req, res) => {
+    try {
+      const { getProvider } = require('../git-connector');
+      const CommitStore = require('../commit-store');
+      const { decrypt } = require('../crypto');
+
+      const repoConfig = await adminService.docClient.send(
+        new (require('@aws-sdk/lib-dynamodb').GetCommand)({
+          TableName: 'RepositoryConfigs',
+          Key: { repoId: req.params.repoId }
+        })
+      );
+
+      if (!repoConfig.Item) {
+        return res.status(404).json({ error: 'Repository not found' });
+      }
+
+      const config = repoConfig.Item;
+      const provider = getProvider(config.providerType);
+
+      // Build provider config
+      const providerConfig = {
+        repoId: config.repoId,
+        ...(config.providerConfig || {})
+      };
+
+      // Decrypt PAT if it's encrypted
+      if (providerConfig.pat && typeof providerConfig.pat === 'object' && providerConfig.pat.iv) {
+        providerConfig.pat = decrypt(providerConfig.pat, adminService.encryptionKey);
+      }
+
+      // Fetch commits from provider
+      const commits = await provider.fetchLog(providerConfig);
+
+      // Store commits
+      const commitStore = new CommitStore({
+        endpoint: process.env.DYNAMODB_ENDPOINT || undefined,
+        region: process.env.AWS_REGION || 'us-east-1'
+      });
+      const result = await commitStore.putCommits(commits);
+
+      return res.status(200).json({
+        message: 'Sync complete',
+        fetched: commits.length,
+        created: result.created,
+        skipped: result.skipped
+      });
+    } catch (err) {
+      console.error('Sync error:', err);
+      return res.status(500).json({ error: err.message || 'Sync failed' });
     }
   });
 

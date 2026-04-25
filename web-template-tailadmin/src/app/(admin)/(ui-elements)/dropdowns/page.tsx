@@ -7,9 +7,9 @@ import DropdownWithIconAndDivider from "@/components/example/DropdownExample/Dro
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Dropdowns | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Dropdowns | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Dropdowns page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Dropdowns page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
   // other metadata
 };
 

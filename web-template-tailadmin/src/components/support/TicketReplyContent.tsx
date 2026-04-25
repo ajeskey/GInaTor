@@ -95,17 +95,17 @@ export default function TicketReplyContent() {
             </div>
             <div className="pb-6">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Hi TailAdmin Team,
+                Hi GInaTor Team,
               </p>
               <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
                 I hope you&apos;re doing well.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                I’m currently working on customizing the TailAdmin dashboard and
+                I’m currently working on customizing the GInaTor dashboard and
                 would like to add a new section labeled “Reports.” Before I
                 proceed, I wanted to check if there’s any official guide or best
                 practice you recommend for adding custom pages within the
-                TailAdmin structure.
+                GInaTor structure.
               </p>
             </div>
           </article>
@@ -124,7 +124,7 @@ export default function TicketReplyContent() {
                     Musharof Chowdhury
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    From - tailadmin support team
+                    From - GInaTor support team
                   </p>
                 </div>
               </div>
@@ -140,7 +140,7 @@ export default function TicketReplyContent() {
               </p>
               <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
                 Thanks for reaching out—and great to hear you&apos;re
-                customizing TailAdmin to fit your needs! Yes, you can definitely
+                customizing GInaTor to fit your needs! Yes, you can definitely
                 add custom pages like a &quot;Reports&quot; section, and
                 it&apos;s quite straightforward. Here&apos;s a quick guide to
                 help you get started:
@@ -187,17 +187,17 @@ export default function TicketReplyContent() {
             </div>
             <div className="pb-6">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Hi TailAdmin Team,
+                Hi GInaTor Team,
               </p>
               <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
                 I hope you&apos;re doing well.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                I’m currently working on customizing the TailAdmin dashboard and
+                I’m currently working on customizing the GInaTor dashboard and
                 would like to add a new section labeled “Reports.” Before I
                 proceed, I wanted to check if there’s any official guide or best
                 practice you recommend for adding custom pages within the
-                TailAdmin structure.
+                GInaTor structure.
               </p>
             </div>
           </article>

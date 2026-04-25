@@ -3,9 +3,9 @@ import NotificationExample from "@/components/ui/notification/NotificationExampl
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Notifications | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Notifications | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Notifications page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Notifications page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function Notifications() {

@@ -165,11 +165,14 @@ function parseGitHubUrl(url) {
  * @returns {object}
  */
 function buildHeaders(pat) {
-  return {
-    Authorization: `Bearer ${pat}`,
+  const headers = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28'
   };
+  if (pat) {
+    headers.Authorization = `Bearer ${pat}`;
+  }
+  return headers;
 }
 
 /**

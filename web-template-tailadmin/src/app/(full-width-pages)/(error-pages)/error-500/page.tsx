@@ -4,9 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Next.js Error 500 Page | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Error 500 Page | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Error 500 page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Error 500 page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function Error500() {
@@ -48,7 +48,7 @@ export default function Error500() {
 
       {/* <!-- Footer --> */}
       <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
-        &copy; {new Date().getFullYear()} - TailAdmin
+        &copy; {new Date().getFullYear()} - GInaTor
       </p>
     </div>
   );

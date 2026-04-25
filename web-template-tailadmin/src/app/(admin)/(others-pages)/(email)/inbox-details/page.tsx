@@ -5,9 +5,9 @@ import EmailSidebar from "@/components/email/EmailSidebar/EmailSidebar";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Inbox Details | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Inbox Details | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Inbox Details page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Inbox Details page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function InboxDetails() {

@@ -7,9 +7,9 @@ import WatchList from "@/components/stocks/WatchList";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Stocks Dashboard | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Stocks Dashboard | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Stocks Dashboard page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Stocks Dashboard page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 export default function Stocks() {
   return (

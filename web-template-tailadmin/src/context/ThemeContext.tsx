@@ -19,12 +19,27 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // This code will only run on the client side
+    // Check saved preference first, then fall back to system preference
     const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const initialTheme = savedTheme || "light"; // Default to light theme
-
-    setTheme(initialTheme);
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    } else {
+      setTheme("light");
+    }
     setIsInitialized(true);
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Only auto-switch if user hasn't manually set a preference
+      if (!localStorage.getItem("theme")) {
+        setTheme(e.matches ? "dark" : "light");
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   useEffect(() => {

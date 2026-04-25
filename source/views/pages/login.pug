@@ -6,24 +6,30 @@ html(lang="en" data-theme="light")
     title GInaTor - Login
     link(href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css" rel="stylesheet")
     script(src="https://cdn.tailwindcss.com")
-  body.bg-base-200.min-h-screen.flex.items-center.justify-center
+  body.min-h-screen.bg-base-200.flex.items-center.justify-center.p-4
     .card.w-full.max-w-md.bg-base-100.shadow-xl
       .card-body
-        h2.card-title.text-2xl.font-bold.mb-4.justify-center GInaTor
-        p.text-center.text-base-content.opacity-70.mb-6 Sign in to your account
+        h2.card-title.text-2xl.font-bold.justify-center
+          span G
+          span.text-primary Ina
+          span Tor
+        p.text-center.text-base-content.opacity-60.mb-4 Sign in to your account
+
+        #login-registered.alert.alert-success.hidden.mb-4
+          span Registration successful! Please sign in.
 
         #login-error.alert.alert-error.hidden.mb-4
           span#login-error-msg
 
         form#login-form(method="POST" action="/auth/login")
           .form-control.mb-4
-            label.label
+            label.label(for="email")
               span.label-text Email
-            input.input.input-bordered.w-full(type="email" name="email" required placeholder="you@example.com")
+            input.input.input-bordered.w-full(type="email" name="email" id="email" required placeholder="you@example.com")
           .form-control.mb-6
-            label.label
+            label.label(for="password")
               span.label-text Password
-            input.input.input-bordered.w-full(type="password" name="password" required placeholder="••••••••")
+            input.input.input-bordered.w-full(type="password" name="password" id="password" required placeholder="••••••••")
           button.btn.btn-primary.w-full(type="submit") Sign In
 
         .divider OR
@@ -34,10 +40,30 @@ html(lang="en" data-theme="light")
 
     script.
       (function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('registered') === '1') {
+          var regEl = document.getElementById('login-registered');
+          if (regEl) regEl.classList.remove('hidden');
+        }
+
+        var errorParam = params.get('error');
+        if (errorParam) {
+          var errEl = document.getElementById('login-error');
+          var msgEl = document.getElementById('login-error-msg');
+          if (errEl && msgEl) {
+            errEl.classList.remove('hidden');
+            msgEl.textContent = errorParam;
+          }
+        }
+
         var form = document.getElementById('login-form');
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           var data = new FormData(form);
+          var errEl = document.getElementById('login-error');
+          var msgEl = document.getElementById('login-error-msg');
+          errEl.classList.add('hidden');
+
           fetch('/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -47,19 +73,19 @@ html(lang="en" data-theme="light")
             }),
             credentials: 'same-origin'
           }).then(function(res) {
+            if (res.redirected) {
+              window.location.href = res.url;
+              return;
+            }
             if (res.ok) {
               window.location.href = '/dashboard';
             } else {
               return res.json().then(function(body) {
-                var errEl = document.getElementById('login-error');
-                var msgEl = document.getElementById('login-error-msg');
                 errEl.classList.remove('hidden');
                 msgEl.textContent = body.error || 'Login failed';
               });
             }
           }).catch(function() {
-            var errEl = document.getElementById('login-error');
-            var msgEl = document.getElementById('login-error-msg');
             errEl.classList.remove('hidden');
             msgEl.textContent = 'Network error. Please try again.';
           });

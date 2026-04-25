@@ -6,9 +6,9 @@ import HorizontalCardWithImage from "@/components/cards/horizontal-card/Horizont
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Cards | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Cards | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Cards page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Cards page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function Cards() {

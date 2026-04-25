@@ -6,9 +6,9 @@ import LinkOpacityHover from "@/components/ui/links/LinkOpacityHover";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Link | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Link | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Link page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Link page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function Links() {

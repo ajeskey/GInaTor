@@ -12,12 +12,30 @@ function createAuthRouter(authService) {
   const router = express.Router();
 
   /**
+   * GET /auth/setup-available
+   * Returns whether initial setup (first user registration) is available.
+   */
+  router.get('/setup-available', async (req, res) => {
+    try {
+      const isFirst = await authService._isFirstUser();
+      return res.json({ available: isFirst });
+    } catch {
+      return res.json({ available: false });
+    }
+  });
+
+  /**
    * POST /auth/register
-   * Register a new user with email and password.
-   * Returns 201 on success, 400 on validation error, 409 on duplicate email.
+   * Register the first admin user only. Blocked once any user exists.
+   * Returns 201 on success, 403 if registration is closed, 400/409 on validation errors.
    */
   router.post('/register', async (req, res) => {
     try {
+      // Only allow registration if no users exist yet (initial admin setup)
+      const isFirst = await authService._isFirstUser();
+      if (!isFirst) {
+        return res.status(403).json({ error: 'Registration is closed. Contact an administrator.' });
+      }
       const { email, password } = req.body;
       const user = await authService.register(email, password);
       return res.status(201).json({ user });
@@ -34,18 +52,26 @@ function createAuthRouter(authService) {
    * Returns generic 401 error on invalid credentials.
    */
   router.post('/login', (req, res, next) => {
+    const wantsJson =
+      req.headers['content-type']?.includes('application/json') ||
+      req.xhr ||
+      req.headers.accept?.includes('application/json');
     passport.authenticate('local', (err, user, _info) => {
       if (err) {
-        return res.status(500).json({ error: 'Internal server error' });
+        if (wantsJson) return res.status(500).json({ error: 'Internal server error' });
+        return res.redirect('/login?error=Internal+server+error');
       }
       if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        if (wantsJson) return res.status(401).json({ error: 'Invalid credentials' });
+        return res.redirect('/login?error=Invalid+credentials');
       }
       req.logIn(user, (loginErr) => {
         if (loginErr) {
-          return res.status(500).json({ error: 'Internal server error' });
+          if (wantsJson) return res.status(500).json({ error: 'Internal server error' });
+          return res.redirect('/login?error=Internal+server+error');
         }
-        return res.status(200).json({ user });
+        if (wantsJson) return res.status(200).json({ user });
+        return res.redirect('/dashboard');
       });
     })(req, res, next);
   });

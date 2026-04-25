@@ -6,9 +6,9 @@ import StorageDetailsChart from "@/components/file-manager/StorageDetailsChart";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js FileManager Page | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js FileManager Page | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js FileManager page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js FileManager page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
   // other metadata
 };
 

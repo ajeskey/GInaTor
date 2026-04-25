@@ -92,14 +92,14 @@ const AppHeader: React.FC = () => {
               height={32}
               className="dark:hidden"
               src="./images/logo/logo.svg"
-              alt="Logo"
+              alt="GInaTor"
             />
             <Image
               width={154}
               height={32}
               className="hidden dark:block"
               src="./images/logo/logo-dark.svg"
-              alt="Logo"
+              alt="GInaTor"
             />
           </Link>
 

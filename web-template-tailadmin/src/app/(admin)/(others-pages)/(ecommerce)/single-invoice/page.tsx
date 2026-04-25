@@ -3,9 +3,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce Single Invoice | TailAdmin - Next.js Dashboard Template",
+    "Next.js E-commerce Single Invoice | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js E-commerce  Single Invoice TailAdmin Dashboard Template",
+    "This is Next.js E-commerce  Single Invoice GInaTor Dashboard Template",
 };
 
 export default function SingleInvoicePage() {

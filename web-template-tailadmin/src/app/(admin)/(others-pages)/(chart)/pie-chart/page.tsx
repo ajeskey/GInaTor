@@ -5,9 +5,9 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Pie Chart | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js Pie Chart | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js Pie Chart page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Pie Chart page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function PieChart() {

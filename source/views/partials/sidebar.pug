@@ -1,97 +1,88 @@
 //- Visualization switcher sidebar with 17 viz types
-aside#sidebar.bg-base-100.w-64.min-h-screen.shadow-md.flex.flex-col.transition-all.duration-300(class="lg:w-64")
-  //- Sidebar header with collapse toggle
-  .flex.items-center.justify-between.p-4.border-b.border-base-300
-    a.text-xl.font-bold.text-primary(href="/") GInaTor
-    button#sidebar-toggle.btn.btn-ghost.btn-sm.btn-circle(title="Toggle sidebar")
-      svg.w-5.h-5(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
-        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16")
+aside.bg-base-100.w-72.min-h-full.flex.flex-col.border-r.border-base-300
+  //- Sidebar header
+  .p-4.border-b.border-base-300.flex.items-center.justify-between
+    a.text-xl.font-bold.no-underline.text-base-content(href="/")
+      span G
+      span.text-primary Ina
+      span Tor
 
   //- Visualization list
   nav.flex-1.overflow-y-auto.py-2
-    ul#viz-list.menu.menu-sm.w-full
+    ul#viz-list.menu.menu-sm.px-2
       li
-        a.viz-item(href="#" data-viz="timebloom")
-          span.text-lg 🌸
+        a.flex.items-center.gap-2(href="#" data-viz="timebloom")
+          span 🌸
           span TimeBloom
       li
-        a.viz-item(href="#" data-viz="heatmap")
-          span.text-lg 🔥
+        a.flex.items-center.gap-2(href="#" data-viz="heatmap")
+          span 🔥
           span Contributor Heatmap
       li
-        a.viz-item(href="#" data-viz="treemap")
-          span.text-lg 🗺️
+        a.flex.items-center.gap-2(href="#" data-viz="treemap")
+          span 🗺️
           span File Hotspot Treemap
       li
-        a.viz-item(href="#" data-viz="sunburst")
-          span.text-lg ☀️
+        a.flex.items-center.gap-2(href="#" data-viz="sunburst")
+          span ☀️
           span Code Ownership Sunburst
       li
-        a.viz-item(href="#" data-viz="branches")
-          span.text-lg 🌿
+        a.flex.items-center.gap-2(href="#" data-viz="branches")
+          span 🌿
           span Branch/Merge Graph
       li
-        a.viz-item(href="#" data-viz="pulse")
-          span.text-lg 💓
+        a.flex.items-center.gap-2(href="#" data-viz="pulse")
+          span 💓
           span Commit Pulse
       li
-        a.viz-item(href="#" data-viz="impact")
-          span.text-lg 💥
+        a.flex.items-center.gap-2(href="#" data-viz="impact")
+          span 💥
           span Impact Visualization
       li
-        a.viz-item(href="#" data-viz="collaboration")
-          span.text-lg 🤝
+        a.flex.items-center.gap-2(href="#" data-viz="collaboration")
+          span 🤝
           span Collaboration Network
       li
-        a.viz-item(href="#" data-viz="filetypes")
-          span.text-lg 📊
+        a.flex.items-center.gap-2(href="#" data-viz="filetypes")
+          span 📊
           span File Type Distribution
       li
-        a.viz-item(href="#" data-viz="activity-matrix")
-          span.text-lg 📅
+        a.flex.items-center.gap-2(href="#" data-viz="activity-matrix")
+          span 📅
           span Activity Matrix
       li
-        a.viz-item(href="#" data-viz="bubblemap")
-          span.text-lg 🫧
+        a.flex.items-center.gap-2(href="#" data-viz="bubblemap")
+          span 🫧
           span Bubble Map
       li
-        a.viz-item(href="#" data-viz="complexity")
-          span.text-lg 📈
+        a.flex.items-center.gap-2(href="#" data-viz="complexity")
+          span 📈
           span Code Complexity Trend
       li
-        a.viz-item(href="#" data-viz="pr-flow")
-          span.text-lg 🔀
+        a.flex.items-center.gap-2(href="#" data-viz="pr-flow")
+          span 🔀
           span PR/MR Review Flow
       li
-        a.viz-item(href="#" data-viz="bus-factor")
-          span.text-lg 🚌
+        a.flex.items-center.gap-2(href="#" data-viz="bus-factor")
+          span 🚌
           span Bus Factor
       li
-        a.viz-item(href="#" data-viz="stale-files")
-          span.text-lg 🕸️
+        a.flex.items-center.gap-2(href="#" data-viz="stale-files")
+          span 🕸️
           span Stale Files
       li
-        a.viz-item(href="#" data-viz="city-block")
-          span.text-lg 🏙️
+        a.flex.items-center.gap-2(href="#" data-viz="city-block")
+          span 🏙️
           span City Block
       li
-        a.viz-item(href="#" data-viz="genome")
-          span.text-lg 🧬
+        a.flex.items-center.gap-2(href="#" data-viz="genome")
+          span 🧬
           span Genome Sequence
 
-  //- Sidebar collapse script
-  script.
-    (function() {
-      var toggle = document.getElementById('sidebar-toggle');
-      var sidebar = document.getElementById('sidebar');
-      if (toggle && sidebar) {
-        toggle.addEventListener('click', function() {
-          sidebar.classList.toggle('w-64');
-          sidebar.classList.toggle('w-16');
-          var labels = sidebar.querySelectorAll('nav span:not(.text-lg)');
-          labels.forEach(function(el) { el.classList.toggle('hidden'); });
-          var header = sidebar.querySelector('.text-xl');
-          if (header) header.classList.toggle('hidden');
-        });
-      }
-    })();
+  //- Admin panel link at bottom
+  .p-4.border-t.border-base-300
+    a.btn.btn-ghost.btn-sm.w-full.justify-start.gap-2(href="/admin")
+      svg.w-4.h-4(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z")
+        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z")
+      span Admin Panel

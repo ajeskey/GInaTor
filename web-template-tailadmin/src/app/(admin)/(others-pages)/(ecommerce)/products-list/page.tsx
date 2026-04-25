@@ -3,9 +3,9 @@ import ProductListTable from "@/components/ecommerce/ProductListTable";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js E-commerce Products | TailAdmin - Next.js Dashboard Template",
+  title: "Next.js E-commerce Products | GInaTor - Next.js Dashboard Template",
   description:
-    "This is Next.js E-commerce Products TailAdmin Dashboard Template",
+    "This is Next.js E-commerce Products GInaTor Dashboard Template",
 };
 
 export default function ProductPage() {
