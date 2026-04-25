@@ -1,6 +1,7 @@
 "use client";
 
 import { useSidebar } from "@/context/SidebarContext";
+import { RepoProvider } from "@/context/RepoContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
@@ -38,6 +39,7 @@ export default function AdminLayout({
     : "xl:ml-[90px]";
 
   return (
+    <RepoProvider>
     <div className="min-h-screen xl:flex">
       {/* Sidebar and Backdrop */}
       <AppSidebar />
@@ -52,5 +54,6 @@ export default function AdminLayout({
         <div className={getRouteSpecificStyles()}>{children}</div>
       </div>
     </div>
+    </RepoProvider>
   );
 }

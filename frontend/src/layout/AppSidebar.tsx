@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+import { useRepo } from "../context/RepoContext";
 import {
   BoxCubeIcon,
   ChevronDownIcon,
@@ -70,6 +71,22 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { repos, selectedRepo, setSelectedRepo, loading: reposLoading } = useRepo();
+  const [repoDropdownOpen, setRepoDropdownOpen] = useState(false);
+  const repoDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close repo dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (repoDropdownRef.current && !repoDropdownRef.current.contains(e.target as Node)) {
+        setRepoDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedRepoName = repos.find((r) => r.repoId === selectedRepo)?.name || selectedRepo || "Select repo";
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -295,6 +312,60 @@ const AppSidebar: React.FC = () => {
           )}
         </Link>
       </div>
+      {/* Repo Picker */}
+      {(isExpanded || isHovered || isMobileOpen) && (
+        <div className="px-0 pb-4" ref={repoDropdownRef}>
+          <div className="relative">
+            <button
+              onClick={() => setRepoDropdownOpen(!repoDropdownOpen)}
+              className="flex w-full items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-left transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-white/[0.04] dark:hover:bg-white/[0.07]"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-500">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-gray-800 dark:text-white/90">
+                  {reposLoading ? "Loading..." : selectedRepoName}
+                </p>
+                <p className="text-[10px] text-gray-400">Repository</p>
+              </div>
+              <ChevronDownIcon
+                className={`h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200 ${repoDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {repoDropdownOpen && repos.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                {repos.map((r) => (
+                  <button
+                    key={r.repoId}
+                    onClick={() => {
+                      setSelectedRepo(r.repoId);
+                      setRepoDropdownOpen(false);
+                    }}
+                    className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.06] ${
+                      r.repoId === selectedRepo
+                        ? "bg-brand-500/5 text-brand-500 font-medium"
+                        : "text-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                    <span className="truncate">{r.name || r.repoId}</span>
+                    {r.repoId === selectedRepo && (
+                      <svg className="ml-auto h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">

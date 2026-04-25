@@ -28,13 +28,52 @@ export default function TimelineScrubber({ repoId, onRangeChange }: Props) {
       .then((r) => (r.ok ? r.json() : { items: [] }))
       .then((data) => {
         const items = data.items || [];
-        // Group by date
-        const dateMap = new Map<string, number>();
+        if (items.length === 0) { setLoading(false); return; }
+
+        // First pass: group by date to check how many unique days
+        const daySet = new Set<string>();
         for (const c of items) {
           const d = (c.commitDate || "").slice(0, 10);
-          if (d) dateMap.set(d, (dateMap.get(d) || 0) + 1);
+          if (d) daySet.add(d);
         }
-        const sorted = Array.from(dateMap.entries())
+
+        const bucketMap = new Map<string, number>();
+
+        if (daySet.size < 5) {
+          // Few unique days — use 4-hour buckets for better granularity
+          for (const c of items) {
+            const raw = c.commitDate || "";
+            const dt = new Date(raw);
+            if (isNaN(dt.getTime())) continue;
+            const day = raw.slice(0, 10);
+            const bucket = Math.floor(dt.getHours() / 4) * 4;
+            const key = `${day}T${String(bucket).padStart(2, "0")}:00`;
+            bucketMap.set(key, (bucketMap.get(key) || 0) + 1);
+          }
+
+          // Fill in empty 4-hour buckets between min and max so the chart isn't sparse
+          const allKeys = Array.from(bucketMap.keys()).sort();
+          if (allKeys.length >= 2) {
+            const start = new Date(allKeys[0]);
+            const end = new Date(allKeys[allKeys.length - 1]);
+            const cur = new Date(start);
+            while (cur <= end) {
+              const day = cur.toISOString().slice(0, 10);
+              const h = cur.getHours();
+              const key = `${day}T${String(h).padStart(2, "0")}:00`;
+              if (!bucketMap.has(key)) bucketMap.set(key, 0);
+              cur.setHours(cur.getHours() + 4);
+            }
+          }
+        } else {
+          // Many unique days — group by date as before
+          for (const c of items) {
+            const d = (c.commitDate || "").slice(0, 10);
+            if (d) bucketMap.set(d, (bucketMap.get(d) || 0) + 1);
+          }
+        }
+
+        const sorted = Array.from(bucketMap.entries())
           .map(([date, count]) => ({ date, count }))
           .sort((a, b) => a.date.localeCompare(b.date));
         setDates(sorted);
@@ -147,7 +186,7 @@ export default function TimelineScrubber({ repoId, onRangeChange }: Props) {
                     ? "rgba(70, 95, 255, 0.4)"
                     : "rgba(156, 163, 175, 0.15)",
                 }}
-                title={`${d.date}: ${d.count} commits`}
+                title={`${d.date}: ${d.count} commit${d.count !== 1 ? "s" : ""}`}
               />
             );
           })}
