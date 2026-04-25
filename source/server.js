@@ -6,6 +6,15 @@ const https = require('node:https');
 const http = require('node:http');
 const app = require('./app');
 
+// Prevent crashes from unhandled errors
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err.message);
+  console.error(err.stack);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
+
 const PORT = process.env.PORT || 3000;
 const useHttps = process.env.USE_HTTPS === '1';
 const certPath = path.join(__dirname, '..', 'certs', 'cert.pem');
