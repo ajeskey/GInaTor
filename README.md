@@ -39,27 +39,29 @@ DynamoDB (8 tables)
 ### Quick Start
 
 ```bash
-# 1. Install all dependencies
+# 1. Install dependencies (both backend and frontend)
 npm install
 cd web-template-tailadmin && npm install && cd ..
 
-# 2. Copy environment config and edit as needed
+# 2. Copy environment config
 cp .env.example .env
 
-# 3. Start Docker (DynamoDB Local)
+# 3. Start DynamoDB Local (requires Docker)
 docker compose up -d
 
-# 4. Initialize DynamoDB tables
+# 4. Create the database tables
 npm run db:init
 
-# 5. Start the Express API (Terminal 1)
+# 5. Start the API server (Terminal 1)
 npm run dev
 
-# 6. Start the Next.js frontend (Terminal 2)
+# 6. Start the frontend (Terminal 2)
 cd web-template-tailadmin && npm run dev
 ```
 
 Open **http://localhost:3001** in your browser. The first user to register becomes the admin.
+
+> **Note:** Two servers run simultaneously — the Express API on port 3000 and the Next.js frontend on port 3001. The frontend proxies all API calls to the backend automatically. You only need to open port 3001 in your browser.
 
 ### GitHub OAuth (optional)
 
