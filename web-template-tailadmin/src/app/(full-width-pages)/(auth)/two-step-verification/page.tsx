@@ -3,8 +3,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js Two Step Verification Page | GInaTor - Next.js Dashboard Template",
-  description: "This is Next.js SignUp Page GInaTor Dashboard Template",
+    "Next.js Two Step Verification Page | GInaTor - GInaTor",
+  description: "This is Next.js SignUp Page GInaTor GInaTor",
   // other metadata
 };
 

@@ -4,9 +4,9 @@ import TicketReplyContent from "@/components/support/TicketReplyContent";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Support Reply | GInaTor - Next.js Admin Dashboard Template",
+  title: "Next.js Support Reply | GInaTor - GInaTor",
   description:
-    "This is Next.js Support Reply for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Support Reply for GInaTor - GInaTor",
 };
 
 export default function SupportReply() {

@@ -9,9 +9,9 @@ import TrackingProgress from "@/components/logistics/TrackingProgress";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Logistics Dashboard | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Logistics Dashboard | GInaTor - GInaTor",
   description:
-    "This is Next.js  Logistics Dashboard for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js  Logistics Dashboard for GInaTor - GInaTor",
 };
 
 export default function LogisticsPage() {

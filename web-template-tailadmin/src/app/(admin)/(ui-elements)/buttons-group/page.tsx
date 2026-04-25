@@ -9,9 +9,9 @@ import SecondaryButtonGroupWithRightIcon from "@/components/ui/buttons-group/Sec
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Button Groups | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Button Groups | GInaTor - GInaTor",
   description:
-    "This is Next.js Button Groups page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Button Groups page for GInaTor - GInaTor",
 };
 
 export default function ButtonsGroupPage() {

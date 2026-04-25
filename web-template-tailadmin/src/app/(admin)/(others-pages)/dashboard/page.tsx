@@ -74,6 +74,7 @@ interface RepoConfig {
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ email: string } | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
   const [activeViz, setActiveViz] = useState<string>("stats");
   const [repos, setRepos] = useState<RepoConfig[]>([]);
   const [selectedRepo, setSelectedRepo] = useState<string>("");
@@ -90,18 +91,48 @@ export default function DashboardPage() {
     fetch("/auth/status", { credentials: "include" })
       .then((r) => {
         if (!r.ok) {
-          router.push("/signin");
-          return null;
+          // Auth failed — check if guest access is enabled
+          return fetch("/api/v1/guest-access")
+            .then((gr) => gr.json())
+            .then((gd) => {
+              if (gd.enabled) {
+                setIsGuest(true);
+                return null;
+              }
+              router.push("/signin");
+              return null;
+            })
+            .catch(() => {
+              router.push("/signin");
+              return null;
+            });
         }
         return r.json();
       })
       .then((data) => {
         if (data?.user) setUser(data.user);
       })
-      .catch(() => router.push("/signin"));
+      .catch(() => {
+        // Check guest access as fallback
+        fetch("/api/v1/guest-access")
+          .then((gr) => gr.json())
+          .then((gd) => {
+            if (gd.enabled) {
+              setIsGuest(true);
+            } else {
+              router.push("/signin");
+            }
+          })
+          .catch(() => router.push("/signin"));
+      });
   }, [router]);
 
   useEffect(() => {
+    // Guests can't access /admin, so skip repo fetching in guest mode
+    if (isGuest) {
+      setReposLoading(false);
+      return;
+    }
     fetch("/admin", { credentials: "include" })
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch repos");
@@ -118,7 +149,7 @@ export default function DashboardPage() {
       .catch(() => {
         setReposLoading(false);
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const ActiveComponent = VIZ_COMPONENTS[activeViz];
 
@@ -138,7 +169,11 @@ export default function DashboardPage() {
                 Welcome to GInaTor
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {user ? `Signed in as ${user.email}` : "Git repository visualization dashboard"}
+                {isGuest
+                  ? "Viewing as guest (read-only)"
+                  : user
+                    ? `Signed in as ${user.email}`
+                    : "Git repository visualization dashboard"}
               </p>
             </div>
           </div>

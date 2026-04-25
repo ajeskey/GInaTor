@@ -148,6 +148,17 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Guest access status endpoint (public — no auth required)
+app.get('/api/v1/guest-access', async (req, res) => {
+  try {
+    const { isGuestAccessEnabled } = require('./modules/middleware/authGuard');
+    const enabled = await isGuestAccessEnabled();
+    res.json({ enabled });
+  } catch {
+    res.json({ enabled: false });
+  }
+});
+
 // Page routes (disabled — frontend is now served by Next.js)
 // app.get('/login', (req, res) => { res.render('pages/login'); });
 // app.get('/register', (req, res) => { res.render('pages/register'); });

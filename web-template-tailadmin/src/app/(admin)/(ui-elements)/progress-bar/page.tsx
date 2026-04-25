@@ -7,9 +7,9 @@ import ProgressBarWithOutsideLabel from "@/components/progress-bar/ProgressBarWi
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Progress | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Progress | GInaTor - GInaTor",
   description:
-    "This is Next.js Progress page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Progress page for GInaTor - GInaTor",
   // other metadata
 };
 

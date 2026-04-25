@@ -3,9 +3,9 @@ import { Metadata } from "next";
 import TaskList from "@/components/task/task-list/TaskList";
 
 export const metadata: Metadata = {
-  title: "Next.js Task List | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Task List | GInaTor - GInaTor",
   description:
-    "This is Next.js Task List page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Task List page for GInaTor - GInaTor",
   // other metadata
 };
 

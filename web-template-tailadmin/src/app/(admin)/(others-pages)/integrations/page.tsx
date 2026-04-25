@@ -15,9 +15,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js Integrations Page | GInaTor - Next.js Admin Dashboard Template",
+    "Next.js Integrations Page | GInaTor - GInaTor",
   description:
-    "This is Next.js Integrations page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Integrations page for GInaTor - GInaTor",
 };
 
 const integrationData = [

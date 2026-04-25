@@ -4,9 +4,9 @@ import UserMetaCard from "@/components/user-profile/UserMetaCard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Profile | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Profile | GInaTor - GInaTor",
   description:
-    "This is Next.js Profile page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Profile page for GInaTor - GInaTor",
 };
 
 export default function Profile() {

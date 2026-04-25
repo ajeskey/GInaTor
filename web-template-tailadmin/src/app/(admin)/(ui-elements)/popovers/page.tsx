@@ -6,9 +6,9 @@ import PopoverWithLink from "@/components/ui/popover/PopoverWithLink";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Popovers | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Popovers | GInaTor - GInaTor",
   description:
-    "This is Next.js Popovers page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Popovers page for GInaTor - GInaTor",
 };
 
 export default function Popovers() {

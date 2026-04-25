@@ -9,9 +9,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js SaaS Dashboard | GInaTor - Next.js Admin Dashboard Template",
+    "Next.js SaaS Dashboard | GInaTor - GInaTor",
   description:
-    "This is Next.js SaaS Dashboard page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js SaaS Dashboard page for GInaTor - GInaTor",
 };
 
 export default function SaaS() {

@@ -1,5 +1,8 @@
 'use strict';
 
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, GetCommand } = require('@aws-sdk/lib-dynamodb');
+
 /**
  * Routes that do not require authentication.
  * @type {string[]}
@@ -14,7 +17,8 @@ const PUBLIC_ROUTES = [
   '/health',
   '/csrf-token',
   '/login',
-  '/register'
+  '/register',
+  '/api/v1/guest-access'
 ];
 
 /**
@@ -43,9 +47,68 @@ function isApiRequest(req) {
   );
 }
 
+// ─── Guest Access Cache ───
+
+/** @type {{ value: boolean, expiresAt: number } | null} */
+let _guestAccessCache = null;
+const GUEST_CACHE_TTL_MS = 60_000; // 60 seconds
+
+/** @type {DynamoDBDocumentClient | null} */
+let _guestDocClient = null;
+
+/**
+ * Get (or lazily create) a DynamoDB document client for guest-access lookups.
+ * @returns {DynamoDBDocumentClient}
+ */
+function _getGuestDocClient() {
+  if (!_guestDocClient) {
+    const clientConfig = { region: process.env.AWS_REGION || 'us-east-1' };
+    if (process.env.DYNAMODB_ENDPOINT) {
+      clientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+    }
+    _guestDocClient = DynamoDBDocumentClient.from(new DynamoDBClient(clientConfig));
+  }
+  return _guestDocClient;
+}
+
+/**
+ * Read the guestAccessEnabled flag from AdminSettings with in-memory caching.
+ * @returns {Promise<boolean>}
+ */
+async function isGuestAccessEnabled() {
+  const now = Date.now();
+  if (_guestAccessCache && now < _guestAccessCache.expiresAt) {
+    return _guestAccessCache.value;
+  }
+  try {
+    const docClient = _getGuestDocClient();
+    const result = await docClient.send(
+      new GetCommand({ TableName: 'AdminSettings', Key: { settingKey: 'guestAccessEnabled' } })
+    );
+    const enabled = result.Item?.settingValue === 'true';
+    _guestAccessCache = { value: enabled, expiresAt: now + GUEST_CACHE_TTL_MS };
+    return enabled;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if a route is allowed for guest (unauthenticated) access.
+ * Guest users may access read-only visualization API endpoints but never admin routes.
+ * @param {string} path
+ * @returns {boolean}
+ */
+function isGuestAllowedRoute(path) {
+  if (path.startsWith('/admin')) return false;
+  if (path.startsWith('/api/v1/')) return true;
+  return false;
+}
+
 /**
  * Middleware that checks if the user is authenticated.
  * - Skips public routes (auth endpoints, health, csrf-token, static assets)
+ * - If guest access is enabled, allows unauthenticated read-only API access
  * - Redirects unauthenticated page requests to /auth/login
  * - Returns 401 JSON for unauthenticated API requests
  */
@@ -55,10 +118,21 @@ function requireAuth(req, res, next) {
   }
 
   if (!req.isAuthenticated || !req.isAuthenticated()) {
-    if (isApiRequest(req)) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    return res.redirect('/auth/login');
+    // Check guest access before blocking
+    return isGuestAccessEnabled().then((guestEnabled) => {
+      if (guestEnabled && isGuestAllowedRoute(req.path)) {
+        return next();
+      }
+      if (isApiRequest(req)) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      return res.redirect('/auth/login');
+    }).catch(() => {
+      if (isApiRequest(req)) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      return res.redirect('/auth/login');
+    });
   }
 
   return next();
@@ -105,4 +179,4 @@ function requireAdmin(req, res, next) {
   return next();
 }
 
-module.exports = { requireAuth, requireApproved, requireAdmin, isPublicRoute, isApiRequest };
+module.exports = { requireAuth, requireApproved, requireAdmin, isPublicRoute, isApiRequest, isGuestAccessEnabled, isGuestAllowedRoute };

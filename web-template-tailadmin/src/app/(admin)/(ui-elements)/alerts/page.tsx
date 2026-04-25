@@ -4,9 +4,9 @@ import Alert from "@/components/ui/alert/Alert";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Alerts | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Alerts | GInaTor - GInaTor",
   description:
-    "This is Next.js Alerts page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Alerts page for GInaTor - GInaTor",
   // other metadata
 };
 

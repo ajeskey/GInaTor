@@ -4,9 +4,9 @@ import RibbonExample from "@/components/ui/ribbons";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Ribbons | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Ribbons | GInaTor - GInaTor",
   description:
-    "This is Next.js Spinners page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Spinners page for GInaTor - GInaTor",
 };
 
 export default function Ribbons() {

@@ -4,9 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Next.js Error 404 Page | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Error 404 Page | GInaTor - GInaTor",
   description:
-    "This is Next.js Error 404 page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Error 404 page for GInaTor - GInaTor",
 };
 
 export default function Error404() {

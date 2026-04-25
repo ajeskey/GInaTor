@@ -6,9 +6,9 @@ import WhiteAndDarkTooltip from "@/components/ui/tooltip/WhiteAndDarkTooltip";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Tooltips | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Tooltips | GInaTor - GInaTor",
   description:
-    "This is Next.js Tooltips page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Tooltips page for GInaTor - GInaTor",
 };
 
 export default function Tooltips() {

@@ -4,9 +4,9 @@ import EmailSidebar from "@/components/email/EmailSidebar/EmailSidebar";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Inbox | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Inbox | GInaTor - GInaTor",
   description:
-    "This is Next.js Inbox page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Inbox page for GInaTor - GInaTor",
 };
 
 export default function Inbox() {

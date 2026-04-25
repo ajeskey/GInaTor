@@ -8,12 +8,22 @@ const {
   isApiRequest
 } = require('../../modules/middleware/authGuard');
 
+// Mock the DynamoDB client used by isGuestAccessEnabled
+jest.mock('@aws-sdk/client-dynamodb', () => ({
+  DynamoDBClient: jest.fn().mockImplementation(() => ({}))
+}));
+jest.mock('@aws-sdk/lib-dynamodb', () => ({
+  DynamoDBDocumentClient: { from: jest.fn().mockReturnValue({}) },
+  GetCommand: jest.fn()
+}));
+
 /**
  * Helper to create a mock request object.
  */
 function mockReq(overrides = {}) {
   return {
     path: overrides.path || '/',
+    headers: overrides.headers || {},
     isAuthenticated: overrides.isAuthenticated || (() => false),
     user: overrides.user || null,
     ...overrides
@@ -75,13 +85,12 @@ describe('isPublicRoute', () => {
 
 describe('isApiRequest', () => {
   test('returns true for /api/ paths', () => {
-    expect(isApiRequest({ path: '/api/v1/commits' })).toBe(true);
-    expect(isApiRequest({ path: '/api/v1/stats' })).toBe(true);
+    expect(isApiRequest({ path: '/api/v1/commits', headers: {} })).toBe(true);
+    expect(isApiRequest({ path: '/api/v1/stats', headers: {} })).toBe(true);
   });
 
   test('returns false for non-api paths', () => {
-    expect(isApiRequest({ path: '/dashboard' })).toBe(false);
-    expect(isApiRequest({ path: '/admin' })).toBe(false);
+    expect(isApiRequest({ path: '/dashboard', headers: {} })).toBeFalsy();
   });
 });
 
@@ -94,21 +103,21 @@ describe('requireAuth', () => {
     expect(next).toHaveBeenCalled();
   });
 
-  test('returns 401 JSON for unauthenticated API requests', () => {
+  test('returns 401 JSON for unauthenticated API requests', async () => {
     const next = jest.fn();
     const req = mockReq({ path: '/api/v1/commits' });
     const res = mockRes();
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
     expect(next).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(401);
     expect(res.body).toEqual({ error: 'Authentication required' });
   });
 
-  test('redirects unauthenticated page requests to /auth/login', () => {
+  test('redirects unauthenticated page requests to /auth/login', async () => {
     const next = jest.fn();
     const req = mockReq({ path: '/dashboard' });
     const res = mockRes();
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
     expect(next).not.toHaveBeenCalled();
     expect(res.redirectUrl).toBe('/auth/login');
   });

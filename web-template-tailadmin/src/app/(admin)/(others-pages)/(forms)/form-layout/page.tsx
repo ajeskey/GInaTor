@@ -6,9 +6,9 @@ import ExampleFormWithIcon from "@/components/form/example-form/ExampleFormWithI
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Form Layout | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Form Layout | GInaTor - GInaTor",
   description:
-    "This is Next.js Form Layout page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Form Layout page for GInaTor - GInaTor",
 };
 
 export default function FormLayout() {

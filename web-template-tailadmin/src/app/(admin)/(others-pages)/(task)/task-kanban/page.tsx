@@ -5,7 +5,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Task Kanban Dashboard | GInaTor - Tailwind CSS Admin Dashboard Template",
+    "Task Kanban Dashboard | GInaTor - GInaTor",
   description: "Tailwind Admin Dashboard",
 };
 

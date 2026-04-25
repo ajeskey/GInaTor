@@ -12,9 +12,9 @@ import ToggleSwitch from "@/components/form/form-elements/ToggleSwitch";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Form Elements | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Form Elements | GInaTor - GInaTor",
   description:
-    "This is Next.js Form Elements page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Form Elements page for GInaTor - GInaTor",
 };
 
 export default function FormElements() {

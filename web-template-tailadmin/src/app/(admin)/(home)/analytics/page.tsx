@@ -10,9 +10,9 @@ import DemographicCard from "@/components/ecommerce/DemographicCard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Analytics Dashboard | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Analytics Dashboard | GInaTor - GInaTor",
   description:
-    "This is Next.js Analytics Dashboard page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Analytics Dashboard page for GInaTor - GInaTor",
 };
 
 export default function Analytics() {

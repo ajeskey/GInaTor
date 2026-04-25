@@ -5,9 +5,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js AI Code Generator | GInaTor - Next.js Admin Dashboard Template",
+    "Next.js AI Code Generator | GInaTor - GInaTor",
   description:
-    "This is Next.js AI Code Generator page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js AI Code Generator page for GInaTor - GInaTor",
 };
 
 export default function CodeGeneratorPage() {

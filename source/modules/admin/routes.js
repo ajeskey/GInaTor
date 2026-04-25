@@ -24,6 +24,38 @@ function createAdminRouter(adminService) {
     }
   });
 
+  // ─── Guest Access Config ───
+
+  /**
+   * GET /admin/guest-access
+   * Return current guest access setting.
+   */
+  router.get('/guest-access', async (req, res) => {
+    try {
+      const value = await adminService._getSetting('guestAccessEnabled');
+      res.json({ enabled: value === 'true' });
+    } catch {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  /**
+   * POST /admin/guest-access
+   * Enable or disable guest access.
+   */
+  router.post('/guest-access', async (req, res) => {
+    try {
+      const { enabled } = req.body;
+      if (typeof enabled !== 'boolean') {
+        return res.status(400).json({ error: 'enabled must be a boolean' });
+      }
+      await adminService._putSetting('guestAccessEnabled', String(enabled));
+      res.json({ enabled });
+    } catch {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // ─── User Management ───
 
   /**

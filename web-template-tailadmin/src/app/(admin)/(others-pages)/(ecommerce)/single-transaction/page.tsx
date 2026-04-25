@@ -7,9 +7,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce Single Transaction | GInaTor - Next.js Dashboard Template",
+    "Next.js E-commerce Single Transaction | GInaTor - GInaTor",
   description:
-    "This is Next.js E-commerce Single Transaction GInaTor Dashboard Template",
+    "This is Next.js E-commerce Single Transaction GInaTor GInaTor",
 };
 
 export default function SingleTransactionPage() {

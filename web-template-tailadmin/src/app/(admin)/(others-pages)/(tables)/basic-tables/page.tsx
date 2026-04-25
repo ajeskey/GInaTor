@@ -9,9 +9,9 @@ import BasicTableTwo from "@/components/tables/BasicTables/BasicTableTwo";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Basic Data Table | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Basic Data Table | GInaTor - GInaTor",
   description:
-    "This is Next.js Basic Data Table page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Basic Data Table page for GInaTor - GInaTor",
 };
 
 export default function BasicTables() {

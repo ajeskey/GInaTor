@@ -42,6 +42,10 @@ export default function AdminPanelPage() {
   const [githubUsername, setGithubUsername] = useState("");
   const [githubLoading, setGithubLoading] = useState(true);
 
+  // Guest access
+  const [guestAccessEnabled, setGuestAccessEnabled] = useState(false);
+  const [guestAccessLoading, setGuestAccessLoading] = useState(true);
+
   // AI config
   const [aiProvider, setAiProvider] = useState("");
   const [aiApiKey, setAiApiKey] = useState("");
@@ -65,6 +69,7 @@ export default function AdminPanelPage() {
   useEffect(() => {
     loadAdminData();
     checkGitHubStatus();
+    loadGuestAccess();
   }, []);
 
   useEffect(() => {
@@ -92,6 +97,45 @@ export default function AdminPanelPage() {
       // Ignore errors
     } finally {
       setGithubLoading(false);
+    }
+  }
+
+  async function loadGuestAccess() {
+    try {
+      const res = await fetch("/admin/guest-access", {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setGuestAccessEnabled(data.enabled);
+      }
+    } catch {
+      // Ignore errors
+    } finally {
+      setGuestAccessLoading(false);
+    }
+  }
+
+  async function toggleGuestAccess() {
+    const newValue = !guestAccessEnabled;
+    setGuestAccessEnabled(newValue);
+    try {
+      const res = await fetch("/admin/guest-access", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: newValue }),
+      });
+      if (res.ok) {
+        showMessage(newValue ? "Guest access enabled" : "Guest access disabled");
+      } else {
+        setGuestAccessEnabled(!newValue);
+        showMessage("Failed to update guest access");
+      }
+    } catch {
+      setGuestAccessEnabled(!newValue);
+      showMessage("Failed to update guest access");
     }
   }
 
@@ -339,6 +383,37 @@ export default function AdminPanelPage() {
             </a>
           </div>
         )}
+      </div>
+
+      {/* Guest Access */}
+      <div className={cardClass}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className={headingClass}>Guest Access</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Allow unauthenticated users to view visualizations without signing in. Admin features remain protected.
+            </p>
+          </div>
+          {guestAccessLoading ? (
+            <span className="text-sm text-gray-400">Loading…</span>
+          ) : (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={guestAccessEnabled}
+              onClick={toggleGuestAccess}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 ${
+                guestAccessEnabled ? "bg-brand-500" : "bg-gray-200 dark:bg-gray-700"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  guestAccessEnabled ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* User Management */}

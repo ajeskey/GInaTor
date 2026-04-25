@@ -2,8 +2,8 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Blank Page | GInaTor - Next.js Dashboard Template",
-  description: "This is Next.js Blank Page GInaTor Dashboard Template",
+  title: "Next.js Blank Page | GInaTor - GInaTor",
+  description: "This is Next.js Blank Page GInaTor GInaTor",
 };
 
 export default function BlankPage() {

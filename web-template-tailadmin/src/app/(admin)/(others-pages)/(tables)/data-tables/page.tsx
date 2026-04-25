@@ -7,9 +7,9 @@ import DataTableThree from "@/components/tables/DataTables/TableThree/DataTableT
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Advanced Data Table | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Advanced Data Table | GInaTor - GInaTor",
   description:
-    "This is Next.js Advanced Data Table page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Advanced Data Table page for GInaTor - GInaTor",
 };
 
 export default function DataTables() {

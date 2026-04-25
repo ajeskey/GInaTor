@@ -4,9 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Next.js Error 503 Page | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Error 503 Page | GInaTor - GInaTor",
   description:
-    "This is Next.js Error 503 page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Error 503 page for GInaTor - GInaTor",
 };
 
 export default function page() {

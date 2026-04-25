@@ -7,9 +7,9 @@ import VerticalTabs from "@/components/ui/tabs/VerticalTabs";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Tabs | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Tabs | GInaTor - GInaTor",
   description:
-    "This is Next.js Tabs page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Tabs page for GInaTor - GInaTor",
   // other metadata
 };
 

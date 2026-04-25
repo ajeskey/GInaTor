@@ -5,9 +5,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce  Invoices | GInaTor - Next.js Dashboard Template",
+    "Next.js E-commerce  Invoices | GInaTor - GInaTor",
   description:
-    "This is Next.js E-commerce  Invoices GInaTor Dashboard Template",
+    "This is Next.js E-commerce  Invoices GInaTor GInaTor",
 };
 
 export default function InvoicesPage() {

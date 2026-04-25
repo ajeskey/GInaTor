@@ -4,9 +4,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce Add Product | GInaTor - Next.js Dashboard Template",
+    "Next.js E-commerce Add Product | GInaTor - GInaTor",
   description:
-    "This is Next.js E-commerce  Add Product  GInaTor Dashboard Template",
+    "This is Next.js E-commerce  Add Product  GInaTor GInaTor",
 };
 
 export default function AddProductPage() {

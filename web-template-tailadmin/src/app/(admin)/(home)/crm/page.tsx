@@ -7,9 +7,9 @@ import UpcomingSchedule from "@/components/crm/UpcomingSchedule";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js CRM Dashboard | GInaTor - Next.js Admin Dashboard Template",
+  title: "Next.js CRM Dashboard | GInaTor - GInaTor",
   description:
-    "This is Next.js CRM Dashboard page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js CRM Dashboard page for GInaTor - GInaTor",
 };
 
 export default function Crm() {

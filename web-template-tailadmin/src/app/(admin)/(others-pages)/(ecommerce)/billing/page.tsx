@@ -6,9 +6,9 @@ import PaymentMethod from "@/components/ecommerce/billing/PaymentMethod";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js E-commerce  Billing | GInaTor - Next.js Dashboard Template",
+  title: "Next.js E-commerce  Billing | GInaTor - GInaTor",
   description:
-    "This is Next.js E-commerce  Billing GInaTor Dashboard Template",
+    "This is Next.js E-commerce  Billing GInaTor GInaTor",
 };
 
 export default function BillingPages() {

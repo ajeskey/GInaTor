@@ -3,8 +3,8 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js API Keys Page | GInaTor - Next.js Dashboard Template",
-  description: "This is Next.js API Keys Page GInaTor Dashboard Template",
+  title: "Next.js API Keys Page | GInaTor - GInaTor",
+  description: "This is Next.js API Keys Page GInaTor GInaTor",
 };
 
 export default function ApiKeysPage() {

@@ -5,9 +5,9 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Next.js AI Image Generator | GInaTor - Next.js Admin Dashboard Template",
+    "Next.js AI Image Generator | GInaTor - GInaTor",
   description:
-    "This is  Next.js AI Image Generator page for GInaTor - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is  Next.js AI Image Generator page for GInaTor - GInaTor",
 };
 
 export default function page() {

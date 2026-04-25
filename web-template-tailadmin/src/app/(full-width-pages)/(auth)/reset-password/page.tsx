@@ -3,9 +3,9 @@ import { Metadata } from "next";
 
 
 export const metadata: Metadata = {
-  title: "Next.js Reset Password | GInaTor - Next.js Dashboard Template",
+  title: "Next.js Reset Password | GInaTor - GInaTor",
   description:
-    "This is Next.js Password Reset page for GInaTor Dashboard Template",
+    "This is Next.js Password Reset page for GInaTor GInaTor",
   // other metadata
 };
 
