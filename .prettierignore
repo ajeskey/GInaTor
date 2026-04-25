@@ -1,5 +1,5 @@
 node_modules/
-web-template-tailadmin/
+frontend/
 terraform/.terraform/
 coverage/
 package-lock.json

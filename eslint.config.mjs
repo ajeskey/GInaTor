@@ -58,6 +58,6 @@ export default [
     }
   },
   {
-    ignores: ['node_modules/**', 'web-template-tailadmin/**', 'terraform/**']
+    ignores: ['node_modules/**', 'frontend/**', 'terraform/**']
   }
 ];
